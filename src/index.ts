@@ -759,7 +759,6 @@ export function parse(data: string, options?: {
 	let currentParent = root;
 	const stack = [root];
 	let lastTextPos = -1;
-
 	options = options || {} as any;
 	let match: RegExpExecArray;
 	while (match = kMarkupPattern.exec(data)) {
@@ -838,23 +837,19 @@ export function parse(data: string, options?: {
 			}
 		}
 	}
-
 	var response: any = {
 		valid: !!(stack.length === 1),
 		html: !!(stack.length === 1)? root: new TextNode(data)
 	}
-
 	if(options.fixIssues) {
 		if(stack.length === 1) {
 			return options.validate? response: root;
 		}
-
 		while(stack.length > 1) {
 			// Handle each error elements.
 			var last: any, oneBefore: any;
 			last = stack.pop();
 			oneBefore = arr_back(stack);
-
 			if(last.parentNode && last.parentNode.parentNode) {
 				if(last.parentNode === oneBefore && last.tagName === oneBefore.tagName) {
 					// Pair error case <h3> <h3> handle : Fixes to <h3> </h3>
@@ -875,7 +870,6 @@ export function parse(data: string, options?: {
 			}
 
 		}
-
 		response['html'] = root;
 	}
 

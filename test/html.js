@@ -58,7 +58,6 @@ describe('HTML Parser', function () {
 	});
 
 	var parseHTML = HTMLParser.parse;
-	var parseWithValidation = HTMLParser.parseWithValidation;
 
 	describe('parse()', function () {
 		it('should parse "<p id=\\"id\\"><a class=\'cls\'>Hello</a><ul><li><li></ul><span></span></p>" and return root element', function () {
@@ -164,6 +163,7 @@ describe('HTML Parser', function () {
 		it('should parse "<div><h3>content<h3> <span> other <span></div>" (fix h3, span closing tag) very fast', function() {
 			var root = parseHTML(fs.readFileSync(__dirname + '/html/incomplete-script').toString(), {
 				fixIssues: true,
+				validate: true
 			});
 		});
 	});
@@ -172,44 +172,54 @@ describe('HTML Parser', function () {
 		// parse with validation tests
 
 		it('should return Object with valid: true.  does not count <p><p></p> as error. instead fixes it to <p></p><p></p>', function() {
-			var result = parseWithValidation('<p><p></p>');
+			var result = parseHTML('<p><p></p>', {
+				validate: true
+			});
 			result.valid.should.eql(true);
 		})
 
 		it('should return Object with valid: true.  does not count <p><p/></p> as error. instead fixes it to <p><p></p></p>', function() {
-			var result = parseWithValidation('<p><p/></p>');
+			var result = parseHTML('<p><p/></p>', {
+				validate: true
+			});
 			result.valid.should.eql(true);
 		})
 
 		it('should return Object with valid: false.  does not count <p><h3></p> as error', function() {
-			var result = parseWithValidation('<p><h3></p>');
+			var result = parseHTML('<p><h3></p>', {
+				validate: true
+			});
 			result.valid.should.eql(false);
 		})
 
 		it('hillcrestpartyrentals.html  should return Object with valid: false.  not closing <p> tag on line 476', function() {
-			var result = parseWithValidation(fs.readFileSync(__dirname + '/html/hillcrestpartyrentals.html').toString(), {
+			var result = parseHTML(fs.readFileSync(__dirname + '/html/hillcrestpartyrentals.html').toString(), {
 				fixIssues: false,
+				validate: true
 			});
 			result.valid.should.eql(false);
 		})
 
 		it('google.html  should return Object with valid: true', function() {
-			var result = parseWithValidation(fs.readFileSync(__dirname + '/html/google.html').toString(), {
+			var result = parseHTML(fs.readFileSync(__dirname + '/html/google.html').toString(), {
 				fixIssues: false,
+				validate: true
 			});
 			result.valid.should.eql(true);
 		})
 
 		it('gmail.html  should return Object with valid: true', function() {
-			var result = parseWithValidation(fs.readFileSync(__dirname + '/html/gmail.html').toString(), {
+			var result = parseHTML(fs.readFileSync(__dirname + '/html/gmail.html').toString(), {
 				fixIssues: false,
+				validate: true
 			});
 			result.valid.should.eql(true);
 		})
 
 		it('ffmpeg.html  should return Object with valid: false (extra opening <div>', function() {
-			var result = parseWithValidation(fs.readFileSync(__dirname + '/html/ffmpeg.html').toString(), {
+			var result = parseHTML(fs.readFileSync(__dirname + '/html/ffmpeg.html').toString(), {
 				fixIssues: false,
+				validate: true
 			});
 			result.valid.should.eql(false);
 		})
@@ -217,31 +227,35 @@ describe('HTML Parser', function () {
 		// fix issue speed test
 
 		it('should fix "<div><h3><h3><div>" to "<div><h3></h3></div>" with fixIssues: true', function() {
-			var result = parseWithValidation('<div><h3><h3><div>', {
+			var result = parseHTML('<div><h3><h3><div>', {
 				fixIssues: true,
+				validate: true
 			});
 			result.valid.should.eql(false);
 			result.html.toString().should.eql('<div><h3></h3></div>');
 		})
 
 		it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><span></span></div>" with fixIssues: true', function() {
-			var result = parseWithValidation('<div><h3><h3><span><span><div>', {
+			var result = parseHTML('<div><h3><h3><span><span><div>', {
 				fixIssues: true,
+				validate: true
 			});
 			result.valid.should.eql(false);
 			result.html.toString().should.eql('<div><h3></h3><span></span></div>');
 		})
 
 		it('gmail.html  should return Object with valid: true', function() {
-			var result = parseWithValidation(fs.readFileSync(__dirname + '/html/gmail.html').toString().replace(/<\//gi, '<'), {
+			var result = parseHTML(fs.readFileSync(__dirname + '/html/gmail.html').toString().replace(/<\//gi, '<'), {
 				fixIssues: true,
+				validate: true
 			});
 			result.valid.should.eql(false);
 		})
 
 		it('gmail.html  should return Object with valid: true', function() {
-			var result = parseWithValidation(fs.readFileSync(__dirname + '/html/nice.html').toString().replace(/<\//gi, '<'), {
+			var result = parseHTML(fs.readFileSync(__dirname + '/html/nice.html').toString().replace(/<\//gi, '<'), {
 				fixIssues: true,
+				validate: true
 			});
 			result.valid.should.eql(false);
 		})

@@ -750,18 +750,6 @@ const kBlockTextElements = {
 	pre: true
 };
 
-export function parseWithValidation(data: string, options?: {
-	lowerCaseTagName: boolean;
-	fixIssues: boolean;
-}) {
-	var response = parse(data, Object.assign({}, options, {
-		validate: true
-	}));
-
-	// console.log("parseWithValidation Result  ", referer);
-	return response;
-}
-
 /**
  * Parses HTML and returns a root element
  * Parse a chuck of HTML source.

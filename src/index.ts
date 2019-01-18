@@ -108,14 +108,17 @@ export class HTMLElement extends Node {
 	 * @param {string} name				tagName
 	 * @param {KeyAttributes} keyAttrs	id and class attribute
 	 * @param {string} [rawAttrs]	attributes in string
+	 * @param {HTMLElement} parentNode  parentNode
 	 *
 	 * @memberof HTMLElement
 	 */
-	constructor(name: string, keyAttrs: KeyAttributes, rawAttrs?: string) {
+	parentNode: any;
+	childNodes: any[];
+	constructor(name: string, keyAttrs: KeyAttributes, rawAttrs?: string, parentNode?: any) {
 		super();
 		this.tagName = name;
 		this.rawAttrs = rawAttrs || '';
-		// this.parentNode = null;
+		this.parentNode = parentNode || null;
 		this.childNodes = [];
 		if (keyAttrs.id) {
 			this.id = keyAttrs.id;
@@ -124,6 +127,33 @@ export class HTMLElement extends Node {
 			this.classNames = keyAttrs.class.split(/\s+/);
 		}
 	}
+
+	/**
+	 * Remove Child element from childNodes array
+	 * @param {HTMLElement} node     node to remove
+	 */
+	removeChild(node: any) {
+		this.childNodes = this.childNodes.filter((child: any) => {
+			return (child !== node);
+		})
+	}
+
+	/**
+	 * Exchanges given child with new child
+	 * @param {HTMLElement} oldNode     node to exchange
+	 * @param {HTMLElement} newNode     new node
+	 */
+	exchangeChild(oldNode: any, newNode: any) {
+		var idx = -1; 
+		for(var i = 0; i < this.childNodes.length; i ++) {
+			if(this.childNodes[i] === oldNode) {
+				idx = i;
+				break;
+			}
+		}
+		this.childNodes[idx] = newNode;
+	}
+
 	/**
 	 * Get escpaed (as-it) text value of current node and its children.
 	 * @return {string} text content
@@ -681,13 +711,22 @@ const kSelfClosingElements = {
 	input: true,
 	area: true,
 	br: true,
-	hr: true
-};
+	hr: true,
+	col: true,
+	base: true
+	};
 const kElementsClosedByOpening = {
 	li: { li: true },
 	p: { p: true, div: true },
+	b: { div: true },
 	td: { td: true, th: true },
-	th: { td: true, th: true }
+	th: { td: true, th: true },
+	h1: { h1: true }, 
+	h2: { h2: true }, 
+	h3: { h3: true }, 
+	h4: { h4: true }, 
+	h5: { h5: true }, 
+	h6: { h6: true }
 };
 const kElementsClosedByClosing = {
 	li: { ul: true, ol: true },
@@ -713,12 +752,13 @@ const kBlockTextElements = {
  */
 export function parse(data: string, options?: {
 	lowerCaseTagName: boolean;
+	fixIssues: boolean;
+	validate: boolean;
 }) {
 	const root = new HTMLElement(null, {});
 	let currentParent = root;
 	const stack = [root];
 	let lastTextPos = -1;
-
 	options = options || {} as any;
 	let match: RegExpExecArray;
 	while (match = kMarkupPattern.exec(data)) {
@@ -741,7 +781,7 @@ export function parse(data: string, options?: {
 			var attrs = {};
 			for (var attMatch; attMatch = kAttributePattern.exec(match[3]);)
 				attrs[attMatch[2]] = attMatch[4] || attMatch[5] || attMatch[6];
-			// console.log(attrs);
+
 			if (!match[4] && kElementsClosedByOpening[currentParent.tagName]) {
 				if (kElementsClosedByOpening[currentParent.tagName][match[2]]) {
 					stack.pop();
@@ -749,7 +789,7 @@ export function parse(data: string, options?: {
 				}
 			}
 			currentParent = currentParent.appendChild(
-				new HTMLElement(match[2], attrs, match[3])) as HTMLElement;
+				new HTMLElement(match[2], attrs, match[3], currentParent)) as HTMLElement;
 			stack.push(currentParent);
 			if (kBlockTextElements[match[2]]) {
 				// a little test to find next </script> or </style> ...
@@ -797,5 +837,41 @@ export function parse(data: string, options?: {
 			}
 		}
 	}
-	return root;
+	var response: any = {
+		valid: !!(stack.length === 1),
+		html: !!(stack.length === 1)? root: new TextNode(data)
+	}
+	if(options.fixIssues) {
+		if(stack.length === 1) {
+			return options.validate? response: root;
+		}
+		while(stack.length > 1) {
+			// Handle each error elements.
+			var last: any, oneBefore: any;
+			last = stack.pop();
+			oneBefore = arr_back(stack);
+			if(last.parentNode && last.parentNode.parentNode) {
+				if(last.parentNode === oneBefore && last.tagName === oneBefore.tagName) {
+					// Pair error case <h3> <h3> handle : Fixes to <h3> </h3>
+					oneBefore.removeChild(last);
+					last.childNodes.map((child: any) => {
+						oneBefore.parentNode.appendChild(child);
+					});
+					stack.pop();
+				} else {
+					// Single error  <div> <h3> </div> handle: Just removes <h3>
+					oneBefore.removeChild(last);
+					last.childNodes.map((child: any) => {
+						oneBefore.appendChild(child);
+					});
+				}
+			} else {
+				// If it's final element just skip. 
+			}
+
+		}
+		response['html'] = root;
+	}
+
+	return options.validate? response: root;
 }

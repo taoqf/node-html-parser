@@ -144,9 +144,6 @@ export class HTMLElement extends Node {
 	 * @param {HTMLElement} newNode     new node
 	 */
 	exchangeChild(oldNode: any, newNode: any) {
-		// console.log("Exchange Child ");
-		// console.log(oldNode.toString(), " --- ", newNode.toString());
-		// console.log(this.childNodes.map(c => c.toString()));
 		var idx = -1; 
 		for(var i = 0; i < this.childNodes.length; i ++) {
 			if(this.childNodes[i] === oldNode) {
@@ -155,9 +152,6 @@ export class HTMLElement extends Node {
 			}
 		}
 		this.childNodes[idx] = newNode;
-		// console.log("After  ", idx);
-		// console.log(this.childNodes.map(c => c.toString()));
-		// console.log(this.toString());
 	}
 
 	/**
@@ -769,8 +763,6 @@ export function parse(data: string, options?: {
 	options = options || {} as any;
 	let match: RegExpExecArray;
 	while (match = kMarkupPattern.exec(data)) {
-		// console.log(stack.map(s => s.toString()));
-		// console.log(match);
 		if (lastTextPos > -1) {
 			if (lastTextPos + match[0].length < kMarkupPattern.lastIndex) {
 				// if has content
@@ -790,7 +782,7 @@ export function parse(data: string, options?: {
 			var attrs = {};
 			for (var attMatch; attMatch = kAttributePattern.exec(match[3]);)
 				attrs[attMatch[2]] = attMatch[4] || attMatch[5] || attMatch[6];
-			// console.log(attrs);
+
 			if (!match[4] && kElementsClosedByOpening[currentParent.tagName]) {
 				if (kElementsClosedByOpening[currentParent.tagName][match[2]]) {
 					stack.pop();
@@ -846,11 +838,6 @@ export function parse(data: string, options?: {
 			}
 		}
 	}
-	// console.log(stack.map(s => s.toString()));
-
-	// var isValid = (stack.length !== 1);
-
-	// var before = (+ new Date());
 
 	var response: any = {
 		valid: !!(stack.length === 1),
@@ -862,9 +849,6 @@ export function parse(data: string, options?: {
 			return options.validate? response: root;
 		}
 
-		console.time('fixIssues');
-		console.log("Error depth   ", stack.length);
-
 		while(stack.length > 1) {
 			// Handle each error elements.
 			var last: any, oneBefore: any;
@@ -874,7 +858,6 @@ export function parse(data: string, options?: {
 			if(last.parentNode && last.parentNode.parentNode) {
 				if(last.parentNode === oneBefore && last.tagName === oneBefore.tagName) {
 					// Pair error case <h3> <h3> handle : Fixes to <h3> </h3>
-					// console.log("pair case");
 					oneBefore.removeChild(last);
 					last.childNodes.map((child: any) => {
 						oneBefore.parentNode.appendChild(child);
@@ -882,7 +865,6 @@ export function parse(data: string, options?: {
 					stack.pop();
 				} else {
 					// Single error  <div> <h3> </div> handle: Just removes <h3>
-					// console.log("single case");
 					oneBefore.removeChild(last);
 					last.childNodes.map((child: any) => {
 						oneBefore.appendChild(child);
@@ -890,14 +872,11 @@ export function parse(data: string, options?: {
 				}
 			} else {
 				// If it's final element just skip. 
-				// console.log(" No Parent. skipping ... ");
 			}
 
-			// console.log(stack.map(s => s.toString()));
 		}
 
 		response['html'] = root;
-		console.timeEnd('fixIssues')
 	}
 
 	return options.validate? response: root;

@@ -11,17 +11,11 @@ describe('HTML Parser', function () {
 	var TextNode = HTMLParser.TextNode;
 
 	describe('Matcher', function () {
-		return; 
 		it('should match corrent elements', function () {
 			var matcher = new Matcher('#id .a a.b *.a.b .a.b * a');
 			var MatchesNothingButStarEl = new HTMLElement('_', {});
 			var withIdEl = new HTMLElement('p', { id: 'id' });
 			var withClassNameEl = new HTMLElement('a', { class: 'a b' });
-
-			// console.log(util.inspect([withIdEl, withClassNameEl], {
-			//     showHidden: true,
-			//     depth: null
-			//   }));
 
 			matcher.advance(MatchesNothingButStarEl).should.not.be.ok; // #id
 			matcher.advance(withClassNameEl).should.not.be.ok; // #id

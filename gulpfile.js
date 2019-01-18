@@ -13,6 +13,6 @@ gulp.task('compile-ts-umd', shell.task('tsc -t es5 -m umd --outDir ./dist/umd/')
 
 gulp.task('watch-ts', shell.task('tsc -w -t es5 -m umd --outDir ./dist/umd/'));
 
-gulp.task('default', sequence('clean', 'compile-ts', 'compile-ts-umd'));
+gulp.task('default', gulp.series('clean', 'compile-ts', 'compile-ts-umd'));
 
-gulp.task('dev', ['watch-ts']);
+gulp.task('dev', gulp.series('watch-ts'));

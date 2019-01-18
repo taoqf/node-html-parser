@@ -1,7 +1,5 @@
 import { decode } from 'he';
 
-var referer: any;
-
 export enum NodeType {
 	ELEMENT_NODE = 1,
 	TEXT_NODE = 3
@@ -756,12 +754,12 @@ export function parseWithValidation(data: string, options?: {
 	lowerCaseTagName: boolean;
 	fixIssues: boolean;
 }) {
-	referer = {};
-
-	parse(data, options);
+	var response = parse(data, Object.assign({}, options, {
+		validate: true
+	}));
 
 	// console.log("parseWithValidation Result  ", referer);
-	return referer;
+	return response;
 }
 
 /**
@@ -773,6 +771,7 @@ export function parseWithValidation(data: string, options?: {
 export function parse(data: string, options?: {
 	lowerCaseTagName: boolean;
 	fixIssues: boolean;
+	validate: boolean;
 }) {
 	const root = new HTMLElement(null, {});
 	let currentParent = root;
@@ -865,15 +864,15 @@ export function parse(data: string, options?: {
 
 	// var before = (+ new Date());
 
-	referer = {
+	var response: any = {
 		valid: !!(stack.length === 1),
 		html: !!(stack.length === 1)? root: new TextNode(data)
 	}
 
-
 	if(options.fixIssues) {
-		if(stack.length === 1)
-			return root;
+		if(stack.length === 1) {
+			return options.validate? response: root;
+		}
 
 		console.time('fixIssues');
 		console.log("Error depth   ", stack.length);
@@ -909,9 +908,9 @@ export function parse(data: string, options?: {
 			// console.log(stack.map(s => s.toString()));
 		}
 
-		referer['html'] = root;
+		response['html'] = root;
 		console.timeEnd('fixIssues')
 	}
 
-	return root;
+	return options.validate? response: root;
 }

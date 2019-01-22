@@ -459,6 +459,10 @@ export class HTMLElement extends Node {
 		for (const key in attrs) {
 			this._attrs[key] = decode(attrs[key]);
 		}
+		if(this.id && !this._attrs['id'])
+			this._attrs['id'] = this.id;
+		if(this.classNames.length > 0 && !this._attrs['class'])
+			this._attrs['class'] = this.classNames.join(' ');
 		return this._attrs;
 	}
 
@@ -482,7 +486,7 @@ export class HTMLElement extends Node {
 	}
 }
 
-interface MatherFunction { func: any; tagName: string; classes: string | string[]; attr_key: any; value: any; }
+interface MatherFunction { func: any; tagName: string; classes: string | string[]; attr_key: any; value: any; pos: any}
 
 /**
  * Cache to store generated match functions
@@ -491,11 +495,35 @@ interface MatherFunction { func: any; tagName: string; classes: string | string[
 let pMatchFunctionCache = {} as { [name: string]: MatherFunction };
 
 /**
+ * Check position of element
+ */
+let elPositionChecker = function(el: any, pos: any) {
+	if(!pos)
+		return true;
+	if(!el.parentNode)
+		return false;
+	let cur_pos = -1, i = 0;
+	for(i = 0; i < el.parentNode.childNodes.length; i ++) {
+		if(el.parentNode.childNodes[i] === el) {
+			cur_pos = i;
+			break;
+		}
+	}
+	if(typeof(pos) === 'number' && pos === cur_pos + 1) return true;
+	if(pos === -1 && (el.parentNode.childNodes.length - 1) === cur_pos) return true;
+	if(pos === 'odd' && cur_pos % 2 === 1) return true;
+	if(pos === 'even' && cur_pos % 2 === 0) return true;
+
+	return false;
+}
+
+/**
  * Function cache
  */
 let functionCache = {
-	"f145":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f145":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
@@ -504,8 +532,9 @@ let functionCache = {
 		for (var cls = classes, i = 0; i < cls.length; i++) if (el.classNames.indexOf(cls[i]) === -1) return false;
 		return true;
 	 },
-	"f45":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f45":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
@@ -513,8 +542,9 @@ let functionCache = {
 		for (var cls = classes, i = 0; i < cls.length; i++) if (el.classNames.indexOf(cls[i]) === -1) return false;
 		return true;
 	},
-	"f15":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f15":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
@@ -522,16 +552,18 @@ let functionCache = {
 		if (el.id != tagName.substr(1)) return false;
 		return true;
 	},
-	"f1":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f1":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
 		if (el.id != tagName.substr(1)) return false;
 	},
-	"f5":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f5":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		el = el||{};
 		tagName = tagName||"";
 		classes = classes||[];
@@ -539,8 +571,9 @@ let functionCache = {
 		value = value||"";
 		return true;
 	},
-	"f245":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f245":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
@@ -549,25 +582,29 @@ let functionCache = {
 		// for (var cls = classes, i = 0; i < cls.length; i++) {if (el.classNames.indexOf(cls[i]) === -1){ return false;}}
 		// return true;
 	},
-	"f25":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f25":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
+		if(tagName !== '*' && tagName !== el.tagName) return false;
 		var attrs = el.attributes;for (var key in attrs){const val = attrs[key]; if (key == attr_key && val == value){return true;}} return false;
 		//return true;
 	},
-	"f2":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f2":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
 		var attrs = el.attributes;for (var key in attrs){const val = attrs[key]; if (key == attr_key && val == value){return true;}} return false;
 	},
-	"f345":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f345":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
@@ -576,8 +613,9 @@ let functionCache = {
 		for (var cls = classes, i = 0; i < cls.length; i++) if (el.classNames.indexOf(cls[i]) === -1) return false;
 		return true;
 	},
-	"f35":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f35":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
@@ -585,8 +623,9 @@ let functionCache = {
 		if (el.tagName != tagName) return false;
 		return true;
 	},
-	"f3":function(el: any,tagName: string,classes: any[],attr_key: string,value: string){
+	"f3":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
+		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
@@ -613,28 +652,44 @@ export class Matcher {
 		this.matchers = selector.split(' ').map((matcher) => {
 			if (pMatchFunctionCache[matcher])
 				return pMatchFunctionCache[matcher];
+
+			// Firstly process suffixed :fist selector
+			let pos = null, pos_match;
+			if(pos_match = matcher.match(/\:((first|last)|(nth\-child\((odd|even|\d+)\)))$/)) {
+				if(pos_match[1] === 'first') { pos = 1; }
+				else if(pos_match[1] === 'last') { pos = -1; }
+				else {
+					pos = pos_match[4];
+					if(pos !== 'odd' && pos !== 'even')
+						pos = parseInt(pos);
+				}
+				matcher = matcher.split(':')[0];
+			}
+
 			const parts = matcher.split('.');
-			const tagName = parts[0];
-			const classes = parts.slice(1).sort();
+			let tagName = parts[0];
+			let classes = parts.slice(1).sort();
 			let source = '"use strict";';
 			let function_name = 'f';
 			let attr_key = "";
 			let value = "";
+
 			if (tagName && tagName != '*') {
 				let matcher: RegExpMatchArray;
 				if (tagName[0] == '#') {
 					source += 'if (el.id != ' + JSON.stringify(tagName.substr(1)) + ') return false;';//1
 					function_name += '1';
-				} else if (matcher = tagName.match(/^\[\s*(\S+)\s*(=|!=)\s*((((["'])([^\6]*)\6))|(\S*?))\]\s*/)) {
-					attr_key = matcher[1];
-					let method = matcher[2];
+				} else if (matcher = tagName.match(/(.*?)\[\s*(\S+)\s*(=|!=)\s*((((["'])([^\6]*)\7))|(\S*?))\]\s*/)) {
+					tagName = matcher[1] || '*';
+					attr_key = matcher[2];
+					let method = matcher[3];
 					if (method !== '=' && method !== '!=') {
 						throw new Error('Selector not supported, Expect [key${op}value].op must be =,!=');
 					}
 					if (method === '=') {
 						method = '==';
 					}
-					value = matcher[7] || matcher[8];
+					value = matcher[8] || matcher[9];
 
 					source += `var attrs = el.attributes;for (var key in attrs){const val = attrs[key]; if (key == "${attr_key}" && val == "${value}"){return true;}} return false;`;//2
 					function_name += '2';
@@ -654,7 +709,8 @@ export class Matcher {
 				tagName: tagName||"",
 				classes : classes||"",
 				attr_key : attr_key||"",
-				value : value||""
+				value : value||"",
+				pos: pos || null
 			}
 			source = source||"";
 			return pMatchFunctionCache[matcher] = obj as MatherFunction;
@@ -667,7 +723,11 @@ export class Matcher {
 	 */
 	advance(el: Node) {
 		if (this.nextMatch < this.matchers.length &&
-			this.matchers[this.nextMatch].func(el,this.matchers[this.nextMatch].tagName,this.matchers[this.nextMatch].classes,this.matchers[this.nextMatch].attr_key,this.matchers[this.nextMatch].value)) {
+			this.matchers[this.nextMatch].func(el,this.matchers[this.nextMatch].tagName,
+				this.matchers[this.nextMatch].classes,
+				this.matchers[this.nextMatch].attr_key,
+				this.matchers[this.nextMatch].value,
+				this.matchers[this.nextMatch].pos)) {
 			this.nextMatch++;
 			return true;
 		}

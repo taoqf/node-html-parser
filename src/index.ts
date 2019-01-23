@@ -144,7 +144,7 @@ export class HTMLElement extends Node {
 	 * @param {HTMLElement} newNode     new node
 	 */
 	exchangeChild(oldNode: any, newNode: any) {
-		var idx = -1; 
+		var idx = -1;
 		for(var i = 0; i < this.childNodes.length; i ++) {
 			if(this.childNodes[i] === oldNode) {
 				idx = i;
@@ -785,11 +785,11 @@ const kElementsClosedByOpening = {
 	b: { div: true },
 	td: { td: true, th: true },
 	th: { td: true, th: true },
-	h1: { h1: true }, 
-	h2: { h2: true }, 
-	h3: { h3: true }, 
-	h4: { h4: true }, 
-	h5: { h5: true }, 
+	h1: { h1: true },
+	h2: { h2: true },
+	h3: { h3: true },
+	h4: { h4: true },
+	h5: { h5: true },
 	h6: { h6: true }
 };
 const kElementsClosedByClosing = {
@@ -821,10 +821,19 @@ export function parse(data: string, options?: {
 }) {
 	const root = new HTMLElement(null, {});
 	let currentParent = root;
-	const stack = [root];
+	let stack = [root];
+	let pos_stack = [0];
 	let lastTextPos = -1;
+	let prevLastIndexPos = -1;
 	options = options || {} as any;
 	let match: RegExpExecArray;
+
+	var response: any = {
+		valid: false,
+		root: null,
+		errors: []
+	}
+
 	while (match = kMarkupPattern.exec(data)) {
 		if (lastTextPos > -1) {
 			if (lastTextPos + match[0].length < kMarkupPattern.lastIndex) {
@@ -833,6 +842,7 @@ export function parse(data: string, options?: {
 				currentParent.appendChild(new TextNode(text));
 			}
 		}
+		prevLastIndexPos = lastTextPos + 1;
 		lastTextPos = kMarkupPattern.lastIndex;
 		if (match[0][1] == '!') {
 			// this is a comment
@@ -849,12 +859,14 @@ export function parse(data: string, options?: {
 			if (!match[4] && kElementsClosedByOpening[currentParent.tagName]) {
 				if (kElementsClosedByOpening[currentParent.tagName][match[2]]) {
 					stack.pop();
+					pos_stack.pop();
 					currentParent = arr_back(stack);
 				}
 			}
 			currentParent = currentParent.appendChild(
 				new HTMLElement(match[2], attrs, match[3], currentParent)) as HTMLElement;
 			stack.push(currentParent);
+			pos_stack.push(prevLastIndexPos);
 			if (kBlockTextElements[match[2]]) {
 				// a little test to find next </script> or </style> ...
 				var closeMarkup = '</' + match[2] + '>';
@@ -884,6 +896,7 @@ export function parse(data: string, options?: {
 			while (true) {
 				if (currentParent.tagName == match[2]) {
 					stack.pop();
+					pos_stack.pop();
 					currentParent = arr_back(stack);
 					break;
 				} else {
@@ -891,50 +904,73 @@ export function parse(data: string, options?: {
 					if (kElementsClosedByClosing[currentParent.tagName]) {
 						if (kElementsClosedByClosing[currentParent.tagName][match[2]]) {
 							stack.pop();
+							pos_stack.pop();
 							currentParent = arr_back(stack);
 							continue;
 						}
 					}
 					// Use aggressive strategy to handle unmatching markups.
+					response.errors.push({
+						tag: match[2],
+						type: 'not_opened',
+						message: match[2] + ' tag not opened',
+						pos: prevLastIndexPos
+					})
 					break;
 				}
 			}
 		}
 	}
-	var response: any = {
-		valid: !!(stack.length === 1),
-		html: !!(stack.length === 1)? root: new TextNode(data)
-	}
-	if(options.fixIssues) {
-		if(stack.length === 1) {
-			return options.validate? response: root;
-		}
-		while(stack.length > 1) {
-			// Handle each error elements.
-			var last: any, oneBefore: any;
-			last = stack.pop();
-			oneBefore = arr_back(stack);
-			if(last.parentNode && last.parentNode.parentNode) {
-				if(last.parentNode === oneBefore && last.tagName === oneBefore.tagName) {
-					// Pair error case <h3> <h3> handle : Fixes to <h3> </h3>
-					oneBefore.removeChild(last);
-					last.childNodes.map((child: any) => {
-						oneBefore.parentNode.appendChild(child);
-					});
-					stack.pop();
-				} else {
-					// Single error  <div> <h3> </div> handle: Just removes <h3>
-					oneBefore.removeChild(last);
-					last.childNodes.map((child: any) => {
-						oneBefore.appendChild(child);
-					});
-				}
-			} else {
-				// If it's final element just skip. 
-			}
 
+	response['valid'] = !!(stack.length === 1);
+	response['root'] = !!(stack.length === 1)? root: new TextNode(data);
+
+	if(stack.length === 1) {
+		return options.validate? response: root;
+	}
+	while(stack.length > 1 && options.fixIssues) {
+		// Handle each error elements.
+		var last: any, oneBefore: any;
+		var last_pos: number;
+		last = stack.pop();
+		last_pos = pos_stack.pop();
+		oneBefore = arr_back(stack);
+		if(last.parentNode && last.parentNode.parentNode) {
+			if(last.parentNode === oneBefore && last.tagName === oneBefore.tagName) {
+				// Pair error case <h3> <h3> handle : Fixes to <h3> </h3>
+				response.errors.push({
+					tag: oneBefore.tagName,
+					type: 'not_properly_closed',
+					message: oneBefore.tagName + ' tag not properly closed',
+					pos: last_pos
+				})
+				oneBefore.removeChild(last);
+				last.childNodes.map((child: any) => {
+					oneBefore.parentNode.appendChild(child);
+				});
+				stack.pop();
+				pos_stack.pop();
+			} else {
+				// Single error  <div> <h3> </div> handle: Just removes <h3>
+				response.errors.push({
+					tag: last.tagName,
+					type: 'not_closed',
+					message: last.tagName + ' tag not closed',
+					pos: last_pos
+				})
+				oneBefore.removeChild(last);
+				last.childNodes.map((child: any) => {
+					oneBefore.appendChild(child);
+				});
+			}
+		} else {
+			// If it's final element just skip.
 		}
-		response['html'] = root;
+
+	}
+
+	if(options.fixIssues) {
+		response['root'] = root;
 	}
 
 	return options.validate? response: root;

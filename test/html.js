@@ -234,16 +234,64 @@ describe('HTML Parser', function () {
 				validate: true
 			});
 			result.valid.should.eql(false);
-			result.html.toString().should.eql('<div><h3></h3></div>');
+			result.root.toString().should.eql('<div><h3></h3></div>');
 		})
 
 		it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><span></span></div>" with fixIssues: true', function() {
-			var result = parseHTML('<div><h3><h3><span><span><div>', {
+			var result = parseHTML('<div><h3><h3><span><span></a><div>', {
 				fixIssues: true,
 				validate: true
 			});
 			result.valid.should.eql(false);
-			result.html.toString().should.eql('<div><h3></h3><span></span></div>');
+			result.root.toString().should.eql('<div><h3></h3><span></span></div>');
+		})
+
+		it('should fix "<div><div>" to "<div></div>" and return correct errors object', function() {
+			var result = parseHTML('<div><div>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.valid.should.eql(false);
+			result.errors.should.eql([{
+				tag: 'div',
+				type: 'not_properly_closed',
+				message: 'div tag not properly closed',
+				pos: 6
+			}])
+		})
+
+		it('should fix "<div></h3></div>" to "<div></div>" and return correct errors object', function() {
+			var result = parseHTML('<div></h3></div>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.valid.should.eql(true);
+			result.errors.should.eql([{
+				tag: 'h3',
+				type: 'not_opened',
+				message: 'h3 tag not opened',
+				pos: 6
+			}])
+		})
+
+		it('should fix "<div><h3></div>" to "<div></div>" and return correct errors object', function() {
+			var result = parseHTML('<div><h3></div>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.root.toString().should.eql('<div></div>');
+			result.valid.should.eql(false);
+			result.errors.should.eql([{
+				tag: 'div',
+				type: 'not_opened',
+				message: 'div tag not opened',
+				pos: 10
+			}, {
+				tag: 'h3',
+				type: 'not_closed',
+				message: 'h3 tag not closed',
+				pos: 6
+			}])
 		})
 
 		it('gmail.html  should return Object with valid: true', function() {
@@ -384,18 +432,13 @@ describe('HTML Parser', function () {
 		describe('#toString()', function () {
 			const html = '<p id="id" data-feidao-actions="ssss"><a class=\'cls\'>Hello</a><ul><li>aaaaa</li></ul><span>bbb</span></p>';
 			const root = parseHTML(html);
-
-			console.log(root.toString());
-
 			root.toString().should.eql(html)
 		});
 	});
 
 	describe('Custom Element', function () {
 		it('parse "<my-widget></my-widget>" tagName should be "my-widget"', function () {
-
 			var root = parseHTML('<my-widget></my-widget>');
-
 			root.firstChild.tagName.should.eql('my-widget');
 		});
 	});

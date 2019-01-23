@@ -495,7 +495,9 @@ interface MatherFunction { func: any; tagName: string; classes: string | string[
 let pMatchFunctionCache = {} as { [name: string]: MatherFunction };
 
 /**
- * Check position of element
+ * Check position of element according to pos
+ * @param {number|string} pos   expected position of given element
+ * @return {boolean} 			whether element is placed on position
  */
 let elPositionChecker = function(el: any, pos: any) {
 	if(!pos)
@@ -654,6 +656,7 @@ export class Matcher {
 				return pMatchFunctionCache[matcher];
 
 			// Firstly process suffixed :fist selector
+			// Parses :first, :last, :nth-child(odd|even|number)
 			let pos = null, pos_match;
 			if(pos_match = matcher.match(/\:((first|last)|(nth\-child\((odd|even|\d+)\)))$/)) {
 				if(pos_match[1] === 'first') { pos = 1; }
@@ -663,6 +666,7 @@ export class Matcher {
 					if(pos !== 'odd' && pos !== 'even')
 						pos = parseInt(pos);
 				}
+				// Only leave original matcher string for later execution
 				matcher = matcher.split(':')[0];
 			}
 

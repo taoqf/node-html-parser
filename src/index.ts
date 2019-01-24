@@ -505,9 +505,12 @@ let elPositionChecker = function(el: any, pos: any) {
 	if(!el.parentNode)
 		return false;
 	let cur_pos = -1, i = 0;
+	let txt_cnt = 0;
 	for(i = 0; i < el.parentNode.childNodes.length; i ++) {
+		if(el.parentNode.childNodes[i].nodeType === NodeType.TEXT_NODE)
+			txt_cnt ++;
 		if(el.parentNode.childNodes[i] === el) {
-			cur_pos = i;
+			cur_pos = i - txt_cnt;
 			break;
 		}
 	}
@@ -525,43 +528,43 @@ let elPositionChecker = function(el: any, pos: any) {
 let functionCache = {
 	"f145":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
-		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
 		if (el.id != tagName.substr(1)) return false;
 		for (var cls = classes, i = 0; i < cls.length; i++) if (el.classNames.indexOf(cls[i]) === -1) return false;
+		if(!elPositionChecker(el, pos)) return false;
 		return true;
 	 },
 	"f45":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
-		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
 		for (var cls = classes, i = 0; i < cls.length; i++) if (el.classNames.indexOf(cls[i]) === -1) return false;
+		if(!elPositionChecker(el, pos)) return false;
 		return true;
 	},
 	"f15":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
-		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
 		if (el.id != tagName.substr(1)) return false;
+		if(!elPositionChecker(el, pos)) return false;
 		return true;
 	},
 	"f1":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
-		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
 		if (el.id != tagName.substr(1)) return false;
+		if(!elPositionChecker(el, pos)) return false;
 	},
 	"f5":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
@@ -575,64 +578,74 @@ let functionCache = {
 	},
 	"f245":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
-		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
-		var attrs = el.attributes;for (var key in attrs){const val = attrs[key]; if (key == attr_key && val == value){return true;}} return false;
+		var attrs = el.attributes;
+		for (var key in attrs){const val = attrs[key]; if (key == attr_key && val == value){
+			if(!elPositionChecker(el, pos)) return false;
+			return true;
+		}} return false;
 		// for (var cls = classes, i = 0; i < cls.length; i++) {if (el.classNames.indexOf(cls[i]) === -1){ return false;}}
 		// return true;
 	},
 	"f25":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
-		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
 		if(tagName !== '*' && tagName !== el.tagName) return false;
-		var attrs = el.attributes;for (var key in attrs){const val = attrs[key]; if (key == attr_key && val == value){return true;}} return false;
+		var attrs = el.attributes;
+		for (var key in attrs){const val = attrs[key]; if (key == attr_key && val == value){
+			if(!elPositionChecker(el, pos)) return false;
+			return true;
+		}} return false;
 		//return true;
 	},
 	"f2":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
-		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
-		var attrs = el.attributes;for (var key in attrs){const val = attrs[key]; if (key == attr_key && val == value){return true;}} return false;
+		var attrs = el.attributes;
+		for (var key in attrs){const val = attrs[key]; if (key == attr_key && val == value){
+			if(!elPositionChecker(el, pos)) return false;
+			return true;
+		}} return false;
 	},
 	"f345":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
-		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
 		if (el.tagName != tagName) return false;
 		for (var cls = classes, i = 0; i < cls.length; i++) if (el.classNames.indexOf(cls[i]) === -1) return false;
+		if(!elPositionChecker(el, pos)) return false;
 		return true;
 	},
 	"f35":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
-		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
 		if (el.tagName != tagName) return false;
+		if(!elPositionChecker(el, pos)) return false;
 		return true;
 	},
 	"f3":function(el: any,tagName: string,classes: any[],attr_key: string,value: string, pos: any){
 		"use strict";
-		if(!elPositionChecker(el, pos)) return false;
 		tagName = tagName||"";
 		classes = classes||[];
 		attr_key = attr_key||"";
 		value = value||"";
 		if (el.tagName != tagName) return false;
+		if(!elPositionChecker(el, pos)) return false;
+		return true;
 	}
 }
 /**

@@ -12,42 +12,50 @@ describe('HTML Parser', function () {
 
 	describe('Matcher', function () {
 		it('should match corrent elements', function () {
-			var matcher = new Matcher('#id .a a.b *.a.b .a.b * a');
+			var matcher = new Matcher('p[id="id"] *[type="text"] meta[name=description] #id .a a.b *.a.b .a.b * a');
 			var MatchesNothingButStarEl = new HTMLElement('_', {});
 			var withIdEl = new HTMLElement('p', { id: 'id' });
 			var withClassNameEl = new HTMLElement('a', { class: 'a b' });
+			var withCustomAttr = new HTMLElement('input', {}, "type=text");
+			var withCustomAttr_1 = new HTMLElement('meta_tag', {}, "name='description'");
+			var withCustomAttr_2 = new HTMLElement('meta', {}, "name='description'");
 
-			matcher.advance(MatchesNothingButStarEl).should.not.be.ok; // #id
-			matcher.advance(withClassNameEl).should.not.be.ok; // #id
-			matcher.advance(withIdEl).should.be.ok; // #id
+			matcher.advance(withIdEl).should.eql(true) // p[id="id"]
+			matcher.advance(withCustomAttr).should.eql(true); // a[class="a b"]
+			matcher.advance(withCustomAttr_1).should.eql(false); // meta[name=description]
+			matcher.advance(withCustomAttr_2).should.eql(true); // meta[name=description]
 
-			matcher.advance(MatchesNothingButStarEl).should.not.be.ok; // .a
-			matcher.advance(withIdEl).should.not.be.ok; // .a
-			matcher.advance(withClassNameEl).should.be.ok; // .a
+			matcher.advance(MatchesNothingButStarEl).should.eql(false); // #id
+			matcher.advance(withClassNameEl).should.eql(false); // #id
+			matcher.advance(withIdEl).should.eql(true); // #id
 
-			matcher.advance(MatchesNothingButStarEl).should.not.be.ok; // a.b
-			matcher.advance(withIdEl).should.not.be.ok; // a.b
-			matcher.advance(withClassNameEl).should.be.ok; // a.b
+			matcher.advance(MatchesNothingButStarEl).should.eql(false); // .a
+			matcher.advance(withIdEl).should.eql(false); // .a
+			matcher.advance(withClassNameEl).should.eql(true); // .a
 
-			matcher.advance(withIdEl).should.not.be.ok; // *.a.b
-			matcher.advance(MatchesNothingButStarEl).should.not.be.ok; // *.a.b
-			matcher.advance(withClassNameEl).should.be.ok; // *.a.b
+			matcher.advance(MatchesNothingButStarEl).should.eql(false); // a.b
+			matcher.advance(withIdEl).should.eql(false); // a.b
+			matcher.advance(withClassNameEl).should.eql(true); // a.b
 
-			matcher.advance(withIdEl).should.not.be.ok; // .a.b
-			matcher.advance(MatchesNothingButStarEl).should.not.be.ok; // .a.b
-			matcher.advance(withClassNameEl).should.be.ok; // .a.b
+			matcher.advance(withIdEl).should.eql(false); // *.a.b
+			matcher.advance(MatchesNothingButStarEl).should.eql(false); // *.a.b
+			matcher.advance(withClassNameEl).should.eql(true); // *.a.b
 
-			matcher.advance(withIdEl).should.be.ok; // *
+			matcher.advance(withIdEl).should.eql(false); // .a.b
+			matcher.advance(MatchesNothingButStarEl).should.eql(false); // .a.b
+			matcher.advance(withClassNameEl).should.eql(true); // .a.b
+
+			matcher.advance(withIdEl).should.eql(true); // *
 			matcher.rewind();
-			matcher.advance(MatchesNothingButStarEl).should.be.ok; // *
+			matcher.advance(MatchesNothingButStarEl).should.eql(true); // *
 			matcher.rewind();
-			matcher.advance(withClassNameEl).should.be.ok; // *
+			matcher.advance(withClassNameEl).should.eql(true); // *
 
-			matcher.advance(withIdEl).should.not.be.ok; // a
-			matcher.advance(MatchesNothingButStarEl).should.not.be.ok; // a
-			matcher.advance(withClassNameEl).should.be.ok; // a
+			matcher.advance(withIdEl).should.eql(false); // a
+			matcher.advance(MatchesNothingButStarEl).should.eql(false); // a
+			matcher.advance(withClassNameEl).should.eql(true); // a
 
-			matcher.matched.should.be.ok;
+			matcher.matched.should.eql(true);
 		});
 	});
 
@@ -226,16 +234,64 @@ describe('HTML Parser', function () {
 				validate: true
 			});
 			result.valid.should.eql(false);
-			result.html.toString().should.eql('<div><h3></h3></div>');
+			result.root.toString().should.eql('<div><h3></h3></div>');
 		})
 
 		it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><span></span></div>" with fixIssues: true', function() {
-			var result = parseHTML('<div><h3><h3><span><span><div>', {
+			var result = parseHTML('<div><h3><h3><span><span></a><div>', {
 				fixIssues: true,
 				validate: true
 			});
 			result.valid.should.eql(false);
-			result.html.toString().should.eql('<div><h3></h3><span></span></div>');
+			result.root.toString().should.eql('<div><h3></h3><span></span></div>');
+		})
+
+		it('should fix "<div><div>" to "<div></div>" and return correct errors object', function() {
+			var result = parseHTML('<div><div>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.valid.should.eql(false);
+			result.errors.should.eql([{
+				tag: 'div',
+				type: 'not_properly_closed',
+				message: 'div tag not properly closed',
+				pos: 6
+			}])
+		})
+
+		it('should fix "<div></h3></div>" to "<div></div>" and return correct errors object', function() {
+			var result = parseHTML('<div></h3></div>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.valid.should.eql(true);
+			result.errors.should.eql([{
+				tag: 'h3',
+				type: 'not_opened',
+				message: 'h3 tag not opened',
+				pos: 6
+			}])
+		})
+
+		it('should fix "<div><h3></div>" to "<div></div>" and return correct errors object', function() {
+			var result = parseHTML('<div><h3></div>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.root.toString().should.eql('<div></div>');
+			result.valid.should.eql(false);
+			result.errors.should.eql([{
+				tag: 'div',
+				type: 'not_opened',
+				message: 'div tag not opened',
+				pos: 10
+			}, {
+				tag: 'h3',
+				type: 'not_closed',
+				message: 'h3 tag not closed',
+				pos: 6
+			}])
 		})
 
 		it('gmail.html  should return Object with valid: true', function() {
@@ -259,11 +315,11 @@ describe('HTML Parser', function () {
 	describe('TextNode', function () {
 		describe('#isWhitespace', function () {
 			var node = new TextNode('');
-			node.isWhitespace.should.be.ok;
+			node.isWhitespace.should.eql(true);
 			node = new TextNode(' \t');
-			node.isWhitespace.should.be.ok;
+			node.isWhitespace.should.eql(true);
 			node = new TextNode(' \t&nbsp; \t');
-			node.isWhitespace.should.be.ok;
+			node.isWhitespace.should.eql(true);
 		});
 	});
 
@@ -295,10 +351,11 @@ describe('HTML Parser', function () {
 
 		describe('#attributes', function () {
 			it('should return attributes of the element', function () {
-				var root = parseHTML('<p a=12 data-id="!$$&amp;" yAz=\'1\'></p>');
+				var root = parseHTML('<p a=12 data-id="!$$&amp;" class="hello there" yAz=\'1\'></p>');
 				root.firstChild.attributes.should.eql({
 					'a': '12',
 					'data-id': '!$$&',
+					'class': 'hello there',
 					'yAz': '1'
 				});
 			});
@@ -320,13 +377,23 @@ describe('HTML Parser', function () {
 
 		describe('#querySelectorAll()', function () {
 			it('should return correct elements in DOM tree', function () {
-				var root = parseHTML('<a id="id"><div><span class="a b"></span><span></span><span></span></div></a>');
+				var root = parseHTML('<a id="id"><div><span class="a b"></span><span></span><span></span></div><span></span></a>');
 				root.querySelectorAll('#id').should.eql([root.firstChild]);
 				root.querySelectorAll('span.a').should.eql([root.firstChild.firstChild.firstChild]);
 				root.querySelectorAll('span.b').should.eql([root.firstChild.firstChild.firstChild]);
 				root.querySelectorAll('span.a.b').should.eql([root.firstChild.firstChild.firstChild]);
 				root.querySelectorAll('#id .b').should.eql([root.firstChild.firstChild.firstChild]);
-				root.querySelectorAll('#id span').should.eql(root.firstChild.firstChild.childNodes);
+				root.querySelectorAll('#id span').should.eql(root.firstChild.firstChild.childNodes.concat(root.firstChild.childNodes[1]));
+			});
+		});
+
+		describe('#querySelector() with :first', function() {
+			it('should return correct elements in DOM tree with :first selector', function () {
+				var root = parseHTML('<div><span class="first"><i></i></span><a></a><span class="last"></span></div>');
+				var nodes = root.firstChild.childNodes;
+				root.querySelector('div span:first').should.eql(nodes[0]);
+				root.querySelector('div span:nth-child(3)').should.eql(nodes[2]);
+				root.querySelector('div span:last').should.eql(nodes[nodes.length - 1]);
 			});
 		});
 
@@ -336,6 +403,7 @@ describe('HTML Parser', function () {
 				root.structuredText.should.eql('o\na\nb\nc');
 			});
 		});
+
 		describe('#set_content', function () {
 			it('set content string', function () {
 				var root = parseHTML('<div></div>');
@@ -370,19 +438,17 @@ describe('HTML Parser', function () {
 
 	describe('Custom Element', function () {
 		it('parse "<my-widget></my-widget>" tagName should be "my-widget"', function () {
-
 			var root = parseHTML('<my-widget></my-widget>');
-
 			root.firstChild.tagName.should.eql('my-widget');
 		});
 	});
 
-  describe('Custom Element multiple dash', function () {
-    it('parse "<my-new-widget></my-new-widget>" tagName should be "my-new-widget"', function () {
+	describe('Custom Element multiple dash', function () {
+		it('parse "<my-new-widget></my-new-widget>" tagName should be "my-new-widget"', function () {
 
-      var root = parseHTML('<my-new-widget></my-new-widget>');
+			var root = parseHTML('<my-new-widget></my-new-widget>');
 
-      root.firstChild.tagName.should.eql('my-new-widget');
-    });
-  });
+			root.firstChild.tagName.should.eql('my-new-widget');
+		});
+	});
 });

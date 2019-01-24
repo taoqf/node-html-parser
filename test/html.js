@@ -389,6 +389,17 @@ describe('HTML Parser', function () {
 
 		describe('#querySelector() with :first', function() {
 			it('should return correct elements in DOM tree with :first selector', function () {
+				var meta_root = parseHTML('<html><head><meta></head></html>');
+				meta_root.querySelector('meta:first').should.eql(meta_root.firstChild.firstChild.firstChild)
+
+				var result = parseHTML(fs.readFileSync(__dirname + '/html/john.html').toString(), {
+					fixIssues: true, 
+					validate: true
+				});
+				var result_meta = '<meta name="google-site-verification" content="XKgoQv9SmkG9vGpl-nXZt5GFm5UPcXb3Ux-T_X5qY9E">'
+				result.valid.should.eql(true);
+				result.root.querySelector('meta:first').toString().should.eql(result_meta);
+
 				var root = parseHTML('<div><span class="first"><i></i></span><a></a><span class="last"></span></div>');
 				var nodes = root.firstChild.childNodes;
 				root.querySelector('div span:first').should.eql(nodes[0]);

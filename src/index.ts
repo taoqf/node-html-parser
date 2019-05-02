@@ -212,7 +212,7 @@ export class HTMLElement extends Node {
     }
     dfs(this);
     return blocks
-      .map(function(block) {
+      .map(function (block) {
         // Normalize each line's whitespace
         return block
           .join("")
@@ -523,7 +523,7 @@ let pMatchFunctionCache = {} as { [name: string]: MatherFunction };
  * @param {number|string} pos   expected position of given element
  * @return {boolean} 			whether element is placed on position
  */
-let elPositionChecker = function(el: any, pos: any) {
+let elPositionChecker = function (el: any, pos: any) {
   if (!pos) return true;
   if (!el.parentNode) return false;
   let cur_pos = -1,
@@ -549,7 +549,7 @@ let elPositionChecker = function(el: any, pos: any) {
  * Function cache
  */
 let functionCache = {
-  f145: function(
+  f145: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -568,7 +568,7 @@ let functionCache = {
     if (!elPositionChecker(el, pos)) return false;
     return true;
   },
-  f45: function(
+  f45: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -586,7 +586,7 @@ let functionCache = {
     if (!elPositionChecker(el, pos)) return false;
     return true;
   },
-  f15: function(
+  f15: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -603,7 +603,7 @@ let functionCache = {
     if (!elPositionChecker(el, pos)) return false;
     return true;
   },
-  f1: function(
+  f1: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -619,7 +619,7 @@ let functionCache = {
     if (el.id != tagName.substr(1)) return false;
     if (!elPositionChecker(el, pos)) return false;
   },
-  f5: function(
+  f5: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -636,7 +636,7 @@ let functionCache = {
     value = value || "";
     return true;
   },
-  f245: function(
+  f245: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -661,7 +661,7 @@ let functionCache = {
     // for (var cls = classes, i = 0; i < cls.length; i++) {if (el.classNames.indexOf(cls[i]) === -1){ return false;}}
     // return true;
   },
-  f25: function(
+  f25: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -686,7 +686,7 @@ let functionCache = {
     return false;
     //return true;
   },
-  f2: function(
+  f2: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -709,7 +709,7 @@ let functionCache = {
     }
     return false;
   },
-  f345: function(
+  f345: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -728,7 +728,7 @@ let functionCache = {
     if (!elPositionChecker(el, pos)) return false;
     return true;
   },
-  f35: function(
+  f35: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -745,7 +745,7 @@ let functionCache = {
     if (!elPositionChecker(el, pos)) return false;
     return true;
   },
-  f3: function(
+  f3: function (
     el: any,
     tagName: string,
     classes: any[],
@@ -932,7 +932,7 @@ const kSelfClosingElements = {
 };
 const kElementsClosedByOpening = {
   li: { li: true },
-  p: { p: true, div: true },
+  p: { p: true },
   b: { div: true },
   td: { td: true, th: true },
   th: { td: true, th: true },
@@ -950,7 +950,8 @@ const kElementsClosedByClosing = {
   i: { div: true },
   p: { div: true },
   td: { tr: true, table: true },
-  th: { tr: true, table: true }
+  th: { tr: true, table: true },
+  div: { body: true, html: true }
 };
 const kBlockTextElements = {
   script: true,
@@ -1009,7 +1010,7 @@ export function parse(
     if (!match[1]) {
       // not </ tags
       var attrs = {};
-      for (var attMatch; (attMatch = kAttributePattern.exec(match[3])); )
+      for (var attMatch; (attMatch = kAttributePattern.exec(match[3]));)
         attrs[attMatch[2]] = attMatch[4] || attMatch[5] || attMatch[6];
 
       if (!match[4] && kElementsClosedByOpening[currentParent.tagName]) {
@@ -1028,7 +1029,8 @@ export function parse(
         // a little test to find next </script> or </style> ...
         var closeMarkup = "</" + match[2] + ">";
         var index = data.indexOf(closeMarkup, kMarkupPattern.lastIndex);
-        if (options[match[2]]) {
+
+        if (options.fixIssues) {
           let text: string;
           if (index == -1) {
             // there is no matching ending for the text element.
@@ -1048,7 +1050,7 @@ export function parse(
     }
     if (match[1] || match[4] || kSelfClosingElements[match[2]]) {
       // </ or /> or <br> etc.
-      while (true) {
+      while (stack.length > 1) {
         if (currentParent.tagName == match[2]) {
           stack.pop();
           pos_stack.pop();
@@ -1064,14 +1066,20 @@ export function parse(
               continue;
             }
           }
-          // Use aggressive strategy to handle unmatching markups.
+
           response.errors.push({
-            tag: match[2],
-            type: "not_opened",
-            message: match[2] + " tag not opened",
+            tag: currentParent.tagName,
+            type: "not_closed",
+            message: currentParent.tagName + " tag not closed",
             pos: prevLastIndexPos
           });
-          break;
+
+          // Close tag when parent is closed.
+          stack.pop();
+          pos_stack.pop();
+          currentParent = arr_back(stack);
+          // Use aggressive strategy to handle unmatching markups.
+
         }
       }
     }
@@ -1113,10 +1121,10 @@ export function parse(
           message: last.tagName + " tag not closed",
           pos: last_pos
         });
-        oneBefore.removeChild(last);
-        last.childNodes.map((child: any) => {
-          oneBefore.appendChild(child);
-        });
+        // oneBefore.removeChild(last);
+        // last.childNodes.map((child: any) => {
+        //   oneBefore.appendChild(child);
+        // });
       }
     } else {
       // If it's final element just skip.

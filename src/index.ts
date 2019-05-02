@@ -932,7 +932,7 @@ const kSelfClosingElements = {
 };
 const kElementsClosedByOpening = {
   li: { li: true },
-  p: { p: true, div: true, tr: true, td: true, th: true, table: true, span: true },
+  p: { p: true },
   b: { div: true },
   td: { td: true, th: true },
   th: { td: true, th: true },
@@ -948,7 +948,7 @@ const kElementsClosedByClosing = {
   a: { div: true },
   b: { div: true },
   i: { div: true },
-  p: { div: true, tr: true, td: true, th: true, table: true, span: true },
+  p: { div: true },
   td: { tr: true, table: true },
   th: { tr: true, table: true },
   div: { body: true, html: true }
@@ -1050,7 +1050,7 @@ export function parse(
     }
     if (match[1] || match[4] || kSelfClosingElements[match[2]]) {
       // </ or /> or <br> etc.
-      while (true) {
+      while (stack.length > 1) {
         if (currentParent.tagName == match[2]) {
           stack.pop();
           pos_stack.pop();
@@ -1066,14 +1066,20 @@ export function parse(
               continue;
             }
           }
-          // Use aggressive strategy to handle unmatching markups.
+
           response.errors.push({
-            tag: match[2],
-            type: "not_opened",
-            message: match[2] + " tag not opened",
+            tag: currentParent.tagName,
+            type: "not_closed",
+            message: currentParent.tagName + " tag not closed",
             pos: prevLastIndexPos
           });
-          break;
+
+          // Close tag when parent is closed.
+          stack.pop();
+          pos_stack.pop();
+          currentParent = arr_back(stack);
+          // Use aggressive strategy to handle unmatching markups.
+
         }
       }
     }

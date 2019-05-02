@@ -14,8 +14,12 @@ describe('HTML Parser', function () {
 		it('should match corrent elements', function () {
 			var matcher = new Matcher('p[id="id"] *[type="text"] meta[name=description] #id .a a.b *.a.b .a.b * a');
 			var MatchesNothingButStarEl = new HTMLElement('_', {});
-			var withIdEl = new HTMLElement('p', { id: 'id' });
-			var withClassNameEl = new HTMLElement('a', { class: 'a b' });
+			var withIdEl = new HTMLElement('p', {
+				id: 'id'
+			});
+			var withClassNameEl = new HTMLElement('a', {
+				class: 'a b'
+			});
 			var withCustomAttr = new HTMLElement('input', {}, "type=text");
 			var withCustomAttr_1 = new HTMLElement('meta_tag', {}, "name='description'");
 			var withCustomAttr_2 = new HTMLElement('meta', {}, "name='description'");
@@ -67,8 +71,12 @@ describe('HTML Parser', function () {
 			var root = parseHTML('<p id="id"><a class=\'cls\'>Hello</a><ul><li><li></ul><span></span></p>');
 
 			const tag_root = new HTMLElement(null, {});
-			var p = new HTMLElement('p', { id: 'id' }, 'id="id"', tag_root);
-			p.appendChild(new HTMLElement('a', { class: 'cls' }, 'class=\'cls\'', p))
+			var p = new HTMLElement('p', {
+				id: 'id'
+			}, 'id="id"', tag_root);
+			p.appendChild(new HTMLElement('a', {
+					class: 'cls'
+				}, 'class=\'cls\'', p))
 				.appendChild(new TextNode('Hello'));
 			var ul = p.appendChild(new HTMLElement('ul', {}, '', p));
 			ul.appendChild(new HTMLElement('li', {}, '', ul));
@@ -123,8 +131,7 @@ describe('HTML Parser', function () {
 		it('should extract text in script and style when ask so', function () {
 
 			var root = parseHTML('<script>1</script><style>2&amp;</style>', {
-				script: true,
-				style: true
+				fixIssues: true
 			});
 
 			root.firstChild.childNodes.should.not.be.empty;
@@ -162,7 +169,7 @@ describe('HTML Parser', function () {
 
 		// Test for broken tags. <h3>something<h3>
 
-		it('should parse "<div><h3>content<h3> <span> other <span></div>" (fix h3, span closing tag) very fast', function() {
+		it('should parse "<div><h3>content<h3> <span> other <span></div>" (fix h3, span closing tag) very fast', function () {
 			var root = parseHTML(fs.readFileSync(__dirname + '/html/incomplete-script').toString(), {
 				fixIssues: true,
 				validate: true
@@ -170,39 +177,39 @@ describe('HTML Parser', function () {
 		});
 	});
 
-	describe('parseWithValidation', function() {
+	describe('parseWithValidation', function () {
 		// parse with validation tests
 
-		it('should return Object with valid: true.  does not count <p><p></p> as error. instead fixes it to <p></p><p></p>', function() {
+		it('should return Object with valid: true.  does not count <p><p></p> as error. instead fixes it to <p></p><p></p>', function () {
 			var result = parseHTML('<p><p></p>', {
 				validate: true
 			});
 			result.valid.should.eql(true);
 		})
 
-		it('should return Object with valid: true.  does not count <p><p/></p> as error. instead fixes it to <p><p></p></p>', function() {
+		it('should return Object with valid: true.  does not count <p><p/></p> as error. instead fixes it to <p><p></p></p>', function () {
 			var result = parseHTML('<p><p/></p>', {
 				validate: true
 			});
 			result.valid.should.eql(true);
 		})
 
-		it('should return Object with valid: false.  does not count <p><h3></p> as error', function() {
+		it('should return Object with valid: true.  does not count <p><h3></p> as error. instead fixes it to <p><h3></h3></p>', function () {
 			var result = parseHTML('<p><h3></p>', {
 				validate: true
 			});
-			result.valid.should.eql(false);
+			result.valid.should.eql(true);
 		})
 
-		it('hillcrestpartyrentals.html  should return Object with valid: false.  not closing <p> tag on line 476', function() {
+		it('hillcrestpartyrentals.html  should return Object with valid: true.  not closing <p> tag on line 476, fixes it instead', function () {
 			var result = parseHTML(fs.readFileSync(__dirname + '/html/hillcrestpartyrentals.html').toString(), {
-				fixIssues: false,
+				fixIssues: true,
 				validate: true
 			});
-			result.valid.should.eql(false);
+			result.valid.should.eql(true);
 		})
 
-		it('google.html  should return Object with valid: true', function() {
+		it('google.html  should return Object with valid: true', function () {
 			var result = parseHTML(fs.readFileSync(__dirname + '/html/google.html').toString(), {
 				fixIssues: false,
 				validate: true
@@ -210,7 +217,7 @@ describe('HTML Parser', function () {
 			result.valid.should.eql(true);
 		})
 
-		it('gmail.html  should return Object with valid: true', function() {
+		it('gmail.html  should return Object with valid: true', function () {
 			var result = parseHTML(fs.readFileSync(__dirname + '/html/gmail.html').toString(), {
 				fixIssues: false,
 				validate: true
@@ -218,35 +225,44 @@ describe('HTML Parser', function () {
 			result.valid.should.eql(true);
 		})
 
-		it('ffmpeg.html  should return Object with valid: false (extra opening <div>', function() {
+		it('ffmpeg.html  should return Object with valid: true (extra opening <div>', function () {
 			var result = parseHTML(fs.readFileSync(__dirname + '/html/ffmpeg.html').toString(), {
 				fixIssues: false,
 				validate: true
 			});
-			result.valid.should.eql(false);
+			result.valid.should.eql(true);
 		})
 
 		// fix issue speed test
 
-		it('should fix "<div><h3><h3><div>" to "<div><h3></h3></div>" with fixIssues: true', function() {
+		it('should fix "<div><h3><h3><div>" to "<div><h3></h3><h3><div></div></h3></div>" with fixIssues: true', function () {
 			var result = parseHTML('<div><h3><h3><div>', {
 				fixIssues: true,
 				validate: true
 			});
 			result.valid.should.eql(false);
-			result.root.toString().should.eql('<div><h3></h3></div>');
+			result.root.toString().should.eql('<div><h3></h3><h3><div></div></h3></div>');
 		})
 
-		it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><span></span></div>" with fixIssues: true', function() {
+		it('should fix "<li style="font-weight: 400;"><b><h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>" to "<li style="font-weight: 400;"><b><h3></h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>" with fixIssues: true', function () {
+			var result = parseHTML('<li style="font-weight: 400;"><b><h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.valid.should.eql(true);
+			result.root.toString().should.eql('<li style="font-weight: 400;"><b><h3></h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>');
+		})
+
+		it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><h3><span><span></span></span></h3></div><div></div>" with fixIssues: true', function () {
 			var result = parseHTML('<div><h3><h3><span><span></a><div>', {
 				fixIssues: true,
 				validate: true
 			});
 			result.valid.should.eql(false);
-			result.root.toString().should.eql('<div><h3></h3><span></span></div>');
+			result.root.toString().should.eql('<div><h3></h3><h3><span><span></span></span></h3></div><div></div>');
 		})
 
-		it('should fix "<div><div>" to "<div></div>" and return correct errors object', function() {
+		it('should fix "<div><div>" to "<div></div>" and return correct errors object', function () {
 			var result = parseHTML('<div><div>', {
 				fixIssues: true,
 				validate: true
@@ -260,41 +276,36 @@ describe('HTML Parser', function () {
 			}])
 		})
 
-		it('should fix "<div></h3></div>" to "<div></div>" and return correct errors object', function() {
+		it('should fix "<div></h3></div>" to "<div></div>" and return correct errors object', function () {
 			var result = parseHTML('<div></h3></div>', {
 				fixIssues: true,
 				validate: true
 			});
 			result.valid.should.eql(true);
 			result.errors.should.eql([{
-				tag: 'h3',
-				type: 'not_opened',
-				message: 'h3 tag not opened',
+				tag: 'div',
+				type: 'not_closed',
+				message: 'div tag not closed',
 				pos: 6
 			}])
 		})
 
-		it('should fix "<div><h3></div>" to "<div></div>" and return correct errors object', function() {
+		it('should fix "<div><h3></div>" to "<div><h3></h3></div>" and return correct errors object', function () {
 			var result = parseHTML('<div><h3></div>', {
 				fixIssues: true,
 				validate: true
 			});
-			result.root.toString().should.eql('<div></div>');
-			result.valid.should.eql(false);
+			result.root.toString().should.eql('<div><h3></h3></div>');
+			result.valid.should.eql(true);
 			result.errors.should.eql([{
-				tag: 'div',
-				type: 'not_opened',
-				message: 'div tag not opened',
-				pos: 10
-			}, {
 				tag: 'h3',
 				type: 'not_closed',
 				message: 'h3 tag not closed',
-				pos: 6
+				pos: 10
 			}])
 		})
 
-		it('gmail.html  should return Object with valid: true', function() {
+		it('gmail.html  should return Object with valid: true', function () {
 			var result = parseHTML(fs.readFileSync(__dirname + '/html/gmail.html').toString().replace(/<\//gi, '<'), {
 				fixIssues: true,
 				validate: true
@@ -302,12 +313,20 @@ describe('HTML Parser', function () {
 			result.valid.should.eql(false);
 		})
 
-		it('gmail.html  should return Object with valid: true', function() {
+		it('nice.html  should return Object with valid: true', function () {
 			var result = parseHTML(fs.readFileSync(__dirname + '/html/nice.html').toString().replace(/<\//gi, '<'), {
 				fixIssues: true,
 				validate: true
 			});
 			result.valid.should.eql(false);
+		})
+
+		it('BestPOSSoftwareforSmallBusinessRetail_VendPOS.html  should return Object with valid: true', function () {
+			var result = parseHTML(fs.readFileSync(__dirname + '/html/BestPOSSoftwareforSmallBusinessRetail_VendPOS.html').toString(), {
+				fixIssues: true,
+				validate: true
+			});
+			result.valid.should.eql(true);
 		})
 
 	});
@@ -387,13 +406,13 @@ describe('HTML Parser', function () {
 			});
 		});
 
-		describe('#querySelector() with :first', function() {
+		describe('#querySelector() with :first', function () {
 			it('should return correct elements in DOM tree with :first selector', function () {
 				var meta_root = parseHTML('<html><head><meta></head></html>');
 				meta_root.querySelector('meta:first').should.eql(meta_root.firstChild.firstChild.firstChild)
 
 				var result = parseHTML(fs.readFileSync(__dirname + '/html/john.html').toString(), {
-					fixIssues: true, 
+					fixIssues: true,
 					validate: true
 				});
 				var result_meta = '<meta name="google-site-verification" content="XKgoQv9SmkG9vGpl-nXZt5GFm5UPcXb3Ux-T_X5qY9E">'

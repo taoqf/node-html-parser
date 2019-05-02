@@ -978,7 +978,7 @@ export function parse(
   let currentParent = root;
   let stack = [root];
   let pos_stack = [0];
-  let lastTextPos = 0;
+  let lastTextPos = -1;
   let prevLastIndexPos = -1;
   options = options || ({} as any);
   let match: RegExpExecArray;
@@ -990,16 +990,15 @@ export function parse(
   };
 
   while ((match = kMarkupPattern.exec(data))) {
-    if (lastTextPos > -1) {
-      if (lastTextPos + match[0].length < kMarkupPattern.lastIndex) {
-        // if has content
-        const text = data.substring(
-          lastTextPos,
-          kMarkupPattern.lastIndex - match[0].length
-        );
-        currentParent.appendChild(new TextNode(text));
-      }
+    if (lastTextPos + match[0].length < kMarkupPattern.lastIndex) {
+      // if has content
+      const text = data.substring(
+        lastTextPos,
+        kMarkupPattern.lastIndex - match[0].length
+      );
+      currentParent.appendChild(new TextNode(text));
     }
+
     prevLastIndexPos = lastTextPos + 1;
     lastTextPos = kMarkupPattern.lastIndex;
     if (match[0][1] == "!") {

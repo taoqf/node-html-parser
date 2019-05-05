@@ -990,16 +990,15 @@ export function parse(
   };
 
   while ((match = kMarkupPattern.exec(data))) {
-    if (lastTextPos > -1) {
-      if (lastTextPos + match[0].length < kMarkupPattern.lastIndex) {
-        // if has content
-        const text = data.substring(
-          lastTextPos,
-          kMarkupPattern.lastIndex - match[0].length
-        );
-        currentParent.appendChild(new TextNode(text));
-      }
+    if (lastTextPos + match[0].length < kMarkupPattern.lastIndex) {
+      // if has content
+      const text = data.substring(
+        lastTextPos,
+        kMarkupPattern.lastIndex - match[0].length
+      );
+      currentParent.appendChild(new TextNode(text));
     }
+
     prevLastIndexPos = lastTextPos + 1;
     lastTextPos = kMarkupPattern.lastIndex;
     if (match[0][1] == "!") {
@@ -1030,16 +1029,15 @@ export function parse(
         var closeMarkup = "</" + match[2] + ">";
         var index = data.indexOf(closeMarkup, kMarkupPattern.lastIndex);
 
-        if (options.fixIssues) {
-          let text: string;
-          if (index == -1) {
-            // there is no matching ending for the text element.
-            text = data.substr(kMarkupPattern.lastIndex);
-          } else {
-            text = data.substring(kMarkupPattern.lastIndex, index);
-          }
-          if (text.length > 0) currentParent.appendChild(new TextNode(text));
+        let text: string;
+        if (index == -1) {
+          // there is no matching ending for the text element.
+          text = data.substr(kMarkupPattern.lastIndex);
+        } else {
+          text = data.substring(kMarkupPattern.lastIndex, index);
         }
+        if (text.length > 0) currentParent.appendChild(new TextNode(text));
+
         if (index == -1) {
           lastTextPos = kMarkupPattern.lastIndex = data.length + 1;
         } else {

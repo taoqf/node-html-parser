@@ -1048,6 +1048,7 @@ export function parse(
     }
     if (match[1] || match[4] || kSelfClosingElements[match[2]]) {
       // </ or /> or <br> etc.
+      if(match[1] && kSelfClosingElements[match[2]]) continue;
       while (stack.length > 1) {
         if (currentParent.tagName == match[2]) {
           stack.pop();

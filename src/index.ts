@@ -48,7 +48,7 @@ export class TextNode extends Node {
   }
 
   toString() {
-    return this.text;
+    return this.rawText;
   }
 }
 
@@ -1080,11 +1080,6 @@ export function parse(
             pos: prevLastIndexPos
           });
 
-          if (!options.fixIssues) {
-            response["valid"] = false;
-            response["root"] = new TextNode(data);
-            return response;
-          }
           // Close tag when parent is closed.
           stack.pop();
           pos_stack.pop();
@@ -1095,11 +1090,14 @@ export function parse(
     }
   }
 
-  response["valid"] = response.errors.length > 0 ? false : true;
+  response["valid"] = (response.errors.length || stack.length > 1) > 0 ? false : true;
   response["root"] = root;
-  if (stack.length === 1) {
+  if (!options.fixIssues && !response["valid"]) {
+    response["valid"] = false;
+    response["root"] = new TextNode(data);
     return options.validate ? response : root;
   }
+
   while (stack.length > 1 && options.fixIssues) {
     // Handle each error elements.
     var last: any, oneBefore: any;
@@ -1139,11 +1137,6 @@ export function parse(
       // If it's final element just skip.
     }
   }
-
-  if (options.fixIssues) {
-    response["root"] = root;
-  }
-
 
   response["valid"] = response.errors.length > 0 ? false : true;
   response["root"] = root;

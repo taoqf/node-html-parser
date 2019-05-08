@@ -63,7 +63,7 @@ describe('HTML Parser', function () {
 		});
 	});
 
-	var parseHTML = HTMLParser.parse;
+	var parseHTML = HTMLParser.parse
 
 	describe('parse()', function () {
 		it('should parse "<p id=\\"id\\"><a class=\'cls\'>Hello</a><ul><li><li></ul><span></span></p>" and return root element', function () {
@@ -177,8 +177,19 @@ describe('HTML Parser', function () {
 		});
 	});
 
+	describe('validate', function () {
+		it("should return false when html is invalid", () => {
+			const html = "<div><h1>Good</div>"
+			const resp = parseHTML(html, {
+				validate: true
+			})
+			resp.valid.should.eql(true)
+		})
+	})
+
 	describe('parseWithValidation', function () {
 		// parse with validation tests
+
 
 		it('should return Object with valid: true.  does not count <p><p></p> as error. instead fixes it to <p></p><p></p>', function () {
 			var result = parseHTML('<p><p></p>', {

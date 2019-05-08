@@ -928,7 +928,14 @@ const kSelfClosingElements = {
   br: true,
   hr: true,
   col: true,
-  base: true
+  base: true,
+  command: true,
+  embed: true,
+  keygen: true,
+  param: true,
+  source: true,
+  track: true,
+  wbr: true
 };
 const kElementsClosedByOpening = {
   li: { li: true },
@@ -1048,7 +1055,7 @@ export function parse(
     }
     if (match[1] || match[4] || kSelfClosingElements[match[2]]) {
       // </ or /> or <br> etc.
-      if(match[1] && kSelfClosingElements[match[2]]) continue;
+      if (match[1] && kSelfClosingElements[match[2]]) continue;
       while (stack.length > 1) {
         if (currentParent.tagName == match[2]) {
           stack.pop();
@@ -1073,20 +1080,23 @@ export function parse(
             pos: prevLastIndexPos
           });
 
+          if (!options.fixIssues) {
+            response["valid"] = false;
+            response["root"] = new TextNode(data);
+            return response;
+          }
           // Close tag when parent is closed.
           stack.pop();
           pos_stack.pop();
           currentParent = arr_back(stack);
           // Use aggressive strategy to handle unmatching markups.
-
         }
       }
     }
   }
 
-  response["valid"] = !!(stack.length === 1);
-  response["root"] = !!(stack.length === 1) ? root : new TextNode(data);
-
+  response["valid"] = response.errors.length > 0 ? false : true;
+  response["root"] = root;
   if (stack.length === 1) {
     return options.validate ? response : root;
   }
@@ -1133,6 +1143,10 @@ export function parse(
   if (options.fixIssues) {
     response["root"] = root;
   }
+
+
+  response["valid"] = response.errors.length > 0 ? false : true;
+  response["root"] = root;
 
   return options.validate ? response : root;
 }

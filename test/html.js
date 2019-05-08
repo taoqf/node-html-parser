@@ -186,6 +186,14 @@ describe('HTML Parser', function () {
 			resp.root.toString().should.eql(html)
 			resp.valid.should.eql(false)
 		})
+
+		it("should return unaltered html when it is invalid", () => {
+			const html = "<html><body><div><h1>Good</div></body></html>"
+			const response = parseHTML(html, {
+				validate: true,
+			})
+			response.root.toString().should.eql(html)
+		})
 	})
 
 	describe('parseWithValidation', function () {

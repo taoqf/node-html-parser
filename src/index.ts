@@ -978,7 +978,7 @@ export function parse(
   let currentParent = root;
   let stack = [root];
   let pos_stack = [0];
-  let lastTextPos = -1;
+  let lastTextPos = 0;
   let prevLastIndexPos = -1;
   options = options || ({} as any);
   let match: RegExpExecArray;

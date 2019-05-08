@@ -262,6 +262,15 @@ describe('HTML Parser', function () {
 			result.root.toString().should.eql('<div><h3></h3><h3><span><span></span></span></h3></div><div></div>');
 		})
 
+		it('should fix "<img src="favicon.ico">1</img><style></style>" to "<img src="favicon.ico" />1<style></style>" with fixIssues: true', function () {
+			var result = parseHTML('<img src="favicon.ico">1</img><style></style>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.valid.should.eql(true);
+			result.root.toString().should.eql('<img src="favicon.ico" />1<style></style>');
+		})		
+
 		it('should fix "<div><div>" to "<div></div>" and return correct errors object', function () {
 			var result = parseHTML('<div><div>', {
 				fixIssues: true,

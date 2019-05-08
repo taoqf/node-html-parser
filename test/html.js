@@ -179,17 +179,17 @@ describe('HTML Parser', function () {
 
 	describe('validate', function () {
 		it("should return false when html is invalid", () => {
-			const html = "<div><h1>Good</div>"
+			const html = "<html><body><div><h1>Good</div></body></html>"
 			const resp = parseHTML(html, {
 				validate: true
 			})
-			resp.valid.should.eql(true)
+			resp.root.toString().should.eql(html)
+			resp.valid.should.eql(false)
 		})
 	})
 
 	describe('parseWithValidation', function () {
 		// parse with validation tests
-
 
 		it('should return Object with valid: true.  does not count <p><p></p> as error. instead fixes it to <p></p><p></p>', function () {
 			var result = parseHTML('<p><p></p>', {

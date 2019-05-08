@@ -194,11 +194,11 @@ describe('HTML Parser', function () {
 			result.valid.should.eql(true);
 		})
 
-		it('should return Object with valid: true.  does not count <p><h3></p> as error. instead fixes it to <p><h3></h3></p>', function () {
+		it('should return Object with valid: false.  does not count <p><h3></p> as error. instead fixes it to <p><h3></h3></p>', function () {
 			var result = parseHTML('<p><h3></p>', {
 				validate: true
 			});
-			result.valid.should.eql(true);
+			result.valid.should.eql(false);
 		})
 
 		it('hillcrestpartyrentals.html  should return Object with valid: true.  not closing <p> tag on line 476, fixes it instead', function () {
@@ -206,7 +206,7 @@ describe('HTML Parser', function () {
 				fixIssues: true,
 				validate: true
 			});
-			result.valid.should.eql(true);
+			result.valid.should.eql(false);
 		})
 
 		it('google.html  should return Object with valid: true', function () {
@@ -249,7 +249,7 @@ describe('HTML Parser', function () {
 				fixIssues: true,
 				validate: true
 			});
-			result.valid.should.eql(true);
+			result.valid.should.eql(false);
 			result.root.toString().should.eql('<li style="font-weight: 400;"><b><h3></h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>');
 		})
 
@@ -269,7 +269,7 @@ describe('HTML Parser', function () {
 			});
 			result.valid.should.eql(true);
 			result.root.toString().should.eql('<img src="favicon.ico" />1<style></style>');
-		})		
+		})
 
 		it('should fix "<div><div>" to "<div></div>" and return correct errors object', function () {
 			var result = parseHTML('<div><div>', {
@@ -290,7 +290,7 @@ describe('HTML Parser', function () {
 				fixIssues: true,
 				validate: true
 			});
-			result.valid.should.eql(true);
+			result.valid.should.eql(false);
 			result.errors.should.eql([{
 				tag: 'div',
 				type: 'not_closed',
@@ -305,7 +305,7 @@ describe('HTML Parser', function () {
 				validate: true
 			});
 			result.root.toString().should.eql('<div><h3></h3></div>');
-			result.valid.should.eql(true);
+			result.valid.should.eql(false);
 			result.errors.should.eql([{
 				tag: 'h3',
 				type: 'not_closed',

@@ -1095,7 +1095,7 @@ export function parse(
     }
   }
 
-  response["valid"] = true;
+  response["valid"] = response.errors.length > 0 ? false : true;
   response["root"] = root;
   if (stack.length === 1) {
     return options.validate ? response : root;
@@ -1143,6 +1143,10 @@ export function parse(
   if (options.fixIssues) {
     response["root"] = root;
   }
+
+
+  response["valid"] = response.errors.length > 0 ? false : true;
+  response["root"] = root;
 
   return options.validate ? response : root;
 }

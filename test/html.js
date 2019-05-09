@@ -175,6 +175,16 @@ describe('HTML Parser', function () {
 				validate: true
 			});
 		});
+
+		// Test for comment tag
+
+		it('should parse "<div><!-- This is a comment --><h3></h3><div>" to "<div><!-- This is a comment --><h3></h3></div>"', function () {
+			var result = parseHTML('<div><!-- This is a comment --><h3></h3><div>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.root.toString().should.eql('<div><!-- This is a comment --><h3></h3></div>');
+		})
 	});
 
 	describe('parseWithValidation', function () {

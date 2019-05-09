@@ -985,7 +985,7 @@ export function parse(
   let currentParent = root;
   let stack = [root];
   let pos_stack = [0];
-  let lastTextPos = 0;
+  let lastTextPos = -1;
   let prevLastIndexPos = -1;
   options = options || ({} as any);
   let match: RegExpExecArray;
@@ -1010,6 +1010,7 @@ export function parse(
     lastTextPos = kMarkupPattern.lastIndex;
     if (match[0][1] == "!") {
       // this is a comment
+      currentParent.appendChild(new TextNode(match[0]));
       continue;
     }
     if (options.lowerCaseTagName) match[2] = match[2].toLowerCase();

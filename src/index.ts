@@ -939,7 +939,6 @@ const kSelfClosingElements = {
 };
 const kElementsClosedByOpening = {
   li: { li: true },
-  p: { p: true },
   b: { div: true },
   td: { td: true, th: true },
   th: { td: true, th: true },

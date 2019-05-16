@@ -1,0 +1,62 @@
+{
+  // ===
+  // Spacing
+  // ===
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "editor.trimAutoWhitespace": true,
+  "files.trimTrailingWhitespace": true,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  // ===
+  // Files
+  // ===
+  "files.exclude": {
+    "**/*.log": true,
+    "**/*.log*": true,
+    "**/dist": true,
+    "**/coverage": true
+  },
+  "files.associations": {
+    ".markdownlintrc": "jsonc"
+  },
+  // ===
+  // Event Triggers
+  // ===
+  "editor.formatOnSave": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.run": "onSave",
+  // ===
+  // HTML
+  // ===
+  "html.format.enable": false,
+  "html.suggest.angular1": false,
+  "html.suggest.ionic": false,
+  "vetur.validation.template": false,
+  // ===
+  // JS(ON)
+  // ===
+  "jest.autoEnable": false,
+  "jest.enableCodeLens": false,
+  "eslint.validate": ["javascript", "javascriptreact", "vue"],
+  "javascript.format.enable": false,
+  "json.format.enable": false,
+  "vetur.validation.script": false,
+  // ===
+  // CSS
+  // ===
+  "stylelint.enable": true,
+  "css.validate": false,
+  "scss.validate": false,
+  "vetur.validation.style": false,
+  // ===
+  // MARKDOWN
+  // ===
+  "[markdown]": {
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.wordWrapColumn": 80
+  },
+  "python.formatting.provider": "autopep8",
+  "python.pythonPath": "/usr/local/opt/python/bin/python3.7"
+}

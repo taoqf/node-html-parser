@@ -63,7 +63,7 @@ describe('HTML Parser', function () {
 		});
 	});
 
-	var parseHTML = HTMLParser.parse;
+	var parseHTML = HTMLParser.parse
 
 	describe('parse()', function () {
 		it('should parse "<p id=\\"id\\"><a class=\'cls\'>Hello</a><ul><li><li></ul><span></span></p>" and return root element', function () {
@@ -207,165 +207,183 @@ describe('HTML Parser', function () {
 
 	describe('parseWithValidation', function () {
 		// parse with validation tests
-
-		it('should return Object with valid: false.  does not count <p><p></p> as error. instead fixes it to <p></p><p></p>', function () {
-			var result = parseHTML('<p><p></p>', {
+		it("should return false when html is invalid", () => {
+			const html = "<html><body><div><h1>Good</div></body></html>"
+			const resp = parseHTML(html, {
 				validate: true
-			});
-			result.valid.should.eql(false);
+			})
+			resp.root.toString().should.eql(html)
+			resp.valid.should.eql(false)
+    	})
+
+		it("should return unaltered html when it is invalid", () => {
+			const html = "<html><body><div><h1>Good</div></body></html>"
+			const response = parseHTML(html, {
+				validate: true,
+			})
+			response.root.toString().should.eql(html)
 		})
 
-		it('should return Object with valid: true.  does not count <p><p/></p> as error. instead fixes it to <p><p></p></p>', function () {
-			var result = parseHTML('<p><p/></p>', {
-				validate: true
-			});
-			result.valid.should.eql(true);
+		describe('with validation', function () {
+			it('should return Object with valid: false.  does not count <p><p></p> as error. instead fixes it to <p></p><p></p>', function () {
+				var result = parseHTML('<p><p></p>', {
+					validate: true
+				});
+				result.valid.should.eql(false);
+			})
+
+			it('should return Object with valid: true.  does not count <p><p/></p> as error. instead fixes it to <p><p></p></p>', function () {
+				var result = parseHTML('<p><p/></p>', {
+					validate: true
+				});
+				result.valid.should.eql(true);
+			})
+
+			it('should return Object with valid: false.  does not count <p><h3></p> as error. instead fixes it to <p><h3></h3></p>', function () {
+				var result = parseHTML('<p><h3></p>', {
+					validate: true
+				});
+				result.valid.should.eql(false);
+			})
+
 		})
 
-		it('should return Object with valid: false.  does not count <p><h3></p> as error. instead fixes it to <p><h3></h3></p>', function () {
-			var result = parseHTML('<p><h3></p>', {
-				validate: true
-			});
-			result.valid.should.eql(false);
+		describe('with validation and fix issues', function () {
+			it('hillcrestpartyrentals.html  should return Object with valid: true.  not closing <p> tag on line 476, fixes it instead', function () {
+				var result = parseHTML(fs.readFileSync(__dirname + '/html/hillcrestpartyrentals.html').toString(), {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(false);
+			})
+
+			it('google.html  should return Object with valid: true', function () {
+				var result = parseHTML(fs.readFileSync(__dirname + '/html/google.html').toString(), {
+					fixIssues: false,
+					validate: true
+				});
+				result.valid.should.eql(true);
+			})
+
+			it('gmail.html  should return Object with valid: true', function () {
+				var result = parseHTML(fs.readFileSync(__dirname + '/html/gmail.html').toString(), {
+					fixIssues: false,
+					validate: true
+				});
+				result.valid.should.eql(true);
+			})
+
+			it('ffmpeg.html  should return Object with valid: true (extra opening <div>', function () {
+				var result = parseHTML(fs.readFileSync(__dirname + '/html/ffmpeg.html').toString(), {
+					fixIssues: false,
+					validate: true
+				});
+				result.valid.should.eql(true);
+			})
+
+			it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><h3><span></span><div></div></h3></div>" with fixIssues: true', function () {
+				var result = parseHTML('<div><h3><h3><span><span></a><div>', {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(false);
+				result.root.toString().should.eql('<div><h3></h3><h3><span></span><div></div></h3></div>');
+			})
+
+			it('should fix "<div><h3><h3><div>" to "<div><h3></h3><h3><div></div></h3></div>" with fixIssues: true', function () {
+				var result = parseHTML('<div><h3><h3><div>', {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(false);
+				result.root.toString().should.eql('<div><h3></h3><h3><div></div></h3></div>');
+			})
+
+			it('should fix "<li style="font-weight: 400;"><b><h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>" to "<li style="font-weight: 400;"><b><h3></h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>" with fixIssues: true', function () {
+				var result = parseHTML('<li style="font-weight: 400;"><b><h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>', {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(false);
+				result.root.toString().should.eql('<li style="font-weight: 400;"><b><h3></h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>');
+			})
+
+			it('should fix "<div></h3></div>" to "<div></div>" and return correct errors object', function () {
+				var result = parseHTML('<div></h3></div>', {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(false);
+				result.errors.should.eql([{
+					tag: 'h3',
+					type: 'not_opened',
+					message: 'h3 tag not opened',
+					pos: 6
+				}])
+			})
+
+			it('should fix "<img src="favicon.ico">1</img><style></style>" to "<img src="favicon.ico" />1<style></style>" with fixIssues: true', function () {
+				var result = parseHTML('<img src="favicon.ico">1</img><style></style>', {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(true);
+				result.root.toString().should.eql('<img src="favicon.ico" />1<style></style>');
+			})
+
+			it('should fix "<div><div>" to "<div></div>" and return correct errors object', function () {
+				var result = parseHTML('<div><div>', {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(false);
+				result.errors.should.eql([{
+					tag: 'div',
+					type: 'not_properly_closed',
+					message: 'div tag not properly closed',
+					pos: 6
+				}])
+			})
+
+			it('should fix "<div><h3></div>" to "<div><h3></h3></div>" and return correct errors object', function () {
+				var result = parseHTML('<div><h3></div>', {
+					fixIssues: true,
+					validate: true
+				});
+				result.root.toString().should.eql('<div><h3></h3></div>');
+				result.valid.should.eql(false);
+				result.errors.should.eql([{
+					tag: 'h3',
+					type: 'not_closed',
+					message: 'h3 tag not closed',
+					pos: 10
+				}])
+			})
+
+			it('gmail.html  should return Object with valid: true', function () {
+				var result = parseHTML(fs.readFileSync(__dirname + '/html/gmail.html').toString().replace(/<\//gi, '<'), {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(false);
+			})
+
+			it('nice.html  should return Object with valid: true', function () {
+				var result = parseHTML(fs.readFileSync(__dirname + '/html/nice.html').toString().replace(/<\//gi, '<'), {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(false);
+			})
+
+			it('BestPOSSoftwareforSmallBusinessRetail_VendPOS.html  should return Object with valid: true', function () {
+				var result = parseHTML(fs.readFileSync(__dirname + '/html/BestPOSSoftwareforSmallBusinessRetail_VendPOS.html').toString(), {
+					fixIssues: true,
+					validate: true
+				});
+				result.valid.should.eql(true);
+			})
 		})
-
-		it('hillcrestpartyrentals.html  should return Object with valid: true.  not closing <p> tag on line 476, fixes it instead', function () {
-			var result = parseHTML(fs.readFileSync(__dirname + '/html/hillcrestpartyrentals.html').toString(), {
-				fixIssues: true,
-				validate: true
-			});
-			result.valid.should.eql(false);
-		})
-
-		it('google.html  should return Object with valid: true', function () {
-			var result = parseHTML(fs.readFileSync(__dirname + '/html/google.html').toString(), {
-				fixIssues: false,
-				validate: true
-			});
-			result.valid.should.eql(true);
-		})
-
-		it('gmail.html  should return Object with valid: true', function () {
-			var result = parseHTML(fs.readFileSync(__dirname + '/html/gmail.html').toString(), {
-				fixIssues: false,
-				validate: true
-			});
-			result.valid.should.eql(true);
-		})
-
-		it('ffmpeg.html  should return Object with valid: true (extra opening <div>', function () {
-			var result = parseHTML(fs.readFileSync(__dirname + '/html/ffmpeg.html').toString(), {
-				fixIssues: false,
-				validate: true
-			});
-			result.valid.should.eql(true);
-		})
-
-		// fix issue speed test
-
-		it('should fix "<div><h3><h3><div>" to "<div><h3></h3><h3><div></div></h3></div>" with fixIssues: true', function () {
-			var result = parseHTML('<div><h3><h3><div>', {
-				fixIssues: true,
-				validate: true
-			});
-			result.valid.should.eql(false);
-			result.root.toString().should.eql('<div><h3></h3><h3><div></div></h3></div>');
-		})
-
-		it('should fix "<li style="font-weight: 400;"><b><h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>" to "<li style="font-weight: 400;"><b><h3></h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>" with fixIssues: true', function () {
-			var result = parseHTML('<li style="font-weight: 400;"><b><h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>', {
-				fixIssues: true,
-				validate: true
-			});
-			result.valid.should.eql(false);
-			result.root.toString().should.eql('<li style="font-weight: 400;"><b><h3></h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>');
-		})
-
-		it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><h3><span></span><div></div></h3></div>" with fixIssues: true', function () {
-			var result = parseHTML('<div><h3><h3><span><span></a><div>', {
-				fixIssues: true,
-				validate: true
-			});
-			result.valid.should.eql(false);
-			result.root.toString().should.eql('<div><h3></h3><h3><span></span><div></div></h3></div>');
-		})
-
-		it('should fix "<img src="favicon.ico">1</img><style></style>" to "<img src="favicon.ico" />1<style></style>" with fixIssues: true', function () {
-			var result = parseHTML('<img src="favicon.ico">1</img><style></style>', {
-				fixIssues: true,
-				validate: true
-			});
-			result.valid.should.eql(true);
-			result.root.toString().should.eql('<img src="favicon.ico" />1<style></style>');
-		})
-
-		it('should fix "<div><div>" to "<div></div>" and return correct errors object', function () {
-			var result = parseHTML('<div><div>', {
-				fixIssues: true,
-				validate: true
-			});
-			result.valid.should.eql(false);
-			result.errors.should.eql([{
-				tag: 'div',
-				type: 'not_properly_closed',
-				message: 'div tag not properly closed',
-				pos: 6
-			}])
-		})
-
-		it('should fix "<div></h3></div>" to "<div></div>" and return correct errors object', function () {
-			var result = parseHTML('<div></h3></div>', {
-				fixIssues: true,
-				validate: true
-			});
-			result.valid.should.eql(false);
-			result.errors.should.eql([{
-				tag: 'h3',
-				type: 'not_opened',
-				message: 'h3 tag not opened',
-				pos: 6
-			}])
-		})
-
-		it('should fix "<div><h3></div>" to "<div><h3></h3></div>" and return correct errors object', function () {
-			var result = parseHTML('<div><h3></div>', {
-				fixIssues: true,
-				validate: true
-			});
-			result.root.toString().should.eql('<div><h3></h3></div>');
-			result.valid.should.eql(false);
-			result.errors.should.eql([{
-				tag: 'h3',
-				type: 'not_closed',
-				message: 'h3 tag not closed',
-				pos: 10
-			}])
-		})
-
-		it('gmail.html  should return Object with valid: true', function () {
-			var result = parseHTML(fs.readFileSync(__dirname + '/html/gmail.html').toString().replace(/<\//gi, '<'), {
-				fixIssues: true,
-				validate: true
-			});
-			result.valid.should.eql(false);
-		})
-
-		it('nice.html  should return Object with valid: true', function () {
-			var result = parseHTML(fs.readFileSync(__dirname + '/html/nice.html').toString().replace(/<\//gi, '<'), {
-				fixIssues: true,
-				validate: true
-			});
-			result.valid.should.eql(false);
-		})
-
-		it('BestPOSSoftwareforSmallBusinessRetail_VendPOS.html  should return Object with valid: true', function () {
-			var result = parseHTML(fs.readFileSync(__dirname + '/html/BestPOSSoftwareforSmallBusinessRetail_VendPOS.html').toString(), {
-				fixIssues: true,
-				validate: true
-			});
-			result.valid.should.eql(true);
-		})
-
 	});
 
 	describe('TextNode', function () {

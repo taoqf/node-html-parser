@@ -194,6 +194,15 @@ describe('HTML Parser', function () {
 			});
 			result.root.toString().should.eql('<p>This<p>is a test</p></p>');
 		})
+
+		// Test for <p><div>ABC</abc><div>123</div></div></p>
+		it('should parse "<p><div>ABC</abc><div>123</div></div></p>"', function () {
+			var result = parseHTML('<p><div>ABC</abc><div>123</div></div></p>', {
+				fixIssues: true,
+				validate: true
+			});
+			result.root.toString().should.eql('<p><div>ABC<div>123</div></div></p>');
+		})
 	});
 
 	describe('parseWithValidation', function () {
@@ -272,13 +281,13 @@ describe('HTML Parser', function () {
 			result.root.toString().should.eql('<li style="font-weight: 400;"><b><h3></h3></b><span style="font-weight: 400;"> 3. Write your content</span></li>');
 		})
 
-		it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><h3><span><span></span></span></h3></div><div></div>" with fixIssues: true', function () {
+		it('should fix "<div><h3><h3><span><span><div>" to "<div><h3></h3><h3><span></span><div></div></h3></div>" with fixIssues: true', function () {
 			var result = parseHTML('<div><h3><h3><span><span></a><div>', {
 				fixIssues: true,
 				validate: true
 			});
 			result.valid.should.eql(false);
-			result.root.toString().should.eql('<div><h3></h3><h3><span><span></span></span></h3></div><div></div>');
+			result.root.toString().should.eql('<div><h3></h3><h3><span></span><div></div></h3></div>');
 		})
 
 		it('should fix "<img src="favicon.ico">1</img><style></style>" to "<img src="favicon.ico" />1<style></style>" with fixIssues: true', function () {
@@ -311,9 +320,9 @@ describe('HTML Parser', function () {
 			});
 			result.valid.should.eql(false);
 			result.errors.should.eql([{
-				tag: 'div',
-				type: 'not_closed',
-				message: 'div tag not closed',
+				tag: 'h3',
+				type: 'not_opened',
+				message: 'h3 tag not opened',
 				pos: 6
 			}])
 		})

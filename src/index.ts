@@ -983,6 +983,7 @@ export function parse(
   const root = new HTMLElement(null, {});
   let currentParent = root;
   let stack = [root];
+  let map = new Array();
   let pos_stack = [0];
   let lastTextPos = 0;
   let prevLastIndexPos = -1;
@@ -1021,6 +1022,7 @@ export function parse(
 
       if (!match[4] && kElementsClosedByOpening[currentParent.tagName]) {
         if (kElementsClosedByOpening[currentParent.tagName][match[2]]) {
+          map[currentParent.tagName] = false;
           stack.pop();
           pos_stack.pop();
           currentParent = arr_back(stack);
@@ -1031,6 +1033,7 @@ export function parse(
       ) as HTMLElement;
       stack.push(currentParent);
       pos_stack.push(prevLastIndexPos);
+      map[match[2]] = true;
       if (kBlockTextElements[match[2]]) {
         // a little test to find next </script> or </style> ...
         var closeMarkup = "</" + match[2] + ">";
@@ -1058,14 +1061,25 @@ export function parse(
       if (match[1] && kSelfClosingElements[match[2]]) continue;
       while (stack.length > 1) {
         if (currentParent.tagName == match[2]) {
+          map[currentParent.tagName] = false;
           stack.pop();
           pos_stack.pop();
           currentParent = arr_back(stack);
           break;
         } else {
+          if(!map[match[2]]) {
+            response.errors.push({
+              tag: match[2],
+              type: "not_opened",
+              message: match[2] + " tag not opened",
+              pos: prevLastIndexPos
+            });            
+            break;
+          }
           // Trying to close current tag, and move on
           if (kElementsClosedByClosing[currentParent.tagName]) {
             if (kElementsClosedByClosing[currentParent.tagName][match[2]]) {
+              map[currentParent.tagName] = false;
               stack.pop();
               pos_stack.pop();
               currentParent = arr_back(stack);
@@ -1081,6 +1095,8 @@ export function parse(
           });
 
           // Close tag when parent is closed.
+          
+          map[currentParent.tagName] = false;
           stack.pop();
           pos_stack.pop();
           currentParent = arr_back(stack);

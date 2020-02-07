@@ -1,4 +1,4 @@
-import { decode } from 'he';
+import { decode, encode } from 'he';
 import Node from './node';
 import NodeType from './type';
 import TextNode from './text';
@@ -465,49 +465,43 @@ export default class HTMLElement extends Node {
 	/**
 	 * Set an attribute value to the HTMLElement
 	 * @param {string} key The attribute name
-	 * @param {string} value The value to set, or null / undefined to remove an attribute
+	 * @param {string} value The value to set
 	 */
-	public setAttribute(key: string, value: string) {
-		if (arguments.length < 2) {
-			throw new Error('Failed to execute \'setAttribute\' on \'Element\'');
+	setAttribute(key: string, value: string) {
+		if (!key || arguments.length===1) {
+			throw new Error(`setAttribute() requires two parameters, but ${!key ? 'key was '+key : 'value was undefined'}.`);
 		}
-		const attrs = this.rawAttributes;
-		attrs[key] = String(value);
-		if (this._attrs) {
-			this._attrs[key] = decode(attrs[key]);
+		//Update the attributes map
+		const attrs = this.attributes;
+		attrs[key] = value+'';
+		//Update the raw attributes
+		if(this._rawAttrs) {
+			this._rawAttrs[key] = encode(value+'');
 		}
-		// Update rawString
-		this.rawAttrs = Object.keys(attrs).map((name) => {
-			const val = JSON.stringify(attrs[name]);
-			if (val === undefined || val === 'null') {
-				return name;
-			} else {
-				return name + '=' + val;
-			}
-		}).join(' ');
+		//Update rawString
+		this.rawAttrs = Object.keys(attrs).map(attr => attr+(attrs[attr]==='' ? '' : ('="'+encode(attrs[attr])+'"'))).join(' ');
 	}
 
 	/**
 	 * Replace all the attributes of the HTMLElement by the provided attributes
 	 * @param {Attributes} attributes the new attribute set
 	 */
-	public setAttributes(attributes: Attributes) {
-		// Invalidate current this.attributes
-		if (this._attrs) {
-			delete this._attrs;
+	setAttributes(attributes: Attributes) {
+		if (!(attributes instanceof Object)) {
+			throw new Error(`setAttributes() requires an Object as parameters but received ${typeof attributes}.`);
 		}
-		// Invalidate current this.rawAttributes
-		if (this._rawAttrs) {
-			delete this._rawAttrs;
+		//Update the attributes map
+		if(this.attributes) {
+			Object.keys(this.attributes).forEach(key => delete this.attributes[key]);
+			Object.keys(attributes).forEach(key => this.attributes[key] = attributes[key]+'');
 		}
-		// Update rawString
-		this.rawAttrs = Object.keys(attributes).map((name) => {
-			const val = attributes[name];
-			if (val === undefined || val === null) {
-				return name;
-			} else {
-				return name + '=' + JSON.stringify(String(val));
-			}
-		}).join(' ');
+		//Update the raw attributes map
+		if(this.rawAttributes) {
+			Object.keys(this.rawAttributes).forEach(key => delete this.rawAttributes[key]);
+			Object.keys(attributes).forEach(key => this.rawAttributes[key] = encode(attributes[key]+''));
+		}
+		//Update rawString
+		this.rawAttrs = Object.keys(attributes).map(attr => attr+(attributes[attr]==='' ? '' : ('="'+encode(attributes[attr]+'')+'"'))).join(' ');
 	}
 }
+

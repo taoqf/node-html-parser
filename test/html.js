@@ -363,6 +363,8 @@ describe('HTML Parser', function () {
 					'b': '13',
 				});
 				root.firstChild.toString().should.eql('<p a="12" b="13"></p>');
+				root.firstChild.setAttribute('required', '');
+				root.firstChild.toString().should.eql('<p a="12" b="13" required></p>');
 			});
 			it('should convert value to string', function () {
 				var root = parseHTML('<p a=12 b=13 c=14></p>');
@@ -393,26 +395,38 @@ describe('HTML Parser', function () {
 		});
 
 		describe('#setAttributes', function () {
-			it('should return attributes of the element', function () {
+			it('should replace attributes of the element', function () {
 				var root = parseHTML('<p a=12 data-id="!$$&amp;" yAz=\'1\' class="" disabled></p>');
 				root.firstChild.setAttributes({
 					c: 12,
-					d: '&&<>foo'
+					d: '&&<>foo',
+					required: ''
 				});
 				root.firstChild.attributes.should.eql({
 					'c': '12',
-					d: '&&<>foo'
+					d: '&&<>foo',
+					required: ''
 				});
-				root.firstChild.toString().should.eql('<p c="12" d="&&<>foo"></p>');
-				// root.firstChild.toString().should.eql('<p c=12 d="&#x26;&#x26;&#x3C;&#x3E;foo"></p>');
+				root.firstChild.toString().should.eql('<p c="12" d="&#x26;&#x26;&#x3C;&#x3E;foo" required></p>');
 			});
 		});
 
 		describe('#removeAttribute', function () {
-			var root = parseHTML('<input required>');
-			var input = root.firstChild;
-			input.removeAttribute('required');
-			input.toString().should.eql('<input />');
+			it('should remove boolean attributes', function () {
+				var root = parseHTML('<input required>');
+				root.firstChild.removeAttribute('required');
+				root.firstChild.toString().should.eql('<input />');
+			});
+			it('should re-encode attributes correctly', function () {
+				var root = parseHTML('<p a=12 b=13 c=14 data-id="!$$&amp;"></p>');
+				root.firstChild.removeAttribute('b');
+				root.firstChild.removeAttribute('c');
+				root.firstChild.attributes.should.eql({
+					'a': '12',
+					'data-id': "!$$&"
+				});
+				root.firstChild.toString().should.eql('<p a="12" data-id="!$$&amp;"></p>');
+			});
 		});
 
 		describe('#hasAttribute', function () {
@@ -509,7 +523,8 @@ describe('HTML Parser', function () {
 				var root = parseHTML('<img src="default.jpg" alt="Verissimo, Ilaria D&#39;Amico: &laquo;Sogno una bambina. Buffon mi ha chiesto in moglie tante volte&raquo;">');
 				root.firstChild.getAttribute('alt').should.eql(`Verissimo, Ilaria D'Amico: «Sogno una bambina. Buffon mi ha chiesto in moglie tante volte»`);
 				root.firstChild.attributes.alt.should.eql(`Verissimo, Ilaria D'Amico: «Sogno una bambina. Buffon mi ha chiesto in moglie tante volte»`);
-				root.firstChild.setAttribute('alt', '&laquo;Sogno');
+				root.firstChild.setAttribute('alt', '«Sogno');
+				root.firstChild.rawAttributes.alt.should.eql('&#xAB;Sogno');
 				root.firstChild.getAttribute('alt').should.eql('«Sogno');
 			});
 		});

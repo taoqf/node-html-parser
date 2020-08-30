@@ -53,7 +53,7 @@ console.log(root.querySelector('#list'));
 //   classNames: [] }
 console.log(root.toString());
 // <ul id="list"><li>Hello World</li></ul>
-root.set_content('<li>Hello World</li>');
+root.setContent('<li>Hello World</li>');
 root.toString();	// <li>Hello World</li>
 ```
 
@@ -160,6 +160,6 @@ Get innerHTML.
 
 Get outerHTML.
 
-### HTMLElement#set_content(content: string | Node | Node[])
+### HTMLElement#setContent(content: string | Node | Node[])
 
 Set content. **Notice**: Do not set content of the **root** node.

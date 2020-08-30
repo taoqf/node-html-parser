@@ -6,7 +6,7 @@ import NodeType from './type';
 export default abstract class Node {
 	nodeType: NodeType;
 	childNodes = [] as Node[];
-	text: string;
-	rawText: string;
+	_text: string;
+	_rawText: string;
 	abstract toString(): string;
 }

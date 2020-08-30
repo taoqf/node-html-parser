@@ -8,32 +8,32 @@ import Node from './node';
 export default class TextNode extends Node {
 	constructor(value: string) {
 		super();
-		this.rawText = value;
+		this._rawText = value;
 	}
 
 	/**
 	 * Node Type declaration.
 	 * @type {Number}
 	 */
-	nodeType = NodeType.TEXT_NODE;
+	nodeType = NodeType.textNode;
 
 	/**
 	 * Get unescaped text value of current node and its children.
 	 * @return {string} text content
 	 */
-	get text() {
-		return this.rawText;
+	get text(): string {
+		return this._rawText;
 	}
 
 	/**
 	 * Detect if the node contains only white space.
 	 * @return {bool}
 	 */
-	get isWhitespace() {
-		return /^(\s|&nbsp;)*$/.test(this.rawText);
+	get isWhitespace(): boolean {
+		return /^(\s|&nbsp;)*$/.test(this._rawText);
 	}
 
-	toString() {
-		return this.text;
+	toString(): string {
+		return this._rawText;
 	}
 }

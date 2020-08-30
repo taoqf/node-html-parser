@@ -1,10 +1,10 @@
 import HTMLElement from './nodes/html';
 
 interface MatherFunction {
-	func(el: HTMLElement, tagName: string, classes: string[] | string, attr_key: string, value: string): boolean;
+	func(el: HTMLElement, tagName: string, classes: string[] | string, attrKey: string, value: string): boolean;
 	tagName: string;
 	classes: string | string[];
-	attr_key: string;
+	attrKey: string;
 	value: string;
 }
 
@@ -62,51 +62,51 @@ const functionCache = {
 		'use strict';
 		return true;
 	},
-	f55(el: HTMLElement, tagName: string, classes: string[], attr_key: string) {
+	f55(el: HTMLElement, tagName: string, classes: string[], attrKey: string) {
 		'use strict';
 		tagName = tagName || '';
 		classes = classes || [];
-		attr_key = attr_key || '';
+		attrKey = attrKey || '';
 		const attrs = el.attributes;
-		return attrs.hasOwnProperty(attr_key);
+		return attrs.hasOwnProperty(attrKey);
 	},
-	f245(el: HTMLElement, tagName: string, classes: string[], attr_key: string, value: string) {
+	f245(el: HTMLElement, tagName: string, classes: string[], attrKey: string, value: string) {
 		'use strict';
 		tagName = tagName || '';
 		classes = classes || [];
-		attr_key = attr_key || '';
+		attrKey = attrKey || '';
 		value = value || '';
 		const attrs = el.attributes;
 		return Object.keys(attrs).some((key) => {
 			const val = attrs[key];
-			return key === attr_key && val === value
+			return key === attrKey && val === value
 		});
 		// for (let cls = classes, i = 0; i < cls.length; i++) {if (el.classNames.indexOf(cls[i]) === -1){ return false;}}
 		// return true;
 	},
-	f25(el: HTMLElement, tagName: string, classes: string[], attr_key: string, value: string) {
+	f25(el: HTMLElement, tagName: string, classes: string[], attrKey: string, value: string) {
 		'use strict';
 		tagName = tagName || '';
 		classes = classes || [];
-		attr_key = attr_key || '';
+		attrKey = attrKey || '';
 		value = value || '';
 		const attrs = el.attributes;
 		return Object.keys(attrs).some((key) => {
 			const val = attrs[key];
-			return key === attr_key && val === value
+			return key === attrKey && val === value
 		});
 		// return true;
 	},
-	f2(el: HTMLElement, tagName: string, classes: string[], attr_key: string, value: string) {
+	f2(el: HTMLElement, tagName: string, classes: string[], attrKey: string, value: string) {
 		'use strict';
 		tagName = tagName || '';
 		classes = classes || [];
-		attr_key = attr_key || '';
+		attrKey = attrKey || '';
 		value = value || '';
 		const attrs = el.attributes;
 		return Object.keys(attrs).some((key) => {
 			const val = attrs[key];
-			return key === attr_key && val === value
+			return key === attrKey && val === value
 		});
 	},
 	f345(el: HTMLElement, tagName: string, classes: string[]) {
@@ -160,18 +160,18 @@ export default class Matcher {
 			const tagName = parts[0];
 			const classes = parts.slice(1).sort();
 			// let source = '"use strict";';
-			let function_name = 'f';
-			let attr_key = '';
+			let functionName = 'f';
+			let attrKey = '';
 			let value = '';
 			if (tagName && tagName !== '*') {
 				let reg: RegExpMatchArray;
 				if (tagName.startsWith('#')) {
 					// source += 'if (el.id != ' + JSON.stringify(tagName.substr(1)) + ') return false;';// 1
-					function_name += '1';
+					functionName += '1';
 				} else {
 					reg = /^\[\s*(\S+)\s*(=|!=)\s*((((["'])([^\6]*)\6))|(\S*?))\]\s*/.exec(tagName);
 					if (reg) {
-						attr_key = reg[1];
+						attrKey = reg[1];
 						let method = reg[2];
 						if (method !== '=' && method !== '!=') {
 							throw new Error('Selector not supported, Expect [key${op}value].op must be =,!=');
@@ -181,30 +181,30 @@ export default class Matcher {
 						}
 						value = reg[7] || reg[8];
 
-						// source += `let attrs = el.attributes;for (let key in attrs){const val = attrs[key]; if (key == "${attr_key}" && val == "${value}"){return true;}} return false;`;// 2
-						function_name += '2';
+						// source += `let attrs = el.attributes;for (let key in attrs){const val = attrs[key]; if (key == "${attrKey}" && val == "${value}"){return true;}} return false;`;// 2
+						functionName += '2';
 					} else if (reg = /^\[(.*?)\]/.exec(tagName)) {
-						attr_key = reg[1];
+						attrKey = reg[1];
 
-						function_name += '5';
+						functionName += '5';
 
 					} else {
 						// source += 'if (el.tagName != ' + JSON.stringify(tagName) + ') return false;';// 3
-						function_name += '3';
+						functionName += '3';
 					}
 				}
 			}
 			if (classes.length > 0) {
 				// source += 'for (let cls = ' + JSON.stringify(classes) + ', i = 0; i < cls.length; i++) if (el.classNames.indexOf(cls[i]) === -1) return false;';// 4
-				function_name += '4';
+				functionName += '4';
 			}
 			// source += 'return true;';// 5
-			function_name += '5';
+			functionName += '5';
 			const obj = {
-				func: functionCache[function_name],
+				func: functionCache[functionName] as () => boolean,
 				tagName: tagName || '',
 				classes: classes || '',
-				attr_key: attr_key || '',
+				attrKey: attrKey || '',
 				value: value || ''
 			}
 			// source = source || '';
@@ -216,9 +216,9 @@ export default class Matcher {
 	 * @param  {HTMLElement} el element to make the match
 	 * @return {bool}           true when pointer advanced.
 	 */
-	advance(el: HTMLElement) {
+	advance(el: HTMLElement): boolean {
 		if (this.nextMatch < this.matchers.length &&
-			this.matchers[this.nextMatch].func(el, this.matchers[this.nextMatch].tagName, this.matchers[this.nextMatch].classes, this.matchers[this.nextMatch].attr_key, this.matchers[this.nextMatch].value)) {
+			this.matchers[this.nextMatch].func(el, this.matchers[this.nextMatch].tagName, this.matchers[this.nextMatch].classes, this.matchers[this.nextMatch].attrKey, this.matchers[this.nextMatch].value)) {
 			this.nextMatch++;
 			return true;
 		}
@@ -227,27 +227,27 @@ export default class Matcher {
 	/**
 	 * Rewind the match pointer
 	 */
-	rewind() {
+	rewind(): void {
 		this.nextMatch--;
 	}
 	/**
 	 * Trying to determine if match made.
 	 * @return {bool} true when the match is made
 	 */
-	get matched() {
+	get matched(): boolean {
 		return this.nextMatch === this.matchers.length;
 	}
 	/**
 	 * Rest match pointer.
 	 * @return {[type]} [description]
 	 */
-	reset() {
+	reset(): void {
 		this.nextMatch = 0;
 	}
 	/**
 	 * flush cache to free memory
 	 */
-	flushCache() {
+	flushCache(): void {
 		pMatchFunctionCache = {};
 	}
 }

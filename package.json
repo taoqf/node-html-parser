@@ -23,30 +23,30 @@
 	],
 	"license": "MIT",
 	"dependencies": {
-		"he": "1.1.1"
+		"he": "^1.2.0"
 	},
 	"devDependencies": {
-		"@types/entities": "latest",
-		"@types/he": "latest",
-		"@types/node": "latest",
-		"@typescript-eslint/eslint-plugin": "latest",
-		"@typescript-eslint/eslint-plugin-tslint": "latest",
-		"@typescript-eslint/parser": "latest",
-		"blanket": "latest",
-		"del-cli": "latest",
-		"eslint": "latest",
+		"@types/entities": "^1.1.1",
+		"@types/he": "^1.1.1",
+		"@types/node": "^14.6.2",
+		"@typescript-eslint/eslint-plugin": "^3.10.1",
+		"@typescript-eslint/eslint-plugin-tslint": "^3.10.1",
+		"@typescript-eslint/parser": "^3.10.1",
+		"blanket": "^1.2.3",
+		"del-cli": "^3.0.1",
+		"eslint": "^7.7.0",
 		"high5": "^1.0.0",
 		"htmlparser": "^1.7.7",
 		"htmlparser-benchmark": "^1.1.3",
 		"htmlparser2": "^4.1.0",
 		"libxmljs": "^0.19.7",
-		"mocha": "latest",
-		"parse5": "^6.0.0",
-		"should": "latest",
-		"spec": "latest",
-		"travis-cov": "latest",
+		"mocha": "^8.1.3",
+		"parse5": "^6.0.1",
+		"should": "^13.2.3",
+		"spec": "^1.0.0",
+		"travis-cov": "^0.2.5",
 		"tslint": "^5.0.0",
-		"typescript": "next"
+		"typescript": "^4.0.0"
 	},
 	"config": {
 		"blanket": {

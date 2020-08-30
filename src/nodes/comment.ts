@@ -4,24 +4,24 @@ import NodeType from './type';
 export default class CommentNode extends Node {
 	constructor(value: string) {
 		super();
-		this.rawText = value;
+		this._rawText = value;
 	}
 
 	/**
 	 * Node Type declaration.
 	 * @type {Number}
 	 */
-	nodeType = NodeType.COMMENT_NODE;
+	nodeType = NodeType.commentNode;
 
 	/**
 	 * Get unescaped text value of current node and its children.
 	 * @return {string} text content
 	 */
-	get text() {
-		return this.rawText;
+	get text(): string {
+		return this._rawText;
 	}
 
-	toString() {
-		return `<!--${this.rawText}-->`;
+	toString(): string {
+		return `<!--${this._rawText}-->`;
 	}
 }

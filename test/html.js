@@ -514,31 +514,31 @@ describe('HTML Parser', function () {
 				root.structuredText.should.eql('o\na');
 			});
 		});
-		describe('#set_content', function () {
+		describe('#setContent', function () {
 			it('set content string', function () {
 				const root = parseHTML('<div></div>');
-				root.childNodes[0].set_content('<span><div>abc</div>bla</span>');
+				root.childNodes[0].setContent('<span><div>abc</div>bla</span>');
 				root.toString().should.eql('<div><span><div>abc</div>bla</span></div>');
 			});
 			it('set content nodes', function () {
 				const root = parseHTML('<div></div>');
-				root.childNodes[0].set_content(parseHTML('<span><div>abc</div>bla</span>').childNodes);
+				root.childNodes[0].setContent(parseHTML('<span><div>abc</div>bla</span>').childNodes);
 				root.toString().should.eql('<div><span><div>abc</div>bla</span></div>');
 			});
 			it('set content node', function () {
 				const root = parseHTML('<div></div>');
-				root.childNodes[0].set_content(parseHTML('<span><div>abc</div>bla</span>').childNodes[0]);
+				root.childNodes[0].setContent(parseHTML('<span><div>abc</div>bla</span>').childNodes[0]);
 				root.toString().should.eql('<div><span><div>abc</div>bla</span></div>');
 			});
 			it('set content text', function () {
 				const root = parseHTML('<div></div>');
-				root.childNodes[0].set_content('abc');
+				root.childNodes[0].setContent('abc');
 				root.toString().should.eql('<div>abc</div>');
 			});
 			it('set content pre', function () {
 				const root = parseHTML(`<html><head></head><body></body></html>`);
 				const body = root.querySelector("body");
-				body.set_content(`<pre>this    is some    preformatted    text</pre>`, { pre: true });
+				body.setContent(`<pre>this    is some    preformatted    text</pre>`, { pre: true });
 				root.toString().should.eql('<html><head></head><body><pre>this    is some    preformatted    text</pre></body></html>')
 			});
 		});
@@ -633,7 +633,7 @@ This content should be enclosed within an escaped p tag&lt;br /&gt;
 				a.removeChild(b);
 				a.childNodes.length.should.eql(0);
 			});
-			it.only('shoud not remove child node which does not exist', function () {
+			it('shoud not remove child node which does not exist', function () {
 				const html = '<a><b><c></c></b></a>';
 				const root = parseHTML(html);
 				const a = root.firstChild;

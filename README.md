@@ -162,6 +162,20 @@ Get unescaped text value of current node and its children. Like `innerText`.
 Get escpaed (as-it) text value of current node and its children. May have
 `&amp;` in it. (fast)
 
+### HTMLElement#rawTagName
+
+Get the raw tag name of current node when your type is HTMLElement. Typescript example:
+
+```ts
+import { parse } from 'node-html-parser';
+
+const root = parse('<ul id="list"><li>Hello World</li></ul>');
+
+if (item instanceof HTMLElement) {
+  console.log(root.firstChild.rawTagName);
+}
+```
+
 ### HTMLElement#structuredText
 
 Get structured Text

@@ -1,7 +1,7 @@
 import he from 'he';
 import { selectAll, selectOne } from 'css-select';
 import Node from './node';
-import NodeType from './type';
+import { NodeOptions, NodeType } from './type';
 import TextNode from './text';
 import Matcher from '../matcher';
 import arr_back from '../back';
@@ -70,8 +70,8 @@ export default class HTMLElement extends Node {
 	 *
 	 * @memberof HTMLElement
 	 */
-	public constructor(tagName: string, keyAttrs: KeyAttributes, private rawAttrs = '', parentNode: HTMLElement | null) {
-		super(parentNode);
+	public constructor(tagName: string, keyAttrs: KeyAttributes, private rawAttrs = '', parentNode: HTMLElement | null, nodeOptions: NodeOptions = {}) {
+		super(parentNode, nodeOptions);
 		this.rawTagName = tagName;
 		this.rawAttrs = rawAttrs || '';
 		this.childNodes = [];
@@ -785,12 +785,26 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 	let match: RegExpExecArray;
 	// https://github.com/taoqf/node-html-parser/issues/38
 	data = `<${frameflag}>${data}</${frameflag}>`;
+	const dataOffset = `<${frameflag}>`.length;
+	const dataLastIndex = data.length - `</${frameflag}>`.length - 1;
+
+	function nodeArgs(start: number, end: number) {
+		const text = data.substring(start, end);
+		const nodeOptions = {
+			start: start - dataOffset,
+			end: end - dataOffset,
+		};
+		return { text, nodeOptions };
+	}
+
 	while ((match = kMarkupPattern.exec(data))) {
+		// match[0] is open or close tag, without content
+		//console.dir({ ...match, input: undefined }); // debug
 		if (lastTextPos > -1) {
 			if (lastTextPos + match[0].length < kMarkupPattern.lastIndex) {
 				// if has content
-				const text = data.substring(lastTextPos, kMarkupPattern.lastIndex - match[0].length);
-				currentParent.appendChild(new TextNode(text, currentParent));
+				const { text, nodeOptions } = nodeArgs(lastTextPos, match.index);
+				currentParent.appendChild(new TextNode(text, currentParent, nodeOptions));
 			}
 		}
 		lastTextPos = kMarkupPattern.lastIndex;
@@ -801,8 +815,11 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 			// this is a comment
 			if (options.comment) {
 				// Only keep what is in between <!-- and -->
-				const text = data.substring(lastTextPos - 3, lastTextPos - match[0].length + 4);
-				currentParent.appendChild(new CommentNode(text, currentParent));
+				const { text, nodeOptions } = nodeArgs(
+					lastTextPos - 3,
+					lastTextPos - match[0].length + 4
+				);
+				currentParent.appendChild(new CommentNode(text, currentParent, nodeOptions));
 			}
 			continue;
 		}
@@ -810,10 +827,12 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 			match[2] = match[2].toLowerCase();
 		}
 		if (!match[1]) {
-			// not </ tags
+			// open tag
 			const attrs = {};
-			for (let attMatch; (attMatch = kAttributePattern.exec(match[3]));) {
-				attrs[attMatch[2].toLowerCase()] = attMatch[4] || attMatch[5] || attMatch[6];
+			if (match[3]) {
+				for (let attMatch; (attMatch = kAttributePattern.exec(match[3]));) {
+					attrs[attMatch[2].toLowerCase()] = attMatch[4] || attMatch[5] || attMatch[6];
+				}
 			}
 
 			const tagName = currentParent.rawTagName as 'LI' | 'P' | 'B' | 'TD' | 'TH' | 'H1' | 'H2' | 'H3' | 'H4' | 'H5' | 'H6' | 'li' | 'p' | 'b' | 'td' | 'th' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
@@ -823,9 +842,14 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 					currentParent = arr_back(stack);
 				}
 			}
+			const nodeOptions = {
+				start: match.index - dataOffset,
+				//end: -1, // end is unknown here
+			};
 			// ignore container tag we add above
 			// https://github.com/taoqf/node-html-parser/issues/38
-			currentParent = currentParent.appendChild(new HTMLElement(match[2], attrs, match[3], null));
+			//console.dir({ new_HTMLElement: { name: match[2], attrs, attrRaw: match[3], parent: null, nodeOptions } }); // debug
+			currentParent = currentParent.appendChild(new HTMLElement(match[2], attrs, match[3], null, nodeOptions));
 			stack.push(currentParent);
 			if (is_block_text_element(match[2])) {
 				// a little test to find next </script> or </style> ...
@@ -838,14 +862,19 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 				})();
 				if (element_should_be_ignore(match[2])) {
 					let text: string;
+					const nodeOptions = {
+						start: kMarkupPattern.lastIndex - dataOffset,
+						end: dataLastIndex, // TODO verify
+					};
 					if (index === -1) {
 						// there is no matching ending for the text element.
 						text = data.substr(kMarkupPattern.lastIndex);
 					} else {
 						text = data.substring(kMarkupPattern.lastIndex, index);
+						nodeOptions.end = index - dataOffset;
 					}
 					if (text.length > 0) {
-						currentParent.appendChild(new TextNode(text, currentParent));
+						currentParent.appendChild(new TextNode(text, currentParent, nodeOptions));
 					}
 				}
 				if (index === -1) {

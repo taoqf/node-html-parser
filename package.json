@@ -13,6 +13,9 @@
 		"ts:amd": "tsc -t es5 -m amd -d false --outFile ./dist/main.js",
 		"ts:esm": "tsc -t esnext -m esnext -d false --outDir ./dist/esm/",
 		"build": "npm run lint && npm run clean && npm run ts:cjs && npm run ts:amd && npm run ts:esm",
+		"build-cjs": "npm run lint && npm run clean && npm run ts:cjs",
+		"build-amd": "npm run lint && npm run clean && npm run ts:amd",
+		"build-esm": "npm run lint && npm run clean && npm run ts:esm",
 		"dev": "tsc -w & mocha -w ./test/*.js",
 		"pretest": "tsc -m commonjs"
 	},

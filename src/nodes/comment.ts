@@ -1,10 +1,10 @@
 import Node from './node';
-import NodeType from './type';
+import { NodeOptions, NodeType } from './type';
 import HTMLElement from './html';
 
 export default class CommentNode extends Node {
-	public constructor(public rawText: string, parentNode: HTMLElement) {
-		super(parentNode);
+	public constructor(public rawText: string, parentNode: HTMLElement, nodeOptions: NodeOptions) {
+		super(parentNode, nodeOptions);
 	}
 
 	/**

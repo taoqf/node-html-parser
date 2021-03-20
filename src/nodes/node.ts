@@ -1,4 +1,4 @@
-import NodeType from './type';
+import { NodeOptions, NodeType, SourceLocation } from './type';
 import HTMLElement from './html';
 
 /**
@@ -7,11 +7,16 @@ import HTMLElement from './html';
 export default abstract class Node {
 	abstract nodeType: NodeType;
 	public childNodes = [] as Node[];
+	public _source: SourceLocation;
 	abstract text: string;
 	abstract rawText: string;
 	// abstract get rawText(): string;
 	abstract toString(): string;
-	public constructor(public parentNode = null as HTMLElement | null) {
+	public constructor(public parentNode = null as HTMLElement | null, nodeOptions: NodeOptions = {}) {
+		this._source = {
+			start: nodeOptions.start,
+			end: nodeOptions.end,
+		};
 	}
 	public get innerText() {
 		return this.rawText;

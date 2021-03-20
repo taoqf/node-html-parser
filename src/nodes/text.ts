@@ -1,4 +1,4 @@
-import NodeType from './type';
+import { NodeOptions, NodeType } from './type';
 import Node from './node';
 import HTMLElement from './html';
 
@@ -7,8 +7,8 @@ import HTMLElement from './html';
  * @param {string} value [description]
  */
 export default class TextNode extends Node {
-	public constructor(public rawText: string, parentNode: HTMLElement) {
-		super(parentNode);
+	public constructor(public rawText: string, parentNode: HTMLElement, nodeOptions: NodeOptions = {}) {
+		super(parentNode, nodeOptions);
 	}
 
 	/**

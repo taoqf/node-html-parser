@@ -4,4 +4,4 @@ export { default as parse, default } from './parse';
 export { default as valid } from './valid';
 export { default as Node } from './nodes/node';
 export { default as TextNode } from './nodes/text';
-export { default as NodeType } from './nodes/type';
+export { NodeType, SourceLocation } from './nodes/type';

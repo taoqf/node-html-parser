@@ -6,6 +6,7 @@ import TextNode from './text';
 import Matcher from '../matcher';
 import arr_back from '../back';
 import CommentNode from './comment';
+import parse from '../parse';
 
 // const { decode } = he;
 
@@ -154,11 +155,13 @@ export default class HTMLElement extends Node {
 			)
 		);
 		if (keyAttrs.id) {
+			this.id = keyAttrs.id;
 			if (!rawAttrs) {
 				this.rawAttrs = `id="${keyAttrs.id}"`;
 			}
 		}
 		if (keyAttrs.class) {
+			this.classNames = keyAttrs.class.split(/\s+/);
 			if (!rawAttrs) {
 				const cls = `class="${this.classList.toString()}"`;
 				if (this.rawAttrs) {

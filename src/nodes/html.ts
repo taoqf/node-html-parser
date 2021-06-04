@@ -6,7 +6,6 @@ import TextNode from './text';
 import Matcher from '../matcher';
 import arr_back from '../back';
 import CommentNode from './comment';
-import parse from '../parse';
 
 // const { decode } = he;
 
@@ -97,8 +96,12 @@ class DOMTokenList {
 	public toString() {
 		return Array.from(this._set.values()).join(' ');
 	}
+	public _fromString(str: string) {
+		this._set.clear();
+		(str || '').split(/\s+/).forEach(c => this._set.add(c));
+		this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call
+	}
 }
-
 
 /**
  * HTMLElement, which contains a set of children.
@@ -149,7 +152,8 @@ export default class HTMLElement extends Node {
 		this.id = keyAttrs.id || '';
 		this.childNodes = [];
 		this.classList = new DOMTokenList(
-			keyAttrs.class ? keyAttrs.class.split(/\s+/) : [],
+			[], // set classes later with _fromString
+			// function afterUpdate:
 			(classList) => (
 				this.setAttribute('class', classList.toString()) // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
 			)
@@ -161,9 +165,11 @@ export default class HTMLElement extends Node {
 			}
 		}
 		if (keyAttrs.class) {
-			this.classNames = keyAttrs.class.split(/\s+/);
+			this.classList._fromString(keyAttrs.class);
 			if (!rawAttrs) {
-				const cls = `class="${this.classList.toString()}"`;
+				// TODO handle classList updates -> DOMTokenList afterUpdate
+				// generate class and rawAttrs only on demand?
+				const cls = `class="${this.getAttribute('class')}"`;
 				if (this.rawAttrs) {
 					this.rawAttrs += ` ${cls}`;
 				} else {
@@ -837,6 +843,11 @@ export default class HTMLElement extends Node {
 	public get classNames() {
 		return this.classList.toString();
 	}
+
+	public set classNames(str) {
+		this.classList._fromString(str);
+	}
+
 }
 
 // https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name

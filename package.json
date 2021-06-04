@@ -18,7 +18,8 @@
 		"build-esm": "npm run lint && npm run clean && npm run ts:esm",
 		"dev": "tsc -w & mocha -w ./test/*.js",
 		"pretest": "tsc -m commonjs",
-		"release": "yarn build && np"
+		"release": "npm run build && np",
+		"prepare": "npm run build"
 	},
 	"keywords": [
 		"parser",

@@ -17,11 +17,11 @@ export default class CommentNode extends Node {
 	 * Get unescaped text value of current node and its children.
 	 * @return {string} text content
 	 */
-	public get text() {
+	public get text(): string {
 		return this.rawText;
 	}
 
-	public toString() {
+	public toString(): string {
 		return `<!--${this.rawText}-->`;
 	}
 }

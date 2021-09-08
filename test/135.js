@@ -1,4 +1,4 @@
-const { parse } = require('..');
+const { parse } = require('../dist/cjs/index.js');
 
 describe('pr 135', function () {
 	it('shoud not decode text', function () {

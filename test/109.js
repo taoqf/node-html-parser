@@ -1,4 +1,4 @@
-const { parse } = require('..');
+const { parse } = require('../dist/cjs/index.js');
 
 describe('self-close tag', function () {
 	it('should not teat textarea as self-colse tag', async function () {

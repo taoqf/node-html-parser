@@ -1,4 +1,4 @@
-const { parse } = require('..');
+const { parse } = require('../dist/cjs/index.js');
 
 // https://github.com/taoqf/node-html-parser/issues/41
 describe('#exchangeChild()', function () {

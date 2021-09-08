@@ -1,4 +1,4 @@
-const { parse } = require('..');
+const { parse } = require('../dist/cjs/index.js');
 
 // https://github.com/taoqf/node-html-parser/issues/75
 describe('query should be case insensitive', function () {

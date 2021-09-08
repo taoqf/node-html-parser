@@ -1,4 +1,4 @@
-import { base_parse, Options } from './nodes/html';
+import { base_parse, Options } from './nodes/html.js';
 
 /**
  * Parses HTML and returns a root element

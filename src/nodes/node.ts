@@ -1,6 +1,6 @@
 import he from 'he';
-import NodeType from './type';
-import HTMLElement from './html';
+import NodeType from './type.js';
+import HTMLElement from './html.js';
 
 /**
  * Node Class as base class for TextNode and HTMLElement.

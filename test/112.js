@@ -1,4 +1,4 @@
-const { parse, HTMLElement } = require('..');
+const { parse, HTMLElement } = require('../dist/cjs/index.js');
 
 // https://github.com/taoqf/node-html-parser/pull/112
 describe('pull/112', function () {

@@ -1,11 +1,10 @@
 import benchmark from 'htmlparser-benchmark';
-import node_html_parser from '..';
+import { parse } from '../dist/esm/index.js';
 
 // const { parse } = node_html_parser;
 
 var bench = benchmark(function (html, callback) {
-	// parse(html);
-	node_html_parser.parse(html);
+	parse(html);
 	callback();
 });
 

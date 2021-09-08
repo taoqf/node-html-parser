@@ -1,7 +1,7 @@
 const should = require('should');
 const fs = require('fs');
 
-const HTMLParser = require('..');
+const HTMLParser = require('../dist/cjs/index.js');
 const { HTMLElement, TextNode, CommentNode } = HTMLParser;
 
 describe('HTML Parser', function () {

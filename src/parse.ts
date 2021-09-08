@@ -1,1 +1,1 @@
-export { parse as default } from './nodes/html';
+export { parse as default } from './nodes/html.js';

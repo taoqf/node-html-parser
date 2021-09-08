@@ -1,4 +1,4 @@
-const { parse } = require('..');
+const { parse } = require('../dist/cjs/index.js');
 
 describe('should parse tag correct', function () {
 	it('should get attribute with :', function () {

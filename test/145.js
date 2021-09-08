@@ -1,4 +1,4 @@
-const { parse } = require('..');
+const { parse } = require('../dist/cjs/index.js');
 
 describe('issue 145', function () {
 	it('shoud parse attributes right', function () {

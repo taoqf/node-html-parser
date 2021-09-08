@@ -1,3 +1,1 @@
 require: blanket,should,spec
-node-option:
-  - 'experimental-specifier-resolution=node'

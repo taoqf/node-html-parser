@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const { valid, parse } = require('..');
+const { valid, parse } = require('../dist/cjs/index.js');
 
 describe('parseWithValidation', function () {
 	// parse with validation tests

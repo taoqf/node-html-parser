@@ -1,7 +1,7 @@
 import { Adapter/*, Predicate*/ } from 'css-select/lib/types';
-import HTMLElement from './nodes/html';
-import Node from './nodes/node';
-import NodeType from './nodes/type';
+import HTMLElement from './nodes/html.js';
+import Node from './nodes/node.js';
+import NodeType from './nodes/type.js';
 
 export declare type Predicate = (node: Node) => node is HTMLElement;
 

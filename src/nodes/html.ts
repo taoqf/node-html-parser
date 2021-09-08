@@ -1,11 +1,11 @@
 import he from 'he';
 import { selectAll, selectOne } from 'css-select';
-import Node from './node';
-import NodeType from './type';
-import TextNode from './text';
-import Matcher from '../matcher';
-import arr_back from '../back';
-import CommentNode from './comment';
+import Node from './node.js';
+import NodeType from './type.js';
+import TextNode from './text.js';
+import Matcher from '../matcher.js';
+import arr_back from '../back.js';
+import CommentNode from './comment.js';
 
 // const { decode } = he;
 

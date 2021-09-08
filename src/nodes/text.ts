@@ -1,4 +1,4 @@
-import { decode } from 'he';
+import he from 'he';
 import HTMLElement from './html';
 import Node from './node';
 import NodeType from './type';
@@ -59,7 +59,7 @@ export default class TextNode extends Node {
 	 * @return {string} text content
 	 */
 	public get text() {
-		return decode(this.rawText);
+		return he.decode(this.rawText);
 	}
 
 	/**

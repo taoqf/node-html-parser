@@ -1,4 +1,4 @@
-import { decode, encode } from 'he';
+import he from 'he';
 import NodeType from './type';
 import HTMLElement from './html';
 
@@ -28,9 +28,9 @@ export default abstract class Node {
 		return this.rawText;
 	}
 	public get textContent() {
-		return decode(this.rawText);
+		return he.decode(this.rawText);
 	}
 	public set textContent(val: string) {
-		this.rawText = encode(val);
+		this.rawText = he.encode(val);
 	}
 }

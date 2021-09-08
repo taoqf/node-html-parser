@@ -1,5 +1,5 @@
 import benchmark from 'htmlparser-benchmark';
-import node_html_parser from '../dist/index.js';
+import node_html_parser from '..';
 
 // const { parse } = node_html_parser;
 

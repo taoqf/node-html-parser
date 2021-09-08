@@ -1,4 +1,4 @@
-const { parse, HTMLElement, TextNode, CommentNode } = require('../dist');
+const { parse, HTMLElement, TextNode, CommentNode } = require('..');
 const hp2 = require('htmlparser2')
 const mochaEach = require('mocha-each');
 

@@ -1,10 +1,8 @@
 const should = require('should');
 const fs = require('fs');
 
-const HTMLParser = require('../dist');
-const HTMLElement = require('../dist/nodes/html').default;
-const TextNode = require('../dist/nodes/text').default;
-const CommentNode = require('../dist/nodes/comment').default;
+const HTMLParser = require('..');
+const { HTMLElement, TextNode, CommentNode } = HTMLParser;
 
 describe('HTML Parser', function () {
 	const parseHTML = HTMLParser.parse;

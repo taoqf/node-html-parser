@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe('should parse tag correct', function () {
 	it('should get attribute with :', function () {

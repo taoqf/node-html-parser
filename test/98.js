@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 // https://github.com/taoqf/node-html-parser/issues/98
 describe('getAttribute should be case insensitive', function () {

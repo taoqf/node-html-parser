@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe('issue 145', function () {
 	it('shoud parse attributes right', function () {

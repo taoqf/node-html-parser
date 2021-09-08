@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe('issue 42', function () {
 	it('svg attribute', function () {

@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 // https://github.com/taoqf/node-html-parser/pull/112
 describe('issue 119 closest', function () {

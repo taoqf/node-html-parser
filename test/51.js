@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe.skip('issue 51', function () {
 	it('vue: > in attibute value', function () {

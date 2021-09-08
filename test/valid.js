@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const { valid, parse } = require('../dist');
+const { valid, parse } = require('..');
 
 describe('parseWithValidation', function () {
 	// parse with validation tests

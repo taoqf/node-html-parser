@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe('self-close tag', function () {
 	it('should not teat textarea as self-colse tag', async function () {

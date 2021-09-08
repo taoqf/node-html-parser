@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe('pr 135', function () {
 	it('shoud not decode text', function () {

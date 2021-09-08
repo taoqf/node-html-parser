@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe('issues/28', function () {
 	it('query with dl > dt', function () {

@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe('issue 48', function () {
 	it('get decoded text', function () {

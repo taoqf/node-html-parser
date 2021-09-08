@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe('issue 115', function () {
 	it('parse html', async function () {

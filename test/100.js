@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe('#querySelectorAll', function () {
 	it('nothing mached', function () {

@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 const fs = require('fs');
 
 describe.skip('Memory leak', function () {

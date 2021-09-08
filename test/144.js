@@ -1,4 +1,4 @@
-const { parse } = require('../dist');
+const { parse } = require('..');
 
 describe('issue 144', function () {
 	it('Nested A tags parsed improperly', function () {

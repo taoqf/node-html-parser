@@ -1045,10 +1045,20 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 	const frameFlagOffset = frameflag.length + 2;
 
 	while ((match = kMarkupPattern.exec(data))) {
+	
 		const tagStartPos = kMarkupPattern.lastIndex - match[0].length;
 		const tagEndPos = kMarkupPattern.lastIndex;
-
 		// Add TextNode if content
+		
+		///
+		const ce = data.substring(lastTextPos, tagEndPos);
+		//console.log((ce.match(/"/g) || []).length)
+		//console.log(ce)
+		if((ce.match(/"/g) || []).length % 2 != 0){
+			console.log("Skip element")
+			continue;
+		}
+		////
 		if (lastTextPos > -1) {
 			if (lastTextPos + match[0].length < tagEndPos) {
 				const text = data.substring(lastTextPos, tagStartPos);

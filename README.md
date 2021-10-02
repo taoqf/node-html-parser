@@ -199,7 +199,7 @@ Get unescaped text value of current node and its children. Like `innerText`.
 
 ### HTMLElement#rawText
 
-Get escpaed (as-it) text value of current node and its children. May have
+Get escaped (as-it) text value of current node and its children. May have
 `&amp;` in it. (fast)
 
 ### HTMLElement#tagName

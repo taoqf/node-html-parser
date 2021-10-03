@@ -974,8 +974,8 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 		pre: true,
 	};
 	const element_names = Object.keys(elements);
-	const kBlockTextElements = element_names.map((it) => new RegExp(it, 'i'));
-	const kIgnoreElements = element_names.filter((it) => elements[it]).map((it) => new RegExp(it, 'i'));
+	const kBlockTextElements = element_names.map((it) => new RegExp(`^${it}$`, 'i'));
+	const kIgnoreElements = element_names.filter((it) => elements[it]).map((it) => new RegExp(`^${it}$`, 'i'));
 
 	function element_should_be_ignore(tag: string) {
 		return kIgnoreElements.some((it) => it.test(tag));

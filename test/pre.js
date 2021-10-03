@@ -1,4 +1,5 @@
 const { parse } = require('../dist');
+const { HTMLElement } = require('../dist');
 
 // https://github.com/taoqf/node-html-parser/issues/77
 describe('pre tag', function () {
@@ -51,4 +52,10 @@ describe('pre tag', function () {
 		const code = pre.firstChild;
 		code.childNodes.length.should.eql(11);
 	});
+	// see: https://github.com/taoqf/node-html-parser/issues/156
+	it('does not treat pre* tag as pre (partial match)', () => {
+    const docRoot = parse("<premises><color>Red</color></premises>");
+    Object.getPrototypeOf(docRoot.firstChild.firstChild).should.eql(HTMLElement.prototype);
+    docRoot.firstChild.firstChild.tagName.should.eql('COLOR');
+  })
 });

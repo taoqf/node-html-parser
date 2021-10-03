@@ -1,0 +1,8 @@
+{
+  "name": "esm-test",
+  "private": true,
+  "type": "module",
+  "peerDependencies": {
+    "node-html-parser": "*"
+  }
+}

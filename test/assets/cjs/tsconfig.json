@@ -1,0 +1,9 @@
+{
+  "files": [ "index.ts" ],
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "module": "CommonJS",
+    "moduleResolution": "node"
+  }
+}

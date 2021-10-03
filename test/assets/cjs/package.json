@@ -1,0 +1,8 @@
+{
+  "name": "cjs-test",
+  "private": true,
+  "type": "commonjs",
+  "peerDependencies": {
+    "node-html-parser": "*"
+  }
+}

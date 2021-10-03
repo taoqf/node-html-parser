@@ -3,7 +3,6 @@
 	"version": "4.1.5",
 	"description": "A very fast HTML parser, generating a simplified DOM, with basic element query support.",
 	"main": "dist/index.js",
-	"module": "dist/esm/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"test": "mocha",
@@ -11,10 +10,9 @@
 		"clean": "del-cli ./dist/",
 		"ts:cjs": "tsc -m commonjs",
 		"ts:amd": "tsc -t es5 -m amd -d false --outFile ./dist/main.js",
-		"ts:esm": "tsc -t es2019 -m esnext -d false --outDir ./dist/esm/",
-		"build": "npm run lint && npm run clean && npm run ts:cjs && npm run ts:amd && npm run ts:esm",
+		"build": "npm run lint && npm run clean && npm run ts:cjs && npm run ts:amd",
 		"dev": "tsc -w & mocha -w ./test/*.js",
-		"pretest": "tsc -m commonjs",
+		"pretest": "tsc -m commonjs && cd test/assets && yarn install",
 		"release": "yarn build && np",
 		"prepare": "npm run build"
 	},
@@ -60,6 +58,7 @@
 		"should": "latest",
 		"spec": "latest",
 		"travis-cov": "latest",
+		"ts-node": "^10.2.1",
 		"typescript": "next"
 	},
 	"config": {
@@ -84,5 +83,9 @@
 		"url": "https://github.com/taoqf/node-fast-html-parser/issues"
 	},
 	"homepage": "https://github.com/taoqf/node-fast-html-parser",
-	"sideEffects": false
+	"sideEffects": false,
+	"exports": {
+		"require": "./dist/index.js",
+		"import": "./esm/index.js"
+	}
 }

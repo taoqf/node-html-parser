@@ -521,9 +521,9 @@ export default class HTMLElement extends Node {
 	/**
 	 * Query CSS Selector to find matching node.
 	 * @param  {string}         selector Simplified CSS selector
-	 * @return {HTMLElement}    matching node
+	 * @return {(HTMLElement|null)}    matching node
 	 */
-	public querySelector(selector: string) {
+	public querySelector(selector: string): HTMLElement | null {
 		return selectOne(selector, this as HTMLElement, {
 			xmlMode: true,
 			adapter: Matcher,

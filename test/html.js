@@ -512,23 +512,6 @@ describe('HTML Parser', function () {
 		});
 
 		describe('#getElementsByTagName', function () {
-			it('find all divs', function () {
-				const root = parseHTML(`
-					<section>
-						<div></div>
-						<div></div>
-						<div></div>
-					</section>
-				`);
-				const divs = root.getElementsByTagName('div');
-
-				divs.length.should.eql(3);
-
-				for (const div of divs) {
-					div.tagName.should.eql('DIV');
-				}
-			});
-
 			it('find the divs in proper order', function () {
 				const root = parseHTML(`
 					<section>
@@ -541,6 +524,10 @@ describe('HTML Parser', function () {
 					</section>
 				`);
 				const divs = root.getElementsByTagName('div');
+
+				for (const div of divs) {
+					div.tagName.should.eql('DIV');
+				}
 
 				// the literal appearance order
 				divs[0].attributes['data-test'].should.eql('1.0');
@@ -593,6 +580,19 @@ describe('HTML Parser', function () {
 				const root = parseHTML('<section></section>');
 
 				root.getElementsByTagName('div').length.should.eql(0);
+			});
+
+			it('allow sparse arrays', function () {
+				const root = parseHTML(`
+					<section>
+						<div></div>
+						<div></div>
+						<div></div>
+					</section>
+				`);
+				delete root.querySelector('section').childNodes[1];
+
+				root.getElementsByTagName('div').length.should.eql(2);
 			});
 		});
 	});

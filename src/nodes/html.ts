@@ -582,7 +582,11 @@ export default class HTMLElement extends Node {
 		// index turns to undefined once the stack is empty and the first condition occurs
 		// which happens once all relevant children are searched through
 		while (index !== undefined) {
-			const child = currentNodeReference.childNodes[index++] as HTMLElement | undefined;
+			let child: HTMLElement | undefined;
+			// make it work with sparse arrays
+			do {
+				child = currentNodeReference.childNodes[index++] as HTMLElement | undefined;
+			} while (index < currentNodeReference.childNodes.length && child === undefined);
 
 			// if the child does not exist we move on with the last provided index (which belongs to the parentNode)
 			if (child === undefined) {

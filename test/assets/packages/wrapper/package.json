@@ -1,0 +1,8 @@
+{
+  "name": "node-html-parser",
+  "description": "wrapper",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.js",
+  "types": "index.d.ts"
+}

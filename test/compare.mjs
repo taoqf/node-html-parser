@@ -1,5 +1,0 @@
-import './compare-node-html-parser.mjs'
-import './compare-high5.mjs'
-import './compare-htmlparser.mjs'
-import './compare-htmlparser2.mjs'
-import './compare-parse5.mjs'

@@ -1,9 +1,0 @@
-{
-  "private": true,
-  "workspaces": [
-    "assets/*"
-  ],
-  "dependencies": {
-    "node-html-parser": "link:../.."
-  }
-}

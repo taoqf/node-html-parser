@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {
+    "@test/test-target": "link:assets/packages/wrapper",
+    "@test/root": "link:../",
+    "@test/last-release": "npm:node-html-parser@latest"
+  }
+}

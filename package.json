@@ -5,16 +5,21 @@
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"test": "mocha",
+        "compile": "tsc",
+        "build": "npm run lint && npm run clean && npm run compile:cjs && npm run compile:amd",
+        "compile:cjs": "tsc -m commonjs",
+        "compile:amd": "tsc -t es5 -m amd -d false --outFile ./dist/main.js",
+        "---------------": "",
+		"test": "mocha ./test/tests/**/*.js",
+		"test:src": "cross-env TEST_TARGET=src mocha ./test/tests",
+		"test:dist": "cross-env TEST_TARGET=dist mocha ./test/tests",
+        "benchmark": "node ./test/benchmark/compare.mjs",
+        "---------------  ": "",
 		"lint": "eslint ./src/*.ts ./src/**/*.ts",
 		"clean": "del-cli ./dist/",
-		"ts:cjs": "tsc -m commonjs",
-		"ts:amd": "tsc -t es5 -m amd -d false --outFile ./dist/main.js",
-		"build": "npm run lint && npm run clean && npm run ts:cjs && npm run ts:amd",
-		"dev": "tsc -w & mocha -w ./test/*.js",
-		"pretest": "tsc -m commonjs && cd test/assets && yarn install",
-		"release": "yarn build && np",
-		"prepare": "npm run build"
+        "--------------- ": "",
+        "posttest": "yarn run benchmark",
+		"prepare": "cd test && yarn install"
 	},
 	"keywords": [
 		"parser",
@@ -60,7 +65,8 @@
 		"standard-version": "^9.3.1",
 		"travis-cov": "latest",
 		"ts-node": "^10.2.1",
-		"typescript": "next"
+		"typescript": "latest",
+        "cross-env": "^7.0.3"
 	},
 	"config": {
 		"blanket": {

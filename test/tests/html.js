@@ -189,7 +189,6 @@ describe('HTML Parser', function () {
 	});
 
 	describe('HTMLElement', function () {
-
 		describe('#removeWhitespace()', function () {
 			it('should remove whitespaces while preserving nodes with content', function () {
 				const root = parseHTML('<p> \r \n  \t <h5>  123&nbsp;  </h5></p>');
@@ -505,7 +504,91 @@ describe('HTML Parser', function () {
 				a.removeChild(c);
 				a.childNodes.length.should.eql(1);
 			});
+		});
 
+		describe('#getElementsByTagName', function () {
+			it('find the divs in proper order', function () {
+				const root = parseHTML(`
+					<section>
+						<div data-test="1.0">
+							<div data-test="1.1">
+								<div data-test="1.1.1"></div>
+							</div>
+						</div>
+						<div data-test="2.0"></div>
+					</section>
+				`);
+				const divs = root.getElementsByTagName('div');
+
+				for (const div of divs) {
+					div.tagName.should.eql('DIV');
+				}
+
+				// the literal appearance order
+				divs[0].attributes['data-test'].should.eql('1.0');
+				divs[1].attributes['data-test'].should.eql('1.1');
+				divs[2].attributes['data-test'].should.eql('1.1.1');
+				divs[3].attributes['data-test'].should.eql('2.0');
+			});
+
+			// check that really only children are found, no parents or anything
+			it('only return relevant items', function () {
+				const root = parseHTML(`
+					<section>
+						<div data-ignore="true"></div>
+	
+						<div id="suit" data-ignore="true">
+							<div data-ignore="false"></div>
+							<div data-ignore="false"></div>
+						</div>
+	
+						<div data-ignore="true"></div>
+					</section>
+				`);
+				const divs = root.querySelector('#suit').getElementsByTagName('div');
+
+				divs.length.should.eql(2);
+
+				for (const div of divs) {
+					div.attributes['data-ignore'].should.eql('false');
+				}
+			});
+
+			it('return all elements if tagName is *', function () {
+				const root = parseHTML(`
+					<section>
+						<div></div>
+						<span></span>
+						<p></p>
+					</section>
+				`);
+				const items = root.getElementsByTagName('*');
+
+				items.length.should.eql(4);
+				items[0].tagName.should.eql('SECTION');
+				items[1].tagName.should.eql('DIV');
+				items[2].tagName.should.eql('SPAN');
+				items[3].tagName.should.eql('P');
+			});
+
+			it('return an empty array if nothing is found', function () {
+				const root = parseHTML('<section></section>');
+
+				root.getElementsByTagName('div').length.should.eql(0);
+			});
+
+			it('allow sparse arrays', function () {
+				const root = parseHTML(`
+					<section>
+						<div></div>
+						<div></div>
+						<div></div>
+					</section>
+				`);
+				delete root.querySelector('section').childNodes[1];
+
+				root.getElementsByTagName('div').length.should.eql(2);
+			});
 		});
 	});
 

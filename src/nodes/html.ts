@@ -472,6 +472,51 @@ export default class HTMLElement extends Node {
 	}
 
 	/**
+	 * find elements by their tagName
+	 * @param {string} tagName the tagName of the elements to select
+	 */
+	public getElementsByTagName(tagName: string): Array<HTMLElement> {
+		const upperCasedTagName = tagName.toUpperCase();
+		const re: Array<Node> = [];
+		const stack: Array<number> = [];
+
+		let currentNodeReference = this as Node;
+		let index: number | undefined = 0;
+
+		// index turns to undefined once the stack is empty and the first condition occurs
+		// which happens once all relevant children are searched through
+		while (index !== undefined) {
+			let child: HTMLElement | undefined;
+			// make it work with sparse arrays
+			do {
+				child = currentNodeReference.childNodes[index++] as HTMLElement | undefined;
+			} while (index < currentNodeReference.childNodes.length && child === undefined);
+
+			// if the child does not exist we move on with the last provided index (which belongs to the parentNode)
+			if (child === undefined) {
+				currentNodeReference = currentNodeReference.parentNode;
+				index = stack.pop();
+
+				continue;
+			}
+
+			if (child.nodeType === NodeType.ELEMENT_NODE) {
+				// https://developer.mozilla.org/en-US/docs/Web/API/Element/getElementsByTagName#syntax
+				if (tagName === '*' || child.tagName === upperCasedTagName) re.push(child);
+
+				// if children are existing push the current status to the stack and keep searching for elements in the level below
+				if (child.childNodes.length > 0) {
+					stack.push(index);
+					currentNodeReference = child;
+					index = 0;
+				}
+			}
+		}
+
+		return re as Array<HTMLElement>;
+	}
+
+	/**
 	 * traverses the Element and its parents (heading toward the document root) until it finds a node that matches the provided selector string. Will return itself or the matching ancestor. If no such element exists, it returns null.
 	 * @param selector a DOMString containing a selector list
 	 */

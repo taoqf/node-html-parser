@@ -112,6 +112,12 @@ Note: Full css3 selector supported since v3.0.0.
 
 Query CSS Selector to find matching node.
 
+### HTMLElement#getElementsByTagName(tagName)
+
+Get all elements with the specified tagName.
+
+Note: * for all elements.
+
 ### HTMLElement#closest(selector)
 
 Query closest element by css selector.
@@ -199,7 +205,7 @@ Get unescaped text value of current node and its children. Like `innerText`.
 
 ### HTMLElement#rawText
 
-Get escpaed (as-it) text value of current node and its children. May have
+Get escaped (as-it) text value of current node and its children. May have
 `&amp;` in it. (fast)
 
 ### HTMLElement#tagName

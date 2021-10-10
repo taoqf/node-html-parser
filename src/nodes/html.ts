@@ -7,7 +7,7 @@ import Matcher from '../matcher';
 import arr_back from '../back';
 import CommentNode from './comment';
 
-// const { decode } = he;
+const voidTags = new Set([ 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr' ]);
 
 type IRawTagName =
 	| 'LI'
@@ -154,7 +154,7 @@ export default class HTMLElement extends Node {
 	 */
 
 	private quoteAttribute(attr: string) {
-		if (attr === null) {
+		if (attr == null) {
 			return 'null';
 		}
 
@@ -241,6 +241,11 @@ export default class HTMLElement extends Node {
 	public get localName() {
 		return this.rawTagName.toLowerCase();
 	}
+
+	public get isVoidElement() {
+	  return voidTags.has(this.localName);
+  }
+
 	/**
 	 * Get escpaed (as-it) text value of current node and its children.
 	 * @return {string} text content
@@ -313,14 +318,8 @@ export default class HTMLElement extends Node {
 	public toString() {
 		const tag = this.rawTagName;
 		if (tag) {
-			// const void_tags = new Set('area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr'.split('|'));
-			// const is_void = void_tags.has(tag);
-			const is_void = /^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/i.test(tag);
 			const attrs = this.rawAttrs ? ` ${this.rawAttrs}` : '';
-			if (is_void) {
-				return `<${tag}${attrs}>`;
-			}
-			return `<${tag}${attrs}>${this.innerHTML}</${tag}>`;
+			return this.isVoidElement ? `<${tag}${attrs}>` : `<${tag}${attrs}>${this.innerHTML}</${tag}>`;
 		}
 		return this.innerHTML;
 	}
@@ -458,64 +457,6 @@ export default class HTMLElement extends Node {
 			xmlMode: true,
 			adapter: Matcher,
 		});
-
-		// let matcher: Matcher;
-		// if (selector instanceof Matcher) {
-		// 	matcher = selector;
-		// 	matcher.reset();
-		// } else {
-		// 	if (selector.includes(',')) {
-		// 		const selectors = selector.split(',');
-		// 		return Array.from(selectors.reduce((pre, cur) => {
-		// 			const result = this.querySelectorAll(cur.trim());
-		// 			return result.reduce((p, c) => {
-		// 				return p.add(c);
-		// 			}, pre);
-		// 		}, new Set<HTMLElement>()));
-		// 	}
-		// 	matcher = new Matcher(selector);
-		// }
-		// interface IStack {
-		// 	0: Node;	// node
-		// 	1: number;	// children
-		// 	2: boolean;	// found flag
-		// }
-		// const stack = [] as IStack[];
-		// return this.childNodes.reduce((res, cur) => {
-		// 	stack.push([cur, 0, false]);
-		// 	while (stack.length) {
-		// 		const state = arr_back(stack);	// get last element
-		// 		const el = state[0];
-		// 		if (state[1] === 0) {
-		// 			// Seen for first time.
-		// 			if (el.nodeType !== NodeType.ELEMENT_NODE) {
-		// 				stack.pop();
-		// 				continue;
-		// 			}
-		// 			const html_el = el as HTMLElement;
-		// 			state[2] = matcher.advance(html_el);
-		// 			if (state[2]) {
-		// 				if (matcher.matched) {
-		// 					res.push(html_el);
-		// 					res.push(...(html_el.querySelectorAll(selector)));
-		// 					// no need to go further.
-		// 					matcher.rewind();
-		// 					stack.pop();
-		// 					continue;
-		// 				}
-		// 			}
-		// 		}
-		// 		if (state[1] < el.childNodes.length) {
-		// 			stack.push([el.childNodes[state[1]++], 0, false]);
-		// 		} else {
-		// 			if (state[2]) {
-		// 				matcher.rewind();
-		// 			}
-		// 			stack.pop();
-		// 		}
-		// 	}
-		// 	return res;
-		// }, [] as HTMLElement[]);
 	}
 
 	/**
@@ -528,43 +469,6 @@ export default class HTMLElement extends Node {
 			xmlMode: true,
 			adapter: Matcher,
 		});
-		// let matcher: Matcher;
-		// if (selector instanceof Matcher) {
-		// 	matcher = selector;
-		// 	matcher.reset();
-		// } else {
-		// 	matcher = new Matcher(selector);
-		// }
-		// const stack = [] as { 0: Node; 1: 0 | 1; 2: boolean }[];
-		// for (const node of this.childNodes) {
-		// 	stack.push([node, 0, false]);
-		// 	while (stack.length) {
-		// 		const state = arr_back(stack);
-		// 		const el = state[0];
-		// 		if (state[1] === 0) {
-		// 			// Seen for first time.
-		// 			if (el.nodeType !== NodeType.ELEMENT_NODE) {
-		// 				stack.pop();
-		// 				continue;
-		// 			}
-		// 			state[2] = matcher.advance(el as HTMLElement);
-		// 			if (state[2]) {
-		// 				if (matcher.matched) {
-		// 					return el as HTMLElement;
-		// 				}
-		// 			}
-		// 		}
-		// 		if (state[1] < el.childNodes.length) {
-		// 			stack.push([el.childNodes[state[1]++], 0, false]);
-		// 		} else {
-		// 			if (state[2]) {
-		// 				matcher.rewind();
-		// 			}
-		// 			stack.pop();
-		// 		}
-		// 	}
-		// }
-		// return null;
 	}
 
 	/**
@@ -682,7 +586,7 @@ export default class HTMLElement extends Node {
 	}
 
 	/**
-	 * Get escaped (as-it) attributes
+	 * Get escaped (as-is) attributes
 	 * @return {Object} parsed attributes
 	 */
 	public get rawAttributes() {
@@ -691,10 +595,13 @@ export default class HTMLElement extends Node {
 		}
 		const attrs = {} as RawAttributes;
 		if (this.rawAttrs) {
-			const re = /([a-z()#][a-z0-9-_:()#]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+)))?/gi;
+			const re = /([a-zA-Z()#][a-zA-Z0-9-_:()#]*)(?:\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+))?/g;
 			let match: RegExpExecArray;
 			while ((match = re.exec(this.rawAttrs))) {
-				attrs[match[1]] = match[2] || match[3] || match[4] || null;
+			  const key = match[1];
+			  let val = match[2] || null;
+			  if (val && (val[0] === `'` || val[0] === `"`)) val = val.slice(1, val.length - 1);
+				attrs[key] = val;
 			}
 		}
 		this._rawAttrs = attrs;
@@ -873,12 +780,8 @@ export default class HTMLElement extends Node {
 }
 
 // https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name
-const kMarkupPattern = /<!--[^]*?(?=-->)-->|<(\/?)([a-z][-.:0-9_a-z]*)\s*((?=[/>]*?)|(?:.*?[\s\d/'"])|(?:.*?[\w]))(\/?)>/gi;
-// <(?<tag>[^\s]*)(.*)>(.*)</\k<tag>>
-// <([a-z][-.:0-9_a-z]*)\s*\/>
-// <(area|base|br|col|hr|img|input|link|meta|source)\s*(.*)\/?>
-// <(area|base|br|col|hr|img|input|link|meta|source)\s*(.*)\/?>|<(?<tag>[^\s]*)(.*)>(.*)</\k<tag>>
-const kAttributePattern = /(^|\s)(id|class)\s*=\s*("([^"]*)"|'([^']*)'|(\S+))/gi;
+const kMarkupPattern = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][-.:0-9_a-zA-Z]*)((?:\s+[^>]*?(?:(?:'[^']*')|(?:"[^"]*"))?)*)\s*(\/?)>/g;
+const kAttributePattern = /(?:^|\s)(id|class)\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+)/gi;
 const kSelfClosingElements = {
 	area: true,
 	AREA: true,
@@ -995,17 +898,22 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 	let match: RegExpExecArray;
 	// https://github.com/taoqf/node-html-parser/issues/38
 	data = `<${frameflag}>${data}</${frameflag}>`;
+	const { lowerCaseTagName } = options;
 
 	const dataEndPos = data.length - (frameflag.length + 2);
 	const frameFlagOffset = frameflag.length + 2;
 
 	while ((match = kMarkupPattern.exec(data))) {
-		const tagStartPos = kMarkupPattern.lastIndex - match[0].length;
+	  // Note: Object destructuring here consistently tests as higher performance than array destructuring
+    // eslint-disable-next-line prefer-const
+	  let { 0: matchText, 1: leadingSlash, 2: tagName, 3: attributes, 4: closingSlash } = match;
+	  const matchLength = matchText.length;
+		const tagStartPos = kMarkupPattern.lastIndex - matchLength;
 		const tagEndPos = kMarkupPattern.lastIndex;
 
 		// Add TextNode if content
 		if (lastTextPos > -1) {
-			if (lastTextPos + match[0].length < tagEndPos) {
+			if (lastTextPos + matchLength < tagEndPos) {
 				const text = data.substring(lastTextPos, tagStartPos);
 				currentParent.appendChild(new TextNode(text, currentParent, createRange(lastTextPos, tagStartPos)));
 			}
@@ -1015,10 +923,10 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 
 		// https://github.com/taoqf/node-html-parser/issues/38
 		// Skip frameflag node
-		if (match[2] === frameflag) continue;
+		if (tagName === frameflag) continue;
 
 		// Handle comments
-		if (match[0][1] === '!') {
+		if (matchText[1] === '!') {
 			if (options.comment) {
 				// Only keep what is in between <!-- and -->
 				const text = data.substring(tagStartPos + 4, tagEndPos - 3);
@@ -1029,27 +937,29 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 
 		/* -- Handle tag matching -- */
 		// Fix tag casing if necessary
-		if (options.lowerCaseTagName) match[2] = match[2].toLowerCase();
+		if (lowerCaseTagName) tagName = tagName.toLowerCase();
 
 		// Handle opening tags (ie. <this> not </that>)
-		if (!match[1]) {
+		if (!leadingSlash) {
 			/* Populate attributes */
 			const attrs = {};
-			for (let attMatch; (attMatch = kAttributePattern.exec(match[3])); ) {
-				attrs[attMatch[2].toLowerCase()] = attMatch[4] || attMatch[5] || attMatch[6];
+			for (let attMatch; (attMatch = kAttributePattern.exec(attributes)); ) {
+			  const { 1: key, 2: val } = attMatch;
+			  const isQuoted = val[0] === `'` || val[0] === `"`;
+				attrs[key.toLowerCase()] = isQuoted ? val.slice(1, val.length - 1) : val;
 			}
 
-			const tagName = currentParent.rawTagName as IRawTagName;
+			const parentTagName = currentParent.rawTagName as IRawTagName;
 
-			if (!match[4] && kElementsClosedByOpening[tagName]) {
-				if (kElementsClosedByOpening[tagName][match[2]]) {
+			if (!closingSlash && kElementsClosedByOpening[parentTagName]) {
+				if (kElementsClosedByOpening[parentTagName][tagName]) {
 					stack.pop();
 					currentParent = arr_back(stack);
 				}
 			}
 
 			// Prevent nested A tags by terminating the last A and starting a new one : see issue #144
-			if (match[2] === 'a' || match[2] === 'A') {
+			if (tagName === 'a' || tagName === 'A') {
 				if (noNestedTagIndex !== undefined) {
 					stack.splice(noNestedTagIndex);
 					currentParent = arr_back(stack);
@@ -1058,23 +968,23 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 			}
 
 			const tagEndPos = kMarkupPattern.lastIndex;
-			const tagStartPos = tagEndPos - match[0].length;
+			const tagStartPos = tagEndPos - matchLength;
 
 			currentParent = currentParent.appendChild(
 				// Initialize range (end position updated later for closed tags)
-				new HTMLElement(match[2], attrs, match[3], null, createRange(tagStartPos, tagEndPos))
+				new HTMLElement(tagName, attrs, attributes.slice(1), null, createRange(tagStartPos, tagEndPos))
 			);
 			stack.push(currentParent);
 
-			if (is_block_text_element(match[2])) {
+			if (is_block_text_element(tagName)) {
 				// Find closing tag
-				const closeMarkup = `</${match[2]}>`;
-				const closeIndex = options.lowerCaseTagName
+				const closeMarkup = `</${tagName}>`;
+				const closeIndex = lowerCaseTagName
 					? data.toLocaleLowerCase().indexOf(closeMarkup, kMarkupPattern.lastIndex)
 					: data.indexOf(closeMarkup, kMarkupPattern.lastIndex);
 				const textEndPos = closeIndex === -1 ? dataEndPos : closeIndex;
 
-				if (element_should_be_ignore(match[2])) {
+				if (element_should_be_ignore(tagName)) {
 					const text = data.substring(tagEndPos, textEndPos);
 					if (text.length > 0 && /\S/.test(text)) {
 						currentParent.appendChild(new TextNode(text, currentParent, createRange(tagEndPos, textEndPos)));
@@ -1086,26 +996,26 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 				} else {
 					lastTextPos = kMarkupPattern.lastIndex = closeIndex + closeMarkup.length;
 					// Cause to be treated as self-closing, because no close found
-					match[1] = 'true';
+					leadingSlash = '/';
 				}
 			}
 		}
 
 		// Handle closing tags or self-closed elements (ie </tag> or <br>)
-		if (match[1] || match[4] || kSelfClosingElements[match[2]]) {
+		if (leadingSlash || closingSlash || kSelfClosingElements[tagName]) {
 			while (true) {
-				if (match[2] === 'a' || match[2] === 'A') noNestedTagIndex = undefined;
-				if (currentParent.rawTagName === match[2]) {
+				if (tagName === 'a' || tagName === 'A') noNestedTagIndex = undefined;
+				if (currentParent.rawTagName === tagName) {
 					// Update range end for closed tag
 					(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
 					stack.pop();
 					currentParent = arr_back(stack);
 					break;
 				} else {
-					const tagName = currentParent.tagName as 'LI' | 'A' | 'B' | 'I' | 'P' | 'TD' | 'TH';
+					const parentTagName = currentParent.tagName as 'LI' | 'A' | 'B' | 'I' | 'P' | 'TD' | 'TH';
 					// Trying to close current tag, and move on
-					if (kElementsClosedByClosing[tagName]) {
-						if (kElementsClosedByClosing[tagName][match[2]]) {
+					if (kElementsClosedByClosing[parentTagName]) {
+						if (kElementsClosedByClosing[parentTagName][tagName]) {
 							stack.pop();
 							currentParent = arr_back(stack);
 							continue;

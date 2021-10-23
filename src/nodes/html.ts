@@ -171,7 +171,7 @@ export default class HTMLElement extends Node {
 	public constructor(
 		tagName: string,
 		keyAttrs: KeyAttributes,
-		private rawAttrs = '',
+		public rawAttrs = '',
 		parentNode: HTMLElement | null,
 		range?: [number, number]
 	) {
@@ -821,18 +821,6 @@ export default class HTMLElement extends Node {
 
 	public get classNames() {
 		return this.classList.toString();
-	}
-
-	/**
-	* Inject an attribute value to the HTMLElement without changing anything else in attr string
-	* @param {string} key The attribute name
-	* @param {string} value The value to set, or null / undefined to remove an attribute
-	*/
-	public injectAttribute(key: string, value: string) {
-		if (arguments.length < 2) {
-			throw new Error('Failed to execute \'setAttribute\' on \'Element\'');
-		}
-		this.rawAttrs = `${this.rawAttrs} ${key}="${value}"`;
 	}
 }
 

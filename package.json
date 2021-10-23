@@ -1,22 +1,29 @@
 {
 	"name": "node-html-parser",
-	"version": "4.1.4",
+	"version": "5.0.0",
 	"description": "A very fast HTML parser, generating a simplified DOM, with basic element query support.",
 	"main": "dist/index.js",
-	"module": "dist/esm/index.js",
 	"types": "dist/index.d.ts",
 	"scripts": {
-		"test": "mocha",
+		"compile": "tsc",
+		"build": "npm run lint && npm run clean && npm run compile:cjs && npm run compile:amd",
+		"compile:cjs": "tsc -m commonjs",
+		"compile:amd": "tsc -t es5 -m amd -d false --outFile ./dist/main.js",
 		"lint": "eslint ./src/*.ts ./src/**/*.ts",
-		"clean": "del-cli ./dist/",
-		"ts:cjs": "tsc -m commonjs",
-		"ts:amd": "tsc -t es5 -m amd -d false --outFile ./dist/main.js",
-		"ts:esm": "tsc -t es2019 -m esnext -d false --outDir ./dist/esm/",
-		"build": "npm run lint && npm run clean && npm run ts:cjs && npm run ts:amd && npm run ts:esm",
-		"dev": "tsc -w & mocha -w ./test/*.js",
-		"pretest": "tsc -m commonjs",
-		"release": "yarn build && np",
-		"prepare": "npm run build"
+		"---------------": "",
+		"test": "yarn run test:target",
+		"test:src": "cross-env TEST_TARGET=src yarn run test",
+		"test:dist": "cross-env TEST_TARGET=dist yarn run test",
+		"benchmark": "node ./test/benchmark/compare.mjs",
+		"---------------  ": "",
+		"clean": "npx rimraf ./dist/",
+		"clean:global": "yarn run clean && npx rimraf yarn.lock test/yarn.lock test/node_modules node_modules",
+		"reset": "yarn run clean:global && yarn install && yarn build",
+		"--------------- ": "",
+        "test:target": "mocha --recursive \"./test/tests\"",
+        "test:ci": "cross-env TEST_TARGET=dist yarn run test:target",
+		"posttest": "yarn run benchmark",
+		"prepare": "cd test && yarn install"
 	},
 	"keywords": [
 		"parser",
@@ -24,9 +31,17 @@
 		"nodejs",
 		"typescript"
 	],
+	"files": [
+		"dist",
+		"esm",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md"
+	],
 	"author": "Xiaoyi Shi <ashi009@gmail.com>",
 	"contributors": [
-		"taoqf<tao_qiufeng@126.com>"
+		"taoqf <tao_qiufeng@126.com>",
+		"Ron S. <ron@nonara.com>"
 	],
 	"license": "MIT",
 	"publishConfig": {
@@ -45,8 +60,8 @@
 		"@typescript-eslint/parser": "latest",
 		"blanket": "latest",
 		"cheerio": "^1.0.0-rc.5",
-		"del-cli": "latest",
-		"eslint": "latest",
+		"rimraf": "^3.0.2",
+		"eslint": "^7.32.0",
 		"eslint-config-prettier": "latest",
 		"eslint-plugin-import": "latest",
 		"high5": "^1.0.0",
@@ -59,8 +74,11 @@
 		"parse5": "^6.0.1",
 		"should": "latest",
 		"spec": "latest",
+		"standard-version": "^9.3.1",
 		"travis-cov": "latest",
-		"typescript": "next"
+		"ts-node": "^10.2.1",
+		"typescript": "latest",
+		"cross-env": "^7.0.3"
 	},
 	"config": {
 		"blanket": {
@@ -84,5 +102,9 @@
 		"url": "https://github.com/taoqf/node-fast-html-parser/issues"
 	},
 	"homepage": "https://github.com/taoqf/node-fast-html-parser",
-	"sideEffects": false
+	"sideEffects": false,
+	"exports": {
+		"require": "./dist/index.js",
+		"import": "./esm/index.js"
+	}
 }

@@ -7,7 +7,31 @@ import Matcher from '../matcher';
 import arr_back from '../back';
 import CommentNode from './comment';
 
-// const { decode } = he;
+const voidTags = new Set([ 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr' ]);
+
+type IRawTagName =
+	| 'LI'
+	| 'P'
+	| 'B'
+	| 'TD'
+	| 'TH'
+	| 'H1'
+	| 'H2'
+	| 'H3'
+	| 'H4'
+	| 'H5'
+	| 'H6'
+	| 'li'
+	| 'p'
+	| 'b'
+	| 'td'
+	| 'th'
+	| 'h1'
+	| 'h2'
+	| 'h3'
+	| 'h4'
+	| 'h5'
+	| 'h6';
 
 function decode(val: string) {
 	// clone string
@@ -30,89 +54,38 @@ export interface RawAttributes {
 export type InsertPosition = 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend';
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements
+const Htags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup'];
+const Dtags = ['details', 'dialog', 'dd', 'div', 'dt'];
+const Ftags = ['fieldset', 'figcaption', 'figure', 'footer', 'form'];
+const tableTags = ['table', 'td', 'tr'];
+const htmlTags = ['address', 'article', 'aside', 'blockquote', 'br', 'hr', 'li', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'ul'];
 const kBlockElements = new Set<string>();
-kBlockElements.add('address');
-kBlockElements.add('ADDRESS');
-kBlockElements.add('article');
-kBlockElements.add('ARTICLE');
-kBlockElements.add('aside');
-kBlockElements.add('ASIDE');
-kBlockElements.add('blockquote');
-kBlockElements.add('BLOCKQUOTE');
-kBlockElements.add('br');
-kBlockElements.add('BR');
-kBlockElements.add('details');
-kBlockElements.add('DETAILS');
-kBlockElements.add('dialog');
-kBlockElements.add('DIALOG');
-kBlockElements.add('dd');
-kBlockElements.add('DD');
-kBlockElements.add('div');
-kBlockElements.add('DIV');
-kBlockElements.add('dl');
-kBlockElements.add('DL');
-kBlockElements.add('dt');
-kBlockElements.add('DT');
-kBlockElements.add('fieldset');
-kBlockElements.add('FIELDSET');
-kBlockElements.add('figcaption');
-kBlockElements.add('FIGCAPTION');
-kBlockElements.add('figure');
-kBlockElements.add('FIGURE');
-kBlockElements.add('footer');
-kBlockElements.add('FOOTER');
-kBlockElements.add('form');
-kBlockElements.add('FORM');
-kBlockElements.add('h1');
-kBlockElements.add('H1');
-kBlockElements.add('h2');
-kBlockElements.add('H2');
-kBlockElements.add('h3');
-kBlockElements.add('H3');
-kBlockElements.add('h4');
-kBlockElements.add('H4');
-kBlockElements.add('h5');
-kBlockElements.add('H5');
-kBlockElements.add('h6');
-kBlockElements.add('H6');
-kBlockElements.add('header');
-kBlockElements.add('HEADER');
-kBlockElements.add('hgroup');
-kBlockElements.add('HGROUP');
-kBlockElements.add('hr');
-kBlockElements.add('HR');
-kBlockElements.add('li');
-kBlockElements.add('LI');
-kBlockElements.add('main');
-kBlockElements.add('MAIN');
-kBlockElements.add('nav');
-kBlockElements.add('NAV');
-kBlockElements.add('ol');
-kBlockElements.add('OL');
-kBlockElements.add('p');
-kBlockElements.add('P');
-kBlockElements.add('pre');
-kBlockElements.add('PRE');
-kBlockElements.add('section');
-kBlockElements.add('SECTION');
-kBlockElements.add('table');
-kBlockElements.add('TABLE');
-kBlockElements.add('td');
-kBlockElements.add('TD');
-kBlockElements.add('tr');
-kBlockElements.add('TR');
-kBlockElements.add('ul');
-kBlockElements.add('UL');
+
+function addToKBlockElement(...args: string[][]) {
+	const addToSet = (array: string[]) => {
+		for (let index = 0; index < array.length; index++) {
+			const element = array[index];
+			kBlockElements.add(element);
+			kBlockElements.add(element.toUpperCase());
+		}
+	};
+
+	for (const arg of args) addToSet(arg);
+}
+
+addToKBlockElement(Htags, Dtags, Ftags, tableTags, htmlTags);
 
 class DOMTokenList {
 	private _set: Set<string>;
-	private _afterUpdate: ((t: DOMTokenList) => void);
+	private _afterUpdate: (t: DOMTokenList) => void;
 	private _validate(c: string) {
 		if (/\s/.test(c)) {
-			throw new Error(`DOMException in DOMTokenList.add: The token '${c}' contains HTML space characters, which are not valid in tokens.`);
+			throw new Error(
+				`DOMException in DOMTokenList.add: The token '${c}' contains HTML space characters, which are not valid in tokens.`
+			);
 		}
 	}
-	public constructor(valuesInit: string[] = [], afterUpdate: ((t: DOMTokenList) => void) = (() => null)) {
+	public constructor(valuesInit: string[] = [], afterUpdate: (t: DOMTokenList) => void = () => null) {
 		this._set = new Set(valuesInit);
 		this._afterUpdate = afterUpdate;
 	}
@@ -128,8 +101,7 @@ class DOMTokenList {
 		this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call
 	}
 	public remove(c: string) {
-		this._set.delete(c) &&
-			this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call
+		this._set.delete(c) && this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call
 	}
 	public toggle(c: string) {
 		this._validate(c);
@@ -154,7 +126,6 @@ class DOMTokenList {
 	}
 }
 
-
 /**
  * HTMLElement, which contains a set of children.
  *
@@ -167,7 +138,7 @@ class DOMTokenList {
 export default class HTMLElement extends Node {
 	private _attrs: Attributes;
 	private _rawAttrs: RawAttributes;
-	public rawTagName: string;	// there is not friend funciton in es
+	public rawTagName: string; // there is not friend funciton in es
 	public id: string;
 	public classList: DOMTokenList;
 
@@ -183,8 +154,8 @@ export default class HTMLElement extends Node {
 	 */
 
 	private quoteAttribute(attr: string) {
-		if (attr === null) {
-			return "null";
+		if (attr == null) {
+			return 'null';
 		}
 
 		return JSON.stringify(attr.replace(/"/g, '&quot;'));
@@ -211,9 +182,7 @@ export default class HTMLElement extends Node {
 		this.childNodes = [];
 		this.classList = new DOMTokenList(
 			keyAttrs.class ? keyAttrs.class.split(/\s+/) : [],
-			(classList) => (
-				this.setAttribute('class', classList.toString()) // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-			)
+			(classList) => this.setAttribute('class', classList.toString()) // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
 		);
 		if (keyAttrs.id) {
 			if (!rawAttrs) {
@@ -249,7 +218,7 @@ export default class HTMLElement extends Node {
 	 */
 	public removeChild(node: Node) {
 		this.childNodes = this.childNodes.filter((child) => {
-			return (child !== node);
+			return child !== node;
 		});
 	}
 	/**
@@ -272,6 +241,11 @@ export default class HTMLElement extends Node {
 	public get localName() {
 		return this.rawTagName.toLowerCase();
 	}
+
+	public get isVoidElement() {
+	  return voidTags.has(this.localName);
+  }
+
 	/**
 	 * Get escpaed (as-it) text value of current node and its children.
 	 * @return {string} text content
@@ -309,11 +283,11 @@ export default class HTMLElement extends Node {
 			if (node.nodeType === NodeType.ELEMENT_NODE) {
 				if (kBlockElements.has((node as HTMLElement).rawTagName)) {
 					if (currentBlock.length > 0) {
-						blocks.push(currentBlock = []);
+						blocks.push((currentBlock = []));
 					}
 					node.childNodes.forEach(dfs);
 					if (currentBlock.length > 0) {
-						blocks.push(currentBlock = []);
+						blocks.push((currentBlock = []));
 					}
 				} else {
 					node.childNodes.forEach(dfs);
@@ -333,32 +307,29 @@ export default class HTMLElement extends Node {
 			}
 		}
 		dfs(this);
-		return blocks.map((block) => {
-			// Normalize each line's whitespace
-			return block.join('').replace(/\s{2,}/g, ' ');
-		})
-			.join('\n').replace(/\s+$/, '');	// trimRight;
+		return blocks
+			.map((block) => {
+				return block.join('').replace(/\s{2,}/g, ' '); // Normalize each line's whitespace
+			})
+			.join('\n')
+			.replace(/\s+$/, ''); // trimRight;
 	}
 
 	public toString() {
 		const tag = this.rawTagName;
 		if (tag) {
-			// const void_tags = new Set('area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr'.split('|'));
-			// const is_void = void_tags.has(tag);
-			const is_void = /^(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)$/i.test(tag);
 			const attrs = this.rawAttrs ? ` ${this.rawAttrs}` : '';
-			if (is_void) {
-				return `<${tag}${attrs}>`;
-			}
-			return `<${tag}${attrs}>${this.innerHTML}</${tag}>`;
+			return this.isVoidElement ? `<${tag}${attrs}>` : `<${tag}${attrs}>${this.innerHTML}</${tag}>`;
 		}
 		return this.innerHTML;
 	}
 
 	public get innerHTML() {
-		return this.childNodes.map((child) => {
-			return child.toString();
-		}).join('');
+		return this.childNodes
+			.map((child) => {
+				return child.toString();
+			})
+			.join('');
 	}
 
 	public set innerHTML(content: string) {
@@ -378,16 +349,18 @@ export default class HTMLElement extends Node {
 	}
 
 	public replaceWith(...nodes: (string | Node)[]) {
-		const content = nodes.map((node) => {
-			if (node instanceof Node) {
-				return [node];
-			} else if (typeof node == 'string') {
-				// const r = parse(content, global.options); // TODO global.options ?
-				const r = parse(node);
-				return r.childNodes.length ? r.childNodes : [new TextNode(node, this)];
-			}
-			return [];
-		}).flat();
+		const content = nodes
+			.map((node) => {
+				if (node instanceof Node) {
+					return [node];
+				} else if (typeof node == 'string') {
+					// const r = parse(content, global.options); // TODO global.options ?
+					const r = parse(node);
+					return r.childNodes.length ? r.childNodes : [new TextNode(node, this)];
+				}
+				return [];
+			})
+			.flat();
 		const idx = this.parentNode.childNodes.findIndex((child) => {
 			return child === this;
 		});
@@ -434,8 +407,8 @@ export default class HTMLElement extends Node {
 			res.push('  '.repeat(indention) + str);
 		}
 		function dfs(node: HTMLElement) {
-			const idStr = node.id ? (`#${node.id}`) : '';
-			const classStr = node.classList.length ? (`.${node.classList.value.join('.')}`) : ''; // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-call
+			const idStr = node.id ? `#${node.id}` : '';
+			const classStr = node.classList.length ? `.${node.classList.value.join('.')}` : ''; // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-call
 			write(`${node.rawTagName}${idStr}${classStr}`);
 			indention++;
 			node.childNodes.forEach((childNode) => {
@@ -480,118 +453,67 @@ export default class HTMLElement extends Node {
 	 * @return {HTMLElement[]}  matching elements
 	 */
 	public querySelectorAll(selector: string): HTMLElement[] {
-
 		return selectAll(selector, this as HTMLElement, {
 			xmlMode: true,
-			adapter: Matcher
+			adapter: Matcher,
 		});
-
-		// let matcher: Matcher;
-		// if (selector instanceof Matcher) {
-		// 	matcher = selector;
-		// 	matcher.reset();
-		// } else {
-		// 	if (selector.includes(',')) {
-		// 		const selectors = selector.split(',');
-		// 		return Array.from(selectors.reduce((pre, cur) => {
-		// 			const result = this.querySelectorAll(cur.trim());
-		// 			return result.reduce((p, c) => {
-		// 				return p.add(c);
-		// 			}, pre);
-		// 		}, new Set<HTMLElement>()));
-		// 	}
-		// 	matcher = new Matcher(selector);
-		// }
-		// interface IStack {
-		// 	0: Node;	// node
-		// 	1: number;	// children
-		// 	2: boolean;	// found flag
-		// }
-		// const stack = [] as IStack[];
-		// return this.childNodes.reduce((res, cur) => {
-		// 	stack.push([cur, 0, false]);
-		// 	while (stack.length) {
-		// 		const state = arr_back(stack);	// get last element
-		// 		const el = state[0];
-		// 		if (state[1] === 0) {
-		// 			// Seen for first time.
-		// 			if (el.nodeType !== NodeType.ELEMENT_NODE) {
-		// 				stack.pop();
-		// 				continue;
-		// 			}
-		// 			const html_el = el as HTMLElement;
-		// 			state[2] = matcher.advance(html_el);
-		// 			if (state[2]) {
-		// 				if (matcher.matched) {
-		// 					res.push(html_el);
-		// 					res.push(...(html_el.querySelectorAll(selector)));
-		// 					// no need to go further.
-		// 					matcher.rewind();
-		// 					stack.pop();
-		// 					continue;
-		// 				}
-		// 			}
-		// 		}
-		// 		if (state[1] < el.childNodes.length) {
-		// 			stack.push([el.childNodes[state[1]++], 0, false]);
-		// 		} else {
-		// 			if (state[2]) {
-		// 				matcher.rewind();
-		// 			}
-		// 			stack.pop();
-		// 		}
-		// 	}
-		// 	return res;
-		// }, [] as HTMLElement[]);
 	}
 
 	/**
 	 * Query CSS Selector to find matching node.
 	 * @param  {string}         selector Simplified CSS selector
-	 * @return {HTMLElement}    matching node
+	 * @return {(HTMLElement|null)}    matching node
 	 */
-	public querySelector(selector: string) {
+	public querySelector(selector: string): HTMLElement | null {
 		return selectOne(selector, this as HTMLElement, {
 			xmlMode: true,
-			adapter: Matcher
+			adapter: Matcher,
 		});
-		// let matcher: Matcher;
-		// if (selector instanceof Matcher) {
-		// 	matcher = selector;
-		// 	matcher.reset();
-		// } else {
-		// 	matcher = new Matcher(selector);
-		// }
-		// const stack = [] as { 0: Node; 1: 0 | 1; 2: boolean }[];
-		// for (const node of this.childNodes) {
-		// 	stack.push([node, 0, false]);
-		// 	while (stack.length) {
-		// 		const state = arr_back(stack);
-		// 		const el = state[0];
-		// 		if (state[1] === 0) {
-		// 			// Seen for first time.
-		// 			if (el.nodeType !== NodeType.ELEMENT_NODE) {
-		// 				stack.pop();
-		// 				continue;
-		// 			}
-		// 			state[2] = matcher.advance(el as HTMLElement);
-		// 			if (state[2]) {
-		// 				if (matcher.matched) {
-		// 					return el as HTMLElement;
-		// 				}
-		// 			}
-		// 		}
-		// 		if (state[1] < el.childNodes.length) {
-		// 			stack.push([el.childNodes[state[1]++], 0, false]);
-		// 		} else {
-		// 			if (state[2]) {
-		// 				matcher.rewind();
-		// 			}
-		// 			stack.pop();
-		// 		}
-		// 	}
-		// }
-		// return null;
+	}
+
+	/**
+	 * find elements by their tagName
+	 * @param {string} tagName the tagName of the elements to select
+	 */
+	public getElementsByTagName(tagName: string): Array<HTMLElement> {
+		const upperCasedTagName = tagName.toUpperCase();
+		const re: Array<Node> = [];
+		const stack: Array<number> = [];
+
+		let currentNodeReference = this as Node;
+		let index: number | undefined = 0;
+
+		// index turns to undefined once the stack is empty and the first condition occurs
+		// which happens once all relevant children are searched through
+		while (index !== undefined) {
+			let child: HTMLElement | undefined;
+			// make it work with sparse arrays
+			do {
+				child = currentNodeReference.childNodes[index++] as HTMLElement | undefined;
+			} while (index < currentNodeReference.childNodes.length && child === undefined);
+
+			// if the child does not exist we move on with the last provided index (which belongs to the parentNode)
+			if (child === undefined) {
+				currentNodeReference = currentNodeReference.parentNode;
+				index = stack.pop();
+
+				continue;
+			}
+
+			if (child.nodeType === NodeType.ELEMENT_NODE) {
+				// https://developer.mozilla.org/en-US/docs/Web/API/Element/getElementsByTagName#syntax
+				if (tagName === '*' || child.tagName === upperCasedTagName) re.push(child);
+
+				// if children are existing push the current status to the stack and keep searching for elements in the level below
+				if (child.childNodes.length > 0) {
+					stack.push(index);
+					currentNodeReference = child;
+					index = 0;
+				}
+			}
+		}
+
+		return re as Array<HTMLElement>;
 	}
 
 	/**
@@ -641,8 +563,8 @@ export default class HTMLElement extends Node {
 					findOne,
 					findAll(): Node[] {
 						return [];
-					}
-				}
+					},
+				},
 			});
 			if (e) {
 				return e;
@@ -709,7 +631,7 @@ export default class HTMLElement extends Node {
 	}
 
 	/**
-	 * Get escaped (as-it) attributes
+	 * Get escaped (as-is) attributes
 	 * @return {Object} parsed attributes
 	 */
 	public get rawAttributes() {
@@ -718,10 +640,13 @@ export default class HTMLElement extends Node {
 		}
 		const attrs = {} as RawAttributes;
 		if (this.rawAttrs) {
-			const re = /([a-z()#][a-z0-9-_:()#]*)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|(\S+)))?/ig;
+			const re = /([a-zA-Z()#][a-zA-Z0-9-_:()#]*)(?:\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+))?/g;
 			let match: RegExpExecArray;
 			while ((match = re.exec(this.rawAttrs))) {
-				attrs[match[1]] = match[2] || match[3] || match[4] || null;
+			  const key = match[1];
+			  let val = match[2] || null;
+			  if (val && (val[0] === `'` || val[0] === `"`)) val = val.slice(1, val.length - 1);
+				attrs[key] = val;
 			}
 		}
 		this._rawAttrs = attrs;
@@ -736,13 +661,15 @@ export default class HTMLElement extends Node {
 			delete this._attrs[key];
 		}
 		// Update rawString
-		this.rawAttrs = Object.keys(attrs).map((name) => {
-			const val = JSON.stringify(attrs[name]);
-			if (val === undefined || val === 'null') {
-				return name;
-			}
-			return `${name}=${val}`;
-		}).join(' ');
+		this.rawAttrs = Object.keys(attrs)
+			.map((name) => {
+				const val = JSON.stringify(attrs[name]);
+				if (val === undefined || val === 'null') {
+					return name;
+				}
+				return `${name}=${val}`;
+			})
+			.join(' ');
 		// Update this.id
 		if (key === 'id') {
 			this.id = '';
@@ -768,7 +695,7 @@ export default class HTMLElement extends Node {
 	 */
 	public setAttribute(key: string, value: string) {
 		if (arguments.length < 2) {
-			throw new Error('Failed to execute \'setAttribute\' on \'Element\'');
+			throw new Error("Failed to execute 'setAttribute' on 'Element'");
 		}
 		const k2 = key.toLowerCase();
 		const attrs = this.rawAttributes;
@@ -784,13 +711,13 @@ export default class HTMLElement extends Node {
 			this._attrs[k2] = decode(attrs[key]);
 		}
 		// Update rawString
-		this.rawAttrs = Object.keys(attrs).map((name) => {
-			const val = this.quoteAttribute(attrs[name]);
-			if (val === 'null' || val === '""') {
-				return name;
-			}
-			return `${name}=${val}`;
-		}).join(' ');
+		this.rawAttrs = Object.keys(attrs)
+			.map((name) => {
+				const val = this.quoteAttribute(attrs[name]);
+				if (val === 'null' || val === '""') return name;
+				return `${name}=${val}`;
+			})
+			.join(' ');
 		// Update this.id
 		if (key === 'id') {
 			this.id = value;
@@ -811,14 +738,13 @@ export default class HTMLElement extends Node {
 			delete this._rawAttrs;
 		}
 		// Update rawString
-		this.rawAttrs = Object.keys(attributes).map((name) => {
-			const val = attributes[name];
-			if (val === 'null' || val === '""') {
-				return name;
-			}
-			return `${name}=${this.quoteAttribute(String(val))}`;
-
-		}).join(' ');
+		this.rawAttrs = Object.keys(attributes)
+			.map((name) => {
+				const val = attributes[name];
+				if (val === 'null' || val === '""') return name;
+				return `${name}=${this.quoteAttribute(String(val))}`;
+			})
+			.join(' ');
 	}
 
 	public insertAdjacentHTML(where: InsertPosition, html: string) {
@@ -853,7 +779,9 @@ export default class HTMLElement extends Node {
 				}
 			});
 		} else {
-			throw new Error(`The value provided ('${where as string}') is not one of 'beforebegin', 'afterbegin', 'beforeend', or 'afterend'`);
+			throw new Error(
+				`The value provided ('${where as string}') is not one of 'beforebegin', 'afterbegin', 'beforeend', or 'afterend'`
+			);
 		}
 		// if (!where || html === undefined || html === null) {
 		// 	return;
@@ -866,9 +794,7 @@ export default class HTMLElement extends Node {
 			let i = 0;
 			while (i < children.length) {
 				const child = children[i++];
-				if (this === child) {
-					return children[i] || null;
-				}
+				if (this === child) return children[i] || null;
 			}
 			return null;
 		}
@@ -911,12 +837,8 @@ export default class HTMLElement extends Node {
 }
 
 // https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name
-const kMarkupPattern = /<!--[^]*?(?=-->)-->|<(\/?)([a-z][-.:0-9_a-z]*)\s*([^>]*?)(\/?)>/ig;
-// <(?<tag>[^\s]*)(.*)>(.*)</\k<tag>>
-// <([a-z][-.:0-9_a-z]*)\s*\/>
-// <(area|base|br|col|hr|img|input|link|meta|source)\s*(.*)\/?>
-// <(area|base|br|col|hr|img|input|link|meta|source)\s*(.*)\/?>|<(?<tag>[^\s]*)(.*)>(.*)</\k<tag>>
-const kAttributePattern = /(^|\s)(id|class)\s*=\s*("([^"]*)"|'([^']*)'|(\S+))/ig;
+const kMarkupPattern = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][-.:0-9_a-zA-Z]*)((?:\s+[^>]*?(?:(?:'[^']*')|(?:"[^"]*"))?)*)\s*(\/?)>/g;
+const kAttributePattern = /(?:^|\s)(id|class)\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+)/gi;
 const kSelfClosingElements = {
 	area: true,
 	AREA: true,
@@ -945,7 +867,7 @@ const kSelfClosingElements = {
 	track: true,
 	TRACK: true,
 	wbr: true,
-	WBR: true
+	WBR: true,
 };
 const kElementsClosedByOpening = {
 	li: { li: true, LI: true },
@@ -969,7 +891,7 @@ const kElementsClosedByOpening = {
 	h5: { h5: true, H5: true },
 	H5: { h5: true, H5: true },
 	h6: { h6: true, H6: true },
-	H6: { h6: true, H6: true }
+	H6: { h6: true, H6: true },
 };
 const kElementsClosedByClosing = {
 	li: { ul: true, ol: true, UL: true, OL: true },
@@ -985,7 +907,7 @@ const kElementsClosedByClosing = {
 	td: { tr: true, table: true, TR: true, TABLE: true },
 	TD: { tr: true, table: true, TR: true, TABLE: true },
 	th: { tr: true, table: true, TR: true, TABLE: true },
-	TH: { tr: true, table: true, TR: true, TABLE: true }
+	TH: { tr: true, table: true, TR: true, TABLE: true },
 };
 
 export interface Options {
@@ -1009,48 +931,46 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 		script: true,
 		noscript: true,
 		style: true,
-		pre: true
+		pre: true,
 	};
 	const element_names = Object.keys(elements);
-	const kBlockTextElements = element_names.map((it) => {
-		return new RegExp(it, 'i');
-	});
-	const kIgnoreElements = element_names.filter((it) => {
-		return elements[it];
-	}).map((it) => {
-		return new RegExp(it, 'i');
-	});
-	function element_should_be_ignore(tag: string) {
-		return kIgnoreElements.some((it) => {
-			return it.test(tag);
-		});
-	}
-	function is_block_text_element(tag: string) {
-		return kBlockTextElements.some((it) => {
-			return it.test(tag);
-		});
-	}
-	const createRange = (startPos: number, endPos: number): [number, number] =>
-		[startPos - frameFlagOffset, endPos - frameFlagOffset];
+	const kBlockTextElements = element_names.map((it) => new RegExp(`^${it}$`, 'i'));
+	const kIgnoreElements = element_names.filter((it) => elements[it]).map((it) => new RegExp(`^${it}$`, 'i'));
 
+	function element_should_be_ignore(tag: string) {
+		return kIgnoreElements.some((it) => it.test(tag));
+	}
+
+	function is_block_text_element(tag: string) {
+		return kBlockTextElements.some((it) => it.test(tag));
+	}
+
+	const createRange = (startPos: number, endPos: number): [number, number] => [startPos - frameFlagOffset, endPos - frameFlagOffset];
 	const root = new HTMLElement(null, {}, '', null, [0, data.length]);
+
 	let currentParent = root;
 	const stack = [root];
 	let lastTextPos = -1;
+	let noNestedTagIndex: undefined | number = undefined;
 	let match: RegExpExecArray;
 	// https://github.com/taoqf/node-html-parser/issues/38
 	data = `<${frameflag}>${data}</${frameflag}>`;
+	const { lowerCaseTagName } = options;
 
 	const dataEndPos = data.length - (frameflag.length + 2);
 	const frameFlagOffset = frameflag.length + 2;
 
 	while ((match = kMarkupPattern.exec(data))) {
-		const tagStartPos = kMarkupPattern.lastIndex - match[0].length;
+	  // Note: Object destructuring here consistently tests as higher performance than array destructuring
+    // eslint-disable-next-line prefer-const
+	  let { 0: matchText, 1: leadingSlash, 2: tagName, 3: attributes, 4: closingSlash } = match;
+	  const matchLength = matchText.length;
+		const tagStartPos = kMarkupPattern.lastIndex - matchLength;
 		const tagEndPos = kMarkupPattern.lastIndex;
 
 		// Add TextNode if content
 		if (lastTextPos > -1) {
-			if (lastTextPos + match[0].length < tagEndPos) {
+			if (lastTextPos + matchLength < tagEndPos) {
 				const text = data.substring(lastTextPos, tagStartPos);
 				currentParent.appendChild(new TextNode(text, currentParent, createRange(lastTextPos, tagStartPos)));
 			}
@@ -1060,10 +980,10 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 
 		// https://github.com/taoqf/node-html-parser/issues/38
 		// Skip frameflag node
-		if (match[2] === frameflag) continue;
+		if (tagName === frameflag) continue;
 
 		// Handle comments
-		if (match[0][1] === '!') {
+		if (matchText[1] === '!') {
 			if (options.comment) {
 				// Only keep what is in between <!-- and -->
 				const text = data.substring(tagStartPos + 4, tagEndPos - 3);
@@ -1074,48 +994,54 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 
 		/* -- Handle tag matching -- */
 		// Fix tag casing if necessary
-		if (options.lowerCaseTagName) match[2] = match[2].toLowerCase();
+		if (lowerCaseTagName) tagName = tagName.toLowerCase();
 
 		// Handle opening tags (ie. <this> not </that>)
-		if (!match[1]) {
+		if (!leadingSlash) {
 			/* Populate attributes */
 			const attrs = {};
-			for (let attMatch; (attMatch = kAttributePattern.exec(match[3]));) {
-				attrs[attMatch[2].toLowerCase()] = attMatch[4] || attMatch[5] || attMatch[6];
+			for (let attMatch; (attMatch = kAttributePattern.exec(attributes)); ) {
+			  const { 1: key, 2: val } = attMatch;
+			  const isQuoted = val[0] === `'` || val[0] === `"`;
+				attrs[key.toLowerCase()] = isQuoted ? val.slice(1, val.length - 1) : val;
 			}
 
-			const tagName = currentParent.rawTagName as 'LI' | 'P' | 'B' | 'TD' | 'TH' | 'H1' | 'H2' | 'H3' | 'H4' | 'H5' | 'H6' | 'li' | 'p' | 'b' | 'td' | 'th' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
+			const parentTagName = currentParent.rawTagName as IRawTagName;
 
-			if (!match[4] && kElementsClosedByOpening[tagName]) {
-				if (kElementsClosedByOpening[tagName][match[2]]) {
+			if (!closingSlash && kElementsClosedByOpening[parentTagName]) {
+				if (kElementsClosedByOpening[parentTagName][tagName]) {
 					stack.pop();
 					currentParent = arr_back(stack);
 				}
 			}
 
-			if (currentParent.rawTagName === 'a' && match[2] === 'a') {
-				stack.pop();
-				currentParent = arr_back(stack);
+			// Prevent nested A tags by terminating the last A and starting a new one : see issue #144
+			if (tagName === 'a' || tagName === 'A') {
+				if (noNestedTagIndex !== undefined) {
+					stack.splice(noNestedTagIndex);
+					currentParent = arr_back(stack);
+				}
+				noNestedTagIndex = stack.length;
 			}
 
 			const tagEndPos = kMarkupPattern.lastIndex;
-			const tagStartPos = tagEndPos - match[0].length;
+			const tagStartPos = tagEndPos - matchLength;
 
 			currentParent = currentParent.appendChild(
 				// Initialize range (end position updated later for closed tags)
-				new HTMLElement(match[2], attrs, match[3], null, createRange(tagStartPos, tagEndPos))
+				new HTMLElement(tagName, attrs, attributes.slice(1), null, createRange(tagStartPos, tagEndPos))
 			);
 			stack.push(currentParent);
 
-			if (is_block_text_element(match[2])) {
+			if (is_block_text_element(tagName)) {
 				// Find closing tag
-				const closeMarkup = `</${match[2]}>`;
-				const closeIndex = options.lowerCaseTagName
+				const closeMarkup = `</${tagName}>`;
+				const closeIndex = lowerCaseTagName
 					? data.toLocaleLowerCase().indexOf(closeMarkup, kMarkupPattern.lastIndex)
 					: data.indexOf(closeMarkup, kMarkupPattern.lastIndex);
 				const textEndPos = closeIndex === -1 ? dataEndPos : closeIndex;
 
-				if (element_should_be_ignore(match[2])) {
+				if (element_should_be_ignore(tagName)) {
 					const text = data.substring(tagEndPos, textEndPos);
 					if (text.length > 0 && /\S/.test(text)) {
 						currentParent.appendChild(new TextNode(text, currentParent, createRange(tagEndPos, textEndPos)));
@@ -1127,25 +1053,26 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 				} else {
 					lastTextPos = kMarkupPattern.lastIndex = closeIndex + closeMarkup.length;
 					// Cause to be treated as self-closing, because no close found
-					match[1] = 'true';
+					leadingSlash = '/';
 				}
 			}
 		}
 
 		// Handle closing tags or self-closed elements (ie </tag> or <br>)
-		if (match[1] || match[4] || kSelfClosingElements[match[2]]) {
+		if (leadingSlash || closingSlash || kSelfClosingElements[tagName]) {
 			while (true) {
-				if (currentParent.rawTagName === match[2]) {
+				if (tagName === 'a' || tagName === 'A') noNestedTagIndex = undefined;
+				if (currentParent.rawTagName === tagName) {
 					// Update range end for closed tag
 					(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
 					stack.pop();
 					currentParent = arr_back(stack);
 					break;
 				} else {
-					const tagName = currentParent.tagName as 'LI' | 'A' | 'B' | 'I' | 'P' | 'TD' | 'TH';
+					const parentTagName = currentParent.tagName as 'LI' | 'A' | 'B' | 'I' | 'P' | 'TD' | 'TH';
 					// Trying to close current tag, and move on
-					if (kElementsClosedByClosing[tagName]) {
-						if (kElementsClosedByClosing[tagName][match[2]]) {
+					if (kElementsClosedByClosing[parentTagName]) {
+						if (kElementsClosedByClosing[parentTagName][tagName]) {
 							stack.pop();
 							currentParent = arr_back(stack);
 							continue;
@@ -1166,6 +1093,7 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
  */
 export function parse(data: string, options = { lowerCaseTagName: false, comment: false } as Partial<Options>) {
 	const stack = base_parse(data, options);
+
 	const [root] = stack;
 	while (stack.length > 1) {
 		// Handle each error elements.

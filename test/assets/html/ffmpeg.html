@@ -1,0 +1,719 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title>
+		StreamingGuide – FFmpeg
+	</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<!--[if IE]><script type="text/javascript">
+      if (/^#__msie303:/.test(window.location.hash))
+        window.location.replace(window.location.hash.replace(/^#__msie303:/, '#'));
+    </script><![endif]-->
+	<link rel="search" href="/search">
+	<link rel="help" href="/wiki/TracGuide">
+	<link rel="alternate" href="/wiki/StreamingGuide?format=txt" type="text/x-trac-wiki" title="Plain Text">
+	<link rel="start" href="/wiki">
+	<link rel="stylesheet" href="/chrome/common/css/trac.css" type="text/css">
+	<link rel="stylesheet" href="/chrome/common/css/wiki.css" type="text/css">
+	<link rel="stylesheet" href="/chrome/vote/css/tracvote.css" type="text/css">
+	<link rel="stylesheet" href="/chrome/tags/css/tractags.css" type="text/css">
+	<link rel="shortcut icon" href="/chrome/common/trac.ico" type="image/x-icon">
+	<link rel="icon" href="/chrome/common/trac.ico" type="image/x-icon">
+	<link type="application/opensearchdescription+xml" rel="search" href="/search/opensearch" title="Search FFmpeg">
+	<script type="text/javascript" charset="utf-8" src="/chrome/common/js/jquery.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/chrome/common/js/babel.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/chrome/common/js/messages/en_US.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/chrome/common/js/trac.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/chrome/common/js/search.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/chrome/common/js/folding.js"></script>
+	<script type="text/javascript">
+		jQuery(document).ready(function ($) {
+			$("#content").find("h1,h2,h3,h4,h5,h6").addAnchor(_("Link to this section"));
+			$("#content").find(".wikianchor").each(function () {
+				$(this).addAnchor(babel.format(_("Link to #%(id)s"), { id: $(this).attr('id') }));
+			});
+			$(".foldable").enableFolding(true, true);
+		});
+	</script>
+</head>
+
+<body>
+	<div id="banner">
+		<div id="header">
+			<a id="logo" href="https://ffmpeg.org"><img src="/ffmpeg-logo.png" alt="FFmpeg"></a>
+		</div>
+		<form id="search" action="/search" method="get">
+			<div>
+				<label for="proj-search">Search:</label>
+				<input type="text" id="proj-search" name="q" size="18" value="">
+				<input type="submit" value="Search">
+			</div>
+		</form>
+		<div id="metanav" class="nav">
+			<ul>
+				<li class="first"><a href="/login">Login</a></li>
+				<li><a href="/prefs">Preferences</a></li>
+				<li><a href="/wiki/TracGuide">Help/Guide</a></li>
+				<li><a href="/about">About Trac</a></li>
+				<li class="last"><a href="/register">Register</a></li>
+			</ul>
+		</div>
+	</div>
+	<div id="mainnav" class="nav">
+		<ul>
+			<li class="first active"><a href="/wiki">Wiki</a></li>
+			<li><a href="/timeline">Timeline</a></li>
+			<li><a href="/report">View Tickets</a></li>
+			<li><a href="/search">Search</a></li>
+			<li class="last"><a href="/tags">Tags</a></li>
+		</ul>
+	</div>
+	<div id="main">
+		<div id="pagepath" class="noprint">
+			<h1 style="display: inline;"><a class="pathentry first" title="View WikiStart" href="/wiki">wiki:</a></h1>
+			<h1 style="display: inline; color: #b00;"><a class="pathentry" href="/wiki/StreamingGuide" title="View StreamingGuide">StreamingGuide</a></h1>
+		</div>
+		<div id="ctxtnav" class="nav">
+			<h2>Context Navigation</h2>
+			<ul>
+				<li class="first"><span id="vote" title="Vote count"><img src="/chrome/vote/aupgray.png" alt="Up-vote"><span id="votes">+0</span><img
+						 src="/chrome/vote/adowngray.png" alt="Down-vote"></span></li>
+				<li><a href="/wiki/WikiStart">Start Page</a></li>
+				<li><a href="/wiki/TitleIndex">Index</a></li>
+				<li class="last"><a href="/wiki/StreamingGuide?action=history">History</a></li>
+			</ul>
+			<hr>
+		</div>
+		<div id="content" class="wiki">
+			<div class="wikipage searchable">
+
+				<div id="wikipage" class="trac-content">
+					<h1 id="Streaming">Streaming<a class="anchor" href="#Streaming" title="Link to this section"> ¶</a></h1>
+					<p>
+					</p>
+					<div class="wiki-toc">
+						<h4>Contents</h4>
+						<ol>
+							<li>
+								<a href="#The-reflag">The -re flag</a>
+							</li>
+							<li>
+								<a href="#Setting">Setting</a>
+							</li>
+							<li>
+								<a href="#Latency">Latency</a>
+							</li>
+							<li>
+								<a href="#CPUusageFilesize">CPU usage / File size</a>
+							</li>
+							<li>
+								<a href="#StreamingasimpleRTPaudiostreamfromFFmpeg">Streaming a simple RTP audio stream from FFmpeg</a>
+							</li>
+							<li>
+								<a href="#Codecs">Codecs</a>
+							</li>
+							<li>
+								<a href="#HTTPLiveStreamingandStreamingwithmultiplebitrates">HTTP Live Streaming and Streaming with multiple
+									bitrates</a>
+							</li>
+							<li>
+								<a href="#SavingafileandStreamingatthesametime">Saving a file and Streaming at the same time</a>
+							</li>
+							<li>
+								<a href="#Transcodingrepeating">Transcoding / repeating</a>
+							</li>
+							<li>
+								<a href="#Adjustingbitratebasedonlineconditions">Adjusting bitrate based on line conditions</a>
+							</li>
+							<li>
+								<a href="#TroubleshootingStreaming">Troubleshooting Streaming</a>
+							</li>
+							<li>
+								<a href="#Pointtopointstreaming">Point to point streaming</a>
+							</li>
+							<li>
+								<a href="#Externallinks">External links</a>
+							</li>
+						</ol>
+					</div>
+					<p>
+					</p>
+					<p>
+						FFmpeg can basically stream through one of two ways: It either streams to a some "other server", which re-streams
+						for it to multiple clients, or it can stream via UDP/TCP directly to some single destination receiver, or
+						alternatively directly to a multicast destination. Theoretically you might be able to send to multiple receivers
+						via <a class="missing wiki">Creating Multiple Outputs?</a> but there is no built-in full blown server.
+					</p>
+					<p>
+						Servers which can receive from FFmpeg (to restream to multiple clients) include <a class="wiki" href="/wiki/Streaming%20media%20with%20ffserver">ffserver</a>
+						(linux only, though with cygwin it might work on windows), or <a class="ext-link" href="http://en.wikipedia.org/wiki/Wowza_Media_Server"><span
+							 class="icon">​</span>Wowza Media Server</a>, or <a class="ext-link" href="http://en.wikipedia.org/wiki/Adobe_Flash_Media_Server"><span
+							 class="icon">​</span>Flash Media Server</a>, Red5, or <a class="ext-link" href="https://en.wikipedia.org/wiki/List_of_streaming_media_systems#Servers"><span
+							 class="icon">​</span>various others</a>. Even <a class="ext-link" href="http://en.wikipedia.org/wiki/VLC_media_player"><span
+							 class="icon">​</span>VLC</a> can pick up the stream from ffmpeg, then redistribute it, acting as a server.
+						Since FFmpeg is at times more efficient than VLC at doing the raw encoding, this can be a useful option compared
+						to doing both transcoding and streaming in VLC. <a class="ext-link" href="https://www.vultr.com/docs/setup-nginx-on-ubuntu-to-stream-live-hls-video"><span
+							 class="icon">​</span>Nginx</a> also has an rtmp redistribution plugin, as does <a class="ext-link" href="http://h264.code-shop.com/trac/wiki"><span
+							 class="icon">​</span>apache etc.</a> and there is probably more out there for apache, etc.. You can also live
+						stream to online redistribution servers like own3d.tv or justin.tv (for instance streaming your desktop). Also
+						any <a class="ext-link" href="http://www.flashrealtime.com/list-of-available-rtmp-servers/"><span class="icon">​</span>rtmp
+							server</a> will most likely work to receive streams from FFmpeg (these typically require you to setup a running
+						instance on a server).
+					</p>
+					<h2 id="The-reflag">The -re flag<a class="anchor" href="#The-reflag" title="Link to this section"> ¶</a></h2>
+					<p>
+						The FFmpeg's "-re" flag means to "Read input at native frame rate. Mainly used to simulate a grab device." i.e.
+						if you wanted to stream a video file, then you would want to use this, otherwise it might stream it too fast (it
+						attempts to stream at line speed by default). My guess is you typically don't want to use this flag when
+						streaming from a live device, ever.
+					</p>
+					<h2 id="Setting">Setting<a class="anchor" href="#Setting" title="Link to this section"> ¶</a></h2>
+					<p>
+						Here is what another person once did for broadcast:
+					</p>
+					<pre class="wiki">ffmpeg -f dshow -i video="Virtual-Camera" -preset ultrafast -vcodec libx264 -tune zerolatency -b 900k -f mpegts udp://10.1.0.102:1234
+</pre>
+					<p>
+						And here is what another person <a class="ext-link" href="http://web.archiveorange.com/archive/v/DUtyPSinPqSIxjhedGQd"><span
+							 class="icon">​</span>did</a>:
+					</p>
+					<pre class="wiki">ffmpeg -f dshow -i video="screen-capture-recorder":audio="Stereo Mix (IDT High Definition" \
+-vcodec libx264 -preset ultrafast -tune zerolatency -r 10 -async 1 -acodec libmp3lame -ab 24k -ar 22050 -bsf:v h264_mp4toannexb \
+-maxrate 750k -bufsize 3000k -f mpegts udp://192.168.5.215:48550
+</pre>
+					<p>
+						NB that they also (for directshow devices) had to adjust the rtbufsize in that example.
+					</p>
+					<p>
+						You can see a description of what some of these means, (for example bufsize, bitrate settings) in the <a class="wiki"
+						 href="/wiki/Encode/H.264">Encode/H.264</a>.
+					</p>
+					<p>
+						Here's how one guy broadcast a live stream (in this instance a <a class="missing wiki">Capture/Desktop#Windows?</a>
+						screen capture device):
+					</p>
+					<pre class="wiki">$ ffmpeg -y -loglevel warning -f dshow -i video="screen-capture-recorder" -vf crop=690:388:136:0 -r 30 -s 962x388 -threads 2 -vcodec libx264 -vpre baseline -vpre my_ffpreset -f flv rtmp:///live/myStream.sdp
+</pre>
+					<p>
+						with a custom FFmpeg preset (libx264-my_ffpreset.ffpreset) in this case:
+					</p>
+					<pre class="wiki">coder=1
+flags2=+wpred+dct8x8
+level=31
+maxrate=1200000
+bufsize=200000
+wpredp=0
+g=60
+refs=1
+subq=3
+trellis=0
+bf=0
+rc_lookahead=0
+</pre>
+					<p>
+						Here is how you stream to twitch.tv or similar services (rtmp protocol), using ffmpeg 1.0 or ffmpeg-git (tested
+						on 2012-11-12), this is also for pulseaudio users:
+						Example 1, no sound:
+					</p>
+					<pre class="wiki">ffmpeg -f x11grab -s 1920x1200 -framerate 15 -i :0.0 -c:v libx264 -preset fast -pix_fmt yuv420p -s 1280x800 -threads 0 -f flv "rtmp://live.twitch.tv/app/live_********_******************************"
+</pre>
+					<p>
+						Example 2, first screen (on dual screen setup, or if on a single screen):
+					</p>
+					<pre class="wiki">ffmpeg -f x11grab -s 1920x1200 -framerate 15 -i :0.0 -f pulse -ac 2 -i default -c:v libx264 -preset fast -pix_fmt yuv420p -s 1280x800 -c:a aac -b:a 160k -ar 44100 -threads 0 -f flv "rtmp://live.twitch.tv/app/live_********_******************************"
+</pre>
+					<p>
+						Example 3, second screen (on dual screen setup):
+					</p>
+					<pre class="wiki">ffmpeg -f x11grab -s 1920x1200 -framerate 15 -i :0.0+1920,0 -f pulse -ac 2 -i default -c:v libx264 -preset fast -pix_fmt yuv420p -s 1280x800 -c:a aac -b:a 160k -ar 44100 -threads 0 -f flv "rtmp://live.twitch.tv/app/live_********_******************************"
+</pre>
+					<h2 id="Latency">Latency<a class="anchor" href="#Latency" title="Link to this section"> ¶</a></h2>
+					<p>
+						You may be able to decrease initial "startup" latency by specifing that I-frames come "more frequently" (or
+						basically always, in the case of <a class="wiki" href="/wiki/Encode/H.264">x264</a>'s zerolatency setting),
+						though this can increase frame size and decrease quality, see <a class="ext-link" href="http://mewiki.project357.com/wiki/X264_Encoding_Suggestions"><span
+							 class="icon">​</span>here</a> for some more background. Basically for typical x264 streams, it inserts an
+						I-frame every 250 frames. This means that new clients that connect to the stream may have to wait up to 250
+						frames before they can start receiving the stream (or start with old data). So increasing I-frame frequency
+						(makes the stream larger, but might decrease latency). For real time captures you can also decrease latency of
+						audio in windows dshow by using the dshow audio_buffer_size <a class="ext-link" href="http://ffmpeg.org/ffmpeg.html#Options"><span
+							 class="icon">​</span>setting</a>. You can also decrease latency by tuning any broadcast server you are using to
+						minimize latency, and finally by tuning the client that receives the stream to not "cache" any incoming data,
+						which, if it does, increases latency.
+					</p>
+					<p>
+						Sometimes audio codecs also introduce some latency of their own. You may be able to get less latency by using
+						speex, for example, or opus, in place of libmp3lame.
+					</p>
+					<p>
+						You will also want to try and decrease latency at the server side, for instance <a class="ext-link" href="http://www.wowza.com/forums/content.php?81-How-to-achieve-the-lowest-latency-from-capture-to-playback"><span
+							 class="icon">​</span>wowza</a> hints.
+					</p>
+					<p>
+						Also setting -probesize and -analyzeduration to low values may help your stream start up more quickly (it uses
+						these to scan for "streams" in certain muxers, like ts, where some can appears "later", and also to estimate the
+						duration, which, for live streams, the latter you don't need anyway). This should be unneeded by dshow input.
+					</p>
+					<p>
+						Reducing cacheing at the client side can help, too, for instance mplayer has a "-nocache" option, other players
+						may similarly has some type of pre-playback buffering that is occurring. (The reality is mplayers -benchmark
+						option has much more effect).
+					</p>
+					<p>
+						Using an encoder that encodes more quickly (or possibly even raw format?) might reduce latency.
+					</p>
+					<p>
+						You might get less latency by using one of the "point to point" protocols described in this document, at well.
+						You'd lose the benefit of having a server, of course.
+					</p>
+					<p>
+						NB that a client when it initially starts up may have to wait until the next i-frame to be able to start
+						receiving the stream (ex: if receiving UDP), so the GOP setting (-g) i-frame interval will have an effect on how
+						quickly they can start streaming (i.e. they must receive an i-frame before they start). Setting it to a lower
+						number means it will use more bandwidth, but clients will be able to connect more quickly (the default for x264
+						is 250--so for 30 fps that means an i-frame only once every 10 seconds or so). So it's a tradeoff if you adjust
+						it. This does not affect actual latency (just connection time) since the client can still display frames very
+						quickly after and once it has received its first i-frame. Also if you're using a lossy transport, like UDP, then
+						an i-frame represents "the next change it will have to repair the stream" if there are problems from packet loss.
+					</p>
+					<p>
+						You can also (if capturing from a live source) increase frame rate to decrease latency (which affects throughput
+						and also i-frame frequency, of course). This obvious sends packets more frequently, so (with 5 fps, you introduce
+						at least a 0.2s latency, with 10 fps 0.1s latency) but it also helps clients to fill their internal buffers, etc.
+						more quickly.
+					</p>
+					<p>
+						Note also that using dshow's "rtbufsize" has the unfortunate side effect of sometimes allowing frames to "buffer"
+						while it is waiting on encoding of previous frames, or waiting for them to be sent over the wire. This means that
+						if you use a higher value at all, it can cause/introduce added latency if it ever gets used (but if used, can be
+						helpful for other aspects, like transmitting more frames overall consistently etc. so YMMV). Almost certainly if
+						you set a very large value for this, and then see the "buffer XX% full! dropping!" message, you are introducing
+						latency.
+					</p>
+					<p>
+						There is also apparently an option -fflags nobuffer which might possibly help, usually for receiving streams <a
+						 class="ext-link" href="https://www.ffmpeg.org/ffmpeg-formats.html#Format-Options"><span class="icon">​</span>reduce
+							latency</a>.
+					</p>
+					<div>
+						<p>
+							mpv udp://236.0.0.1:2000 --no-cache --untimed --no-demuxer-thread --video-sync=audio --vd-lavc-threads=1
+						</p>
+						<p>
+							may be useful.
+						</p>
+						<h3 id="Testinglatency">Testing latency<a class="anchor" href="#Testinglatency" title="Link to this section"> ¶</a></h3>
+						<p>
+							By default, ffplay (as a receiver for testing latency) introduces significant latency of its own, so if you use
+							it for testing (see troubleshooting section) it may not reflect latency accurately. FFplay introduces some video
+							artifacts, also, see notes for it in "troubleshooting streaming" section Also some settings mentioned above like
+							"probesize" might help it start more quickly. Also useful:
+						</p>
+						<pre class="wiki">ffplay -probesize 32 -sync ext INPUT
+</pre>
+						<p>
+							(the sync part tells it to try and stay realtime).
+						</p>
+						<p>
+							Useful is mplayer with its -benchmark for testing latency (-noaudio and/or -nocache *might* be useful, though I
+							haven't found -nocache to provide any latency benefit it might work for you).
+						</p>
+						<p>
+							Using the SDL out option while using FFmpeg to receive the stream might also help to view frames with less
+							client side latency: "ffmpeg ... -f sdl &lt;input_here&gt; "window title"" (this works especially well with
+							-fflags nobuffer, though in my tests is still barely more latency than using mplayer -benchmark always). This
+							doesn't have a "drop frames if you run out of cpu" option so it can get quite far behind at times (introduce
+							more latency variably).
+						</p>
+						<p>
+							Another possibly useful receiving client is "omxplayer -live"
+						</p>
+						<p>
+							See also "Point to point streaming" section esp. if you use UDP etc.
+						</p>
+						<h3 id="Seealso">See also<a class="anchor" href="#Seealso" title="Link to this section"> ¶</a></h3>
+						<p>
+							<a class="ext-link" href="http://stackoverflow.com/a/12085571/32453"><span class="icon">​</span>Here</a> is a
+							list of some other ideas to try (using VBR may help, etc.)
+						</p>
+						<h2 id="CPUusageFilesize">CPU usage / File size<a class="anchor" href="#CPUusageFilesize" title="Link to this section">
+								¶</a></h2>
+						<p>
+							In general, the more CPU you use to compress, the better the output image will be, or the smaller of a file the
+							output will be for the same quality.
+						</p>
+						<p>
+							Basically, the easiest way to save cpu is to decrease the input frame rate/size, or decrease the output frame
+							rate/size.
+						</p>
+						<p>
+							Also you could (if capturing from live source), instruct the live source to feed a "smaller stream" (ex: webcam
+							stream 640x480 instead of 1024x1280), or you could set a lower output "output quality" setting (q level), or
+							specify a lower output desired bitrate (see <a class="wiki" href="/wiki/Encode/H.264">Encode/H.264</a> for a
+							background). Or try a different output codec, or specify new parameters to your codec (for instance, a different
+							profile or preset for <a class="wiki" href="/wiki/Encode/H.264">libx264</a>). Specifying $ -threads 0 instructs
+							the encoder to use all available cpu cores, which is the default. You could also resize the input first, before
+							transcoding it, so it's not as large. Applying a smoothing filter like hqdn3d before encoding might help it
+							compress better, yielding smaller files.
+						</p>
+						<p>
+							You can also set a lower output frame rate to of course decrease cpu usage.
+						</p>
+						<p>
+							If you're able to live capture in a pixel format that matches your output format (ex: yuv420p output from a
+							webcam, instead of mjpeg), that might help with cpu usage, since it avoids an extra conversion. Using 64-bit
+							instead of 32-bit executables (for those that have that choice) can result in a slight speedup. If you're able
+							to use -vcodec copy that, of course, uses the least cpu of all options since it just sends the frames verbatim
+							to the output.
+						</p>
+						<p>
+							Sometimes you can change the "pixel formats" somehow, like using rgb16 instead of rgb24, to save time/space (or
+							yuv420 instead of yuv444 or the like, since 420 stores less information it may compress better and use less
+							bandwidth). This may not affect latency.
+						</p>
+						<h2 id="StreamingasimpleRTPaudiostreamfromFFmpeg">Streaming a simple RTP audio stream from FFmpeg<a class="anchor"
+							 href="#StreamingasimpleRTPaudiostreamfromFFmpeg" title="Link to this section"> ¶</a></h2>
+						<p>
+							FFmpeg can stream a single stream using the <a class="ext-link" href="http://en.wikipedia.org/wiki/Real-time_Transport_Protocol"><span
+								 class="icon">​</span>RTP protocol</a>. In order to avoid buffering problems on the other hand, the streaming
+							should be done through the -re option, which means that the stream will be streamed in real-time (i.e. it slows
+							it down to simulate a live streaming <a class="ext-link" href="http://ffmpeg.org/ffmpeg.html"><span class="icon">​</span>source</a>.
+						</p>
+						<p>
+							For example the following command will generate a signal, and will stream it to the port 1234 on localhost:
+						</p>
+						<pre class="wiki">ffmpeg -re -f lavfi -i aevalsrc="sin(400*2*PI*t)" -ar 8000 -f mulaw -f rtp rtp://127.0.0.1:1234
+</pre>
+						<p>
+							To play the stream with ffplay (which has some caveats, see above), run the command:
+						</p>
+						<pre class="wiki">ffplay rtp://127.0.0.1:1234
+</pre>
+						<p>
+							Note that rtp by default uses UDP, which, for large streams, can cause packet loss. See the "point to point"
+							section in this document for hints if this ever happens to you.
+						</p>
+						<h2 id="Codecs">Codecs<a class="anchor" href="#Codecs" title="Link to this section"> ¶</a></h2>
+						<p>
+							The most popular streaming codec is probably <a class="ext-link" href="http://www.videolan.org/developers/x264.html"><span
+								 class="icon">​</span>libx264</a>, though if you're streaming to a device which requires a "crippled" baseline
+							h264 implementation, you can use the x264 "baseline" profile. Some have have argued that the mp4 video codec is
+							<a class="ext-link" href="http://forums.macrumors.com/showthread.php?t=398016"><span class="icon">​</span>better</a>
+							than x264 baseline, because it encodes about as well with less cpu. You may be able to use other codecs, like
+							mpeg2video, or really any other video codec you want, typically, as long as your receiver can decode it, if it
+							suits your needs.
+						</p>
+						<p>
+							Also note that encoding it to the x264 "baseline" is basically a "compatibility mode" for older iOS devices or
+							the like, see <a class="ext-link" href="http://sonnati.wordpress.com/2011/08/30/ffmpeg-%E2%80%93-the-swiss-army-knife-of-internet-streaming-%E2%80%93-part-iv/"><span
+								 class="icon">​</span>here</a>.
+						</p>
+						<p>
+							The mpeg4 video codec sometimes also comes "within a few percentage" of the compression of x264 "normal
+							settings", but uses much less cpu to do the encoding. See <a class="ext-link" href="http://ffmpeg.zeranoe.com/forum/viewtopic.php?f=7&amp;t=631&amp;hilit=mpeg4+libx264+cores&amp;start=10#p2163"><span
+								 class="icon">​</span>http://ffmpeg.zeranoe.com/forum/viewtopic.php?f=7&amp;t=631&amp;hilit=mpeg4+libx264+cores&amp;start=10#p2163</a>
+							for some graphs (which may be slightly outdated). Basically in that particular test it was 54 fps to 58 fps
+							(libx264 faster), and libx264 file was 5.1MB and mpeg4 was 6MB, but mpeg4 used only half as much cpu for its
+							computation, so take it with a grain of salt.
+						</p>
+						<h2 id="HTTPLiveStreamingandStreamingwithmultiplebitrates">HTTP Live Streaming and Streaming with multiple
+							bitrates<a class="anchor" href="#HTTPLiveStreamingandStreamingwithmultiplebitrates" title="Link to this section">
+								¶</a></h2>
+						<p>
+							FFmpeg supports splitting files (using "-f segment" for the output, see <a class="ext-link" href="http://ffmpeg.org/ffmpeg.html#segment_002c-stream_005fsegment_002c-ssegment"><span
+								 class="icon">​</span>segment muxer</a>) into time based chunks, useful for <a class="ext-link" href="http://en.wikipedia.org/wiki/HTTP_Live_Streaming"><span
+								 class="icon">​</span>HTTP live streaming</a> style file output.
+						</p>
+						<p>
+							How to stream with several different simultaneous bitrates is described <a class="ext-link" href="http://sonnati.wordpress.com/2011/08/30/ffmpeg-%E2%80%93-the-swiss-army-knife-of-internet-streaming-%E2%80%93-part-iv/"><span
+								 class="icon">​</span>here</a>.
+						</p>
+						<p>
+							See also <a class="ext-link" href="http://sonnati.wordpress.com/2012/07/02/ffmpeg-the-swiss-army-knife-of-internet-streaming-part-v"><span
+								 class="icon">​</span>http://sonnati.wordpress.com/2012/07/02/ffmpeg-the-swiss-army-knife-of-internet-streaming-part-v</a>
+						</p>
+						<h2 id="SavingafileandStreamingatthesametime">Saving a file and Streaming at the same time<a class="anchor" href="#SavingafileandStreamingatthesametime"
+							 title="Link to this section"> ¶</a></h2>
+						<p>
+							See <a class="wiki" href="/wiki/Creating%20multiple%20outputs">Creating multiple outputs</a>. Basically, you may
+							only be able to accept from a webcam or some other source from at most one process, in this case you'll need to
+							"split" your output if you want to save it and stream it simultaneously. Streaming and saving simultaneously
+							(and only encoding once) can also save cpu.
+						</p>
+						<h2 id="Transcodingrepeating">Transcoding / repeating<a class="anchor" href="#Transcodingrepeating" title="Link to this section">
+								¶</a></h2>
+						<p>
+							FFmpeg can also receive from "a source" (for instance live or UDP) and then transcode and re-broadcast the
+							stream.
+						</p>
+						<p>
+							One mailing list user wrote this, quote:
+						</p>
+						<blockquote>
+							<p>
+								In my application, I have a server running vlc sucking streams from some cameras, encoding them as MPEG2
+								streams and sending them to ports 5000 through 5003 on my intermediary server (I'll have to let someone else
+								explain how to set that up, as that was someone else's part of the project). I have another server running
+								Wowza, with an instance named "live". And I've got an intermediate server that sucks in MPEG2 streams coming in
+								on ports 5000 to 5003, transcoding them into mp4 streams with H.264 and AAC codecs, and pushing the transcoded
+								streams on to Wowza.
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								The command line I use to pull the stream from port 5000, transcode it, and push it is:
+								ffmpeg -i 'udp://localhost:5000?fifo_size=1000000&amp;overrun_nonfatal=1' -crf 30 -preset ultrafast -acodec aac
+								-strict experimental -ar 44100 -ac 2 -b:a 96k -vcodec libx264 -r 25 -b:v 500k -f flv 'rtmp://&lt;wowza server
+								IP&gt;/live/cam0'
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-i 'udp://localhost:5000?fifo_size=1000000&amp;overrun_nonfatal=1' tells ffmpeg where to pull the input stream
+								from. The parts after the ? are probably not needed most of the time, but I did need it after all.
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-crf 30 sets the Content Rate Factor. That's an x264 argument that tries to keep reasonably consistent video
+								quality, while varying bitrate during more 'complicated' scenes, etc. A value of 30 allows somewhat lower
+								quality and bit rate. See <a class="wiki" href="/wiki/Encode/H.264">Encode/H.264</a>.
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-preset ultrafast as the name implies provides for the fastest possible encoding. If some tradeoff between
+								quality and encode speed, go for the speed. This might be needed if you are going to be transcoding multiple
+								streams on one machine.
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-acodec aac sets the audio codec (internal AAC encoder)
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-strict experimental allows use of some experimental codecs (the internal AAC encoder is experimental)
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-ar 44100 set the audio sample rate
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-ac 2 specifies two channels of audio
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-b:a 96k sets the audio bit rate
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-vcodec libx264 sets the video codec
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-r 25 set the frame rate
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-b:v 500k set the video bit rate
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								-f flv says to deliver the output stream in an flv wrapper
+							</p>
+						</blockquote>
+						<blockquote>
+							<p>
+								'rtmp://&lt;wowza server IP&gt;/live/cam0' is where the transcoded video stream gets pushed to
+							</p>
+						</blockquote>
+						<h2 id="Adjustingbitratebasedonlineconditions">Adjusting bitrate based on line conditions<a class="anchor" href="#Adjustingbitratebasedonlineconditions"
+							 title="Link to this section"> ¶</a></h2>
+						<p>
+							FFmpeg doesn't (today) support varying the encoding bitrate based on fluctuating network conditions. It does
+							support outputting in several "different" fixed bitrates, at the same time, however, see "Streaming with
+							multiple bitrates" on this page, which is vaguely related. Also if you are during direct capture from
+							directshow, the input device starts dropping frames when there is congestion, which somewhat simulates a
+							variable outgoing bitrate.
+						</p>
+						<h2 id="TroubleshootingStreaming">Troubleshooting Streaming<a class="anchor" href="#TroubleshootingStreaming"
+							 title="Link to this section"> ¶</a></h2>
+						<p>
+							If you get a "black/blank" screen in the client, try sending it yuv422p or yuv420p type input. Some servers get
+							confused if you send them yuv444 input (which is the default for libx264).
+						</p>
+						<p>
+							NB that when you are testing your stream settings, you may want to test them with both VLC and <a class="ext-link"
+							 href="http://ffmpeg.org/ffplay.html"><span class="icon">​</span>FFplay</a>, as FFplay sometimes introduces its
+							own artifacts when it is scaled (FFplay uses poor quality default scaling, which can be inaccurate). Don't use
+							ffplay as your baseline for determining quality.
+						</p>
+						<h2 id="Pointtopointstreaming">Point to point streaming<a class="anchor" href="#Pointtopointstreaming" title="Link to this section">
+								¶</a></h2>
+						<p>
+							If you want to stream "from one computer to another", you could start up a server on one, and then stream from
+							FFmpeg to that server, then have the client connect to that server (server could either be on client or server
+							side computers). Or you could do a point to point type stream, like:
+						</p>
+						<pre class="wiki">ffmpeg -i INPUT -acodec libmp3lame -ar 11025 --f rtp rtp://host:port
+</pre>
+						<p>
+							where host is the receiving IP. Then receive the stream using VLC or ffmpeg from that port (since rtp uses UDP,
+							the receiver can start up any time).
+						</p>
+						<p>
+							or
+						</p>
+						<pre class="wiki">ffmpeg -i INPUT -f mpegts udp://host:port
+</pre>
+						<p>
+							If you run into packet loss (green frames, tearing/shearing--since UDP is not guaranteed delivery, this can
+							occur) first make sure your FFmpeg is compiled with pthreads support enabled (if it is, then it uses a separate
+							thread to receive from the UDP port, which can cause less packet loss). You can tell that it is by specifying a
+							url like udp://host:post?fifo_size=10000 (if it accepts fifo_size, then you're good to go). Similarly, for
+							mplayer, you can use mplayer ffmpeg://udp://host:port?fifo_size=XXX for possibly better results on the receiving
+							end (mplayer needs a patch first, email <a class="mail-link" href="mailto:rogerdpack@gmail.com"><span class="icon">​</span>rogerdpack@gmail.com</a>
+							for it, once was <a class="ext-link" href="https://gist.githubusercontent.com/rdp/9075572/raw/002dc1b745c895693fdb160cc9be77ef31f75531/possible_mplayer_udp_fix.diff"><span
+								 class="icon">​</span>https://gist.githubusercontent.com/rdp/9075572/raw/002dc1b745c895693fdb160cc9be77ef31f75531/possible_mplayer_udp_fix.diff</a>
+							hackey work around patch, applied with ffmpeg subdir).
+						</p>
+						<p>
+							Alternatively, increase your buffer size, like mplayer ffmpeg://udp://host:port?buffer_size=10000000 (the
+							default is system dependent and typically far too low for any reasonable buffering. On linux though you can only
+							set it to like 200K max anyway, so this isn't good enough--make sure to use the circular buffer, and that the
+							following works: ffmpeg://udp://host:port?buffer_size=10000000?fifo_size=100000 (the fifo_size should not emit a
+							warning, and implies that you have a secondary thread that collects incoming packets for you if there is no
+							warning).
+						</p>
+						<p>
+							Another option is to use some transmission type that uses TCP for your transport. (The RTMP protocol, popular in
+							streaming to servers, uses TCP probably for this reason--you just can't use that for point to point streaming).
+						</p>
+						<p>
+							One option to use TCP is like this:
+						</p>
+						<pre class="wiki">ffmpeg -i INPUT -f mpegts tcp://host:port
+</pre>
+						<p>
+							which I would guess will try and (as a client) establish a connection do that host on that port (assuming it has
+							a server waiting for the incoming connection). You could receive it like this:
+						</p>
+						<pre class="wiki">ffmpeg -i tcp://local_hostname:port?listen
+</pre>
+						<p>
+							(basically, one side needs to specify "listen" and the other needs to not to).
+						</p>
+						<p>
+							To use with mplayer as a receiver it would be like
+						</p>
+						<pre class="wiki">ffmpeg -i ... -f mpegts "tcp://127.0.0.1:2000"
+</pre>
+						<p>
+							and on the mplayer side
+						</p>
+						<pre class="wiki">mplayer ... ffmpeg://tcp://127.0.0.1:2000?listen
+</pre>
+						<p>
+							(start mplayer first)
+						</p>
+						<p>
+							Another option is to use RTP (which by default uses UDP) but by specifying it use TCP:
+						</p>
+						<pre class="wiki">ffmpeg -i input -f rtsp -rtsp_transport tcp rtsp://localhost:8888/live.sdp
+</pre>
+						<p>
+							(For meanings of options see <a class="ext-link" href="http://ffmpeg.org/ffmpeg-protocols.html#rtsp"><span class="icon">​</span>official
+								documentation</a>.
+						</p>
+						<p>
+							Then you may receive it like this (ffplay or ffmpeg):
+						</p>
+						<pre class="wiki">ffplay -rtsp_flags listen rtsp://localhost:8888/live.sdp?tcp
+# ending "?tcp" may not be needed -- you will need to start the server up first, before the sending client
+</pre>
+						<p>
+							ffmpeg also has a "listen" option for rtmp so it may be able to receive a "straight" rtmp streams from a single
+							client that way.
+						</p>
+						<p>
+							With tcp based streams you can probably use any formatting/muxer, but with udp you need to be careful and use a
+							muxer that supports 'connecting anytime' like mpegts.
+						</p>
+						<p>
+							If you are forced to use udp (for instance you need to broadcast to a multicast port for whatever reason) then
+							you may be able to avoid the packet loss by (sending less data or sending the same frames over and over again so
+							they have a higher chance of being received).
+						</p>
+						<p>
+							See also the section on i-frames in <a class="wiki" href="/wiki/StreamingGuide#Latency">#Latency</a>.
+						</p>
+						<p>
+							Final working p2p client, with multicast:
+						</p>
+						<p>
+							server:
+						</p>
+						<pre class="wiki">ffmpeg -f dshow  -framerate 20 -i video=screen-capture-recorder -vf scale=1280:720 -vcodec libx264 -pix_fmt yuv420p -tune zerolatency -preset ultrafast -f mpegts udp://236.0.0.1:2000
+</pre>
+						<p>
+							client:
+						</p>
+						<pre class="wiki">mplayer -demuxer +mpegts -framedrop -benchmark ffmpeg://udp://236.0.0.1:2000?fifo_size=100000&amp;buffer_size=10000000
+# (see note above about linux needing fifo_size as well as buffer_size).
+</pre>
+						<h2 id="Externallinks">External links<a class="anchor" href="#Externallinks" title="Link to this section"> ¶</a></h2>
+						<ul>
+							<li><a class="ext-link" href="http://sonnati.wordpress.com/2011/08/30/ffmpeg-–-the-swiss-army-knife-of-internet-streaming-–-part-iv/"><span
+									 class="icon">​</span>Fabio Sonnati's tutorial on streaming with FFmpeg</a>
+							</li>
+						</ul>
+					</div>
+
+					<div class="trac-modifiedby">
+						<span><a href="/wiki/StreamingGuide?action=diff&amp;version=82" title="Version 82 by rogerdpack">Last modified</a>
+							<a class="timeline" href="/timeline?from=2018-08-30T01%3A49%3A59%2B03%3A00&amp;precision=second" title="See timeline at Aug 30, 2018, 1:49:59 AM">5
+								months ago</a></span>
+						<span class="trac-print">Last modified on Aug 30, 2018, 1:49:59 AM</span>
+					</div>
+
+
+				</div>
+
+
+			</div>
+			<div id="altlinks">
+				<h3>Download in other formats:</h3>
+				<ul>
+					<li class="last first">
+						<a rel="nofollow" href="/wiki/StreamingGuide?format=txt">Plain Text</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div id="footer" lang="en" xml:lang="en">
+			<hr>
+			<a id="tracpowered" href="http://trac.edgewall.org/"><img src="/chrome/common/trac_logo_mini.png" height="30" width="107"
+				 alt="Trac Powered"></a>
+			<p class="left">Powered by <a href="/about"><strong>Trac 1.0.1</strong></a><br>
+				By <a href="http://www.edgewall.org/">Edgewall Software</a>.</p>
+			<p class="right">Visit the Trac open source project at<br><a href="http://trac.edgewall.org/">http://trac.edgewall.org/</a></p>
+		</div>
+
+		<div style="background-color: rgb(255, 143, 0); display: none; color: white; text-align: center; position: fixed; top: 0px; left: 0px; width: 100%; height: auto; min-width: 100%; min-height: auto; max-width: 100%; font: 12px &quot;Helvetica Neue&quot;, Helvetica, Arial, Geneva, sans-serif; cursor: pointer; padding: 5px;"><span
+			 style="color: white; font: 12px &quot;Helvetica Neue&quot;, Helvetica, Arial, Geneva, sans-serif;">You have turned
+				off the paragraph player. You can turn it on again from the options page.</span><img src="chrome-extension://gfjopfpjmkcfgjpogepmdjmcnihfpokn/img/icons/icon-close_16.png"
+			 style="width: 20px; height: auto; min-width: 20px; min-height: auto; max-width: 20px; float: right; margin-right: 10px;"></div>
+</body>
+
+</html>

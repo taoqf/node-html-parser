@@ -1,4 +1,4 @@
-import { decode, encode } from 'he';
+import * as he from 'he';
 import NodeType from './type';
 import HTMLElement from './html';
 
@@ -8,29 +8,26 @@ import HTMLElement from './html';
 export default abstract class Node {
 	abstract nodeType: NodeType;
 	public childNodes = [] as Node[];
-	public range: readonly [ number, number ];
+	public range: readonly [number, number];
 	abstract text: string;
 	abstract rawText: string;
 	// abstract get rawText(): string;
 	abstract toString(): string;
-	public constructor(
-		public parentNode = null as HTMLElement | null,
-		range?: [ number, number ]
-	) {
+	public constructor(public parentNode = null as HTMLElement | null, range?: [number, number]) {
 		Object.defineProperty(this, 'range', {
 			enumerable: false,
 			writable: true,
 			configurable: true,
-			value: range ?? [ -1, -1 ]
+			value: range ?? [-1, -1],
 		});
 	}
 	public get innerText() {
 		return this.rawText;
 	}
 	public get textContent() {
-		return decode(this.rawText);
+		return he.decode(this.rawText);
 	}
 	public set textContent(val: string) {
-		this.rawText = encode(val);
+		this.rawText = he.encode(val);
 	}
 }

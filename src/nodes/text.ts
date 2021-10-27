@@ -1,4 +1,4 @@
-import { decode } from 'he';
+import * as he from 'he';
 import HTMLElement from './html';
 import Node from './node';
 import NodeType from './type';
@@ -8,7 +8,7 @@ import NodeType from './type';
  * @param {string} value [description]
  */
 export default class TextNode extends Node {
-	public constructor(rawText: string, parentNode: HTMLElement, range?: [ number, number ]) {
+	public constructor(rawText: string, parentNode: HTMLElement, range?: [number, number]) {
 		super(parentNode, range);
 		this._rawText = rawText;
 	}
@@ -59,7 +59,7 @@ export default class TextNode extends Node {
 	 * @return {string} text content
 	 */
 	public get text() {
-		return decode(this.rawText);
+		return he.decode(this.rawText);
 	}
 
 	/**
@@ -102,7 +102,7 @@ function trimText(text: string): string {
 	if (endPos === undefined) endPos = text.length - 1;
 
 	const hasLeadingSpace = startPos > 0 && /[^\S\r\n]/.test(text[startPos - 1]);
-	const hasTrailingSpace = endPos < (text.length - 1) && /[^\S\r\n]/.test(text[endPos + 1]);
+	const hasTrailingSpace = endPos < text.length - 1 && /[^\S\r\n]/.test(text[endPos + 1]);
 
 	return (hasLeadingSpace ? ' ' : '') + text.slice(startPos, endPos + 1) + (hasTrailingSpace ? ' ' : '');
 }

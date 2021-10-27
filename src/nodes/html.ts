@@ -1,5 +1,5 @@
 import he from 'he';
-import { selectAll, selectOne } from 'css-select';
+import * as cssSelect from 'css-select';
 import Node from './node';
 import NodeType from './type';
 import TextNode from './text';
@@ -7,7 +7,7 @@ import Matcher from '../matcher';
 import arr_back from '../back';
 import CommentNode from './comment';
 
-const voidTags = new Set([ 'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr' ]);
+const voidTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
 type IRawTagName =
 	| 'LI'
@@ -243,8 +243,8 @@ export default class HTMLElement extends Node {
 	}
 
 	public get isVoidElement() {
-	  return voidTags.has(this.localName);
-  }
+		return voidTags.has(this.localName);
+	}
 
 	/**
 	 * Get escpaed (as-it) text value of current node and its children.
@@ -453,7 +453,7 @@ export default class HTMLElement extends Node {
 	 * @return {HTMLElement[]}  matching elements
 	 */
 	public querySelectorAll(selector: string): HTMLElement[] {
-		return selectAll(selector, this as HTMLElement, {
+		return cssSelect.selectAll(selector, this as HTMLElement, {
 			xmlMode: true,
 			adapter: Matcher,
 		});
@@ -465,7 +465,7 @@ export default class HTMLElement extends Node {
 	 * @return {(HTMLElement|null)}    matching node
 	 */
 	public querySelector(selector: string): HTMLElement | null {
-		return selectOne(selector, this as HTMLElement, {
+		return cssSelect.selectOne(selector, this as HTMLElement, {
 			xmlMode: true,
 			adapter: Matcher,
 		});
@@ -549,7 +549,7 @@ export default class HTMLElement extends Node {
 		}
 		el = this;
 		while (el) {
-			const e = selectOne(selector, el, {
+			const e = cssSelect.selectOne(selector, el, {
 				xmlMode: true,
 				adapter: {
 					...Matcher,
@@ -643,9 +643,9 @@ export default class HTMLElement extends Node {
 			const re = /([a-zA-Z()#][a-zA-Z0-9-_:()#]*)(?:\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+))?/g;
 			let match: RegExpExecArray;
 			while ((match = re.exec(this.rawAttrs))) {
-			  const key = match[1];
-			  let val = match[2] || null;
-			  if (val && (val[0] === `'` || val[0] === `"`)) val = val.slice(1, val.length - 1);
+				const key = match[1];
+				let val = match[2] || null;
+				if (val && (val[0] === `'` || val[0] === `"`)) val = val.slice(1, val.length - 1);
 				attrs[key] = val;
 			}
 		}
@@ -949,10 +949,10 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 	const frameFlagOffset = frameflag.length + 2;
 
 	while ((match = kMarkupPattern.exec(data))) {
-	  // Note: Object destructuring here consistently tests as higher performance than array destructuring
-    // eslint-disable-next-line prefer-const
-	  let { 0: matchText, 1: leadingSlash, 2: tagName, 3: attributes, 4: closingSlash } = match;
-	  const matchLength = matchText.length;
+		// Note: Object destructuring here consistently tests as higher performance than array destructuring
+		// eslint-disable-next-line prefer-const
+		let { 0: matchText, 1: leadingSlash, 2: tagName, 3: attributes, 4: closingSlash } = match;
+		const matchLength = matchText.length;
 		const tagStartPos = kMarkupPattern.lastIndex - matchLength;
 		const tagEndPos = kMarkupPattern.lastIndex;
 
@@ -989,8 +989,8 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 			/* Populate attributes */
 			const attrs = {};
 			for (let attMatch; (attMatch = kAttributePattern.exec(attributes)); ) {
-			  const { 1: key, 2: val } = attMatch;
-			  const isQuoted = val[0] === `'` || val[0] === `"`;
+				const { 1: key, 2: val } = attMatch;
+				const isQuoted = val[0] === `'` || val[0] === `"`;
 				attrs[key.toLowerCase()] = isQuoted ? val.slice(1, val.length - 1) : val;
 			}
 

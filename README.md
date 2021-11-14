@@ -70,15 +70,15 @@ var root = HTMLParser.parse('<ul id="list"><li>Hello World</li></ul>');
 
 ### parse(data[, options])
 
-Parse given data, and return root of the generated DOM.
+Parse the data provided, and return the root of the generated DOM.
 
 - **data**, data to parse
 - **options**, parse options
 
   ```js
   {
-    lowerCaseTagName: false,  // convert tag name to lower case (hurt performance heavily)
-    comment: false,            // retrieve comments (hurt performance slightly)
+    lowerCaseTagName: false,  // convert tag name to lower case (hurts performance heavily)
+    comment: false,            // retrieve comments (hurts performance slightly)
     blockTextElements: {
       script: true,	// keep text content when parsing
       noscript: true,	// keep text content when parsing
@@ -90,7 +90,7 @@ Parse given data, and return root of the generated DOM.
 
 ### valid(data[, options])
 
-Parse given data, return true if the givent data is valid, and return false if not.
+Parse the data provided, return true if the given data is valid, and return false if not.
 
 ## HTMLElement Methods
 
@@ -106,7 +106,7 @@ Remove whitespaces in this sub tree.
 
 Query CSS selector to find matching nodes.
 
-Note: Full css3 selector supported since v3.0.0.
+Note: Full range of CSS3 selectors supported since v3.0.0.
 
 ### HTMLElement#querySelector(selector)
 
@@ -116,7 +116,7 @@ Query CSS Selector to find matching node.
 
 Get all elements with the specified tagName.
 
-Note: * for all elements.
+Note: Use * for all elements.
 
 ### HTMLElement#closest(selector)
 
@@ -128,7 +128,7 @@ Append a child node to childNodes
 
 ### HTMLElement#insertAdjacentHTML(where, html)
 
-parses the specified text as HTML and inserts the resulting nodes into the DOM tree at a specified position.
+Parses the specified text as HTML and inserts the resulting nodes into the DOM tree at a specified position.
 
 ### HTMLElement#setAttribute(key: string, value: string)
 
@@ -186,15 +186,15 @@ Remove class name.
 
 #### HTMLElement#classList.toggle(className: string):void
 
-Toggle class.
+Toggle class. Remove it if it is already included, otherwise add.
 
 #### HTMLElement#classList.contains(className: string): boolean
 
-Get if contains
+Returns true if the classname is already in the classList.
 
 #### HTMLElement#classList.values()
 
-get class names
+Get class names.
 
 ## HTMLElement Properties
 
@@ -205,7 +205,7 @@ Get unescaped text value of current node and its children. Like `innerText`.
 
 ### HTMLElement#rawText
 
-Get escaped (as-it) text value of current node and its children. May have
+Get escaped (as-is) text value of current node and its children. May have
 `&amp;` in it. (fast)
 
 ### HTMLElement#tagName
@@ -214,19 +214,19 @@ Get tag name of HTMLElement. Notice: the returned value would be an uppercase st
 
 ### HTMLElement#structuredText
 
-Get structured Text
+Get structured Text.
 
 ### HTMLElement#structure
 
-Get DOM structure
+Get DOM structure.
 
 ### HTMLElement#firstChild
 
-Get first child node
+Get first child node.
 
 ### HTMLElement#lastChild
 
-Get last child node
+Get last child node.
 
 ### HTMLElement#innerHTML
 

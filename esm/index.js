@@ -1,4 +1,5 @@
-import nhp from '../dist/index.js'
+import nhp_default from '../dist/index.js'
+import * as nhp from '../dist/index.js'
 
 export const CommentNode = nhp.CommentNode;
 export const HTMLElement = nhp.HTMLElement;
@@ -8,4 +9,4 @@ export const Node = nhp.Node;
 export const TextNode = nhp.TextNode;
 export const NodeType = nhp.NodeType;
 
-export default nhp;
+export default nhp_default;

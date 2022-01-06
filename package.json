@@ -48,7 +48,7 @@
 		"registry": "https://registry.npmjs.org"
 	},
 	"dependencies": {
-		"css-select": "^4.1.3",
+		"css-select": "^4.2.1",
 		"he": "1.2.0"
 	},
 	"devDependencies": {

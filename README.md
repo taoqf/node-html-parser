@@ -81,7 +81,12 @@ Parse the data provided, and return the root of the generated DOM.
   ```js
   {
     lowerCaseTagName: false,  // convert tag name to lower case (hurts performance heavily)
-    comment: false,            // retrieve comments (hurts performance slightly)
+    comment: false,           // retrieve comments (hurts performance slightly)
+    voidTag: {  
+      closingSlash: true,     // void tag serialisation, add a final slash <br/>
+      closingSpace : 'always' // space before the final slash : 'never', 'always', 'attrPresent'
+                              // with attrPresent; <br/>, <meta charset="UTF-8" />
+    },
     blockTextElements: {
       script: true,	// keep text content when parsing
       noscript: true,	// keep text content when parsing

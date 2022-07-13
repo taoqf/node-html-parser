@@ -9,6 +9,9 @@ import NodeType from './type';
 
 const voidTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
+let voidTagClosingSlash = (process.env.HTML_VOID_TAG_CLOSING_SLASH === 'true') || (process.env.HTML_VOID_TAG_CLOSING_SLASH === '1');
+let voidTagClosingSpace = process.env.HTML_VOID_TAG_CLOSING_SPACE || 'never';
+
 type IRawTagName =
 	| 'LI'
 	| 'P'
@@ -313,7 +316,13 @@ export default class HTMLElement extends Node {
 		const tag = this.rawTagName;
 		if (tag) {
 			const attrs = this.rawAttrs ? ` ${this.rawAttrs}` : '';
-			return this.isVoidElement ? `<${tag}${attrs}>` : `<${tag}${attrs}>${this.innerHTML}</${tag}>`;
+			// Add a space before the closing slash if enabled,
+			// 'never' or 'attrPresent' : <br/>
+			// 'always' : <br />
+			// 'always' or 'attrPresent' : <meta charset="UTF-8" />
+			const closingSpace = voidTagClosingSpace && voidTagClosingSpace !== 'never' && (voidTagClosingSpace === 'always' || attrs !== '') && !attrs.endsWith(' ');
+			const closingSlash = voidTagClosingSlash ? `${ closingSpace ? ' ' : ''}/` : '';
+			return this.isVoidElement ? `<${tag}${attrs}${closingSlash}>` : `<${tag}${attrs}>${this.innerHTML}</${tag}>`;
 		}
 		return this.innerHTML;
 	}
@@ -983,6 +992,10 @@ export interface Options {
 	lowerCaseTagName: boolean;
 	comment: boolean;
 	parseNoneClosedTags?: boolean;
+	voidTag?: {
+		closingSlash?: boolean;
+		closingSpace?: 'never' | 'always' | 'attrPresent';
+	},
 	blockTextElements: {
 		[tag: string]: boolean;
 	};
@@ -997,6 +1010,14 @@ const frameflag = 'documentfragmentcontainer';
  * @return {HTMLElement}      root element
  */
 export function base_parse(data: string, options = { lowerCaseTagName: false, comment: false } as Partial<Options>) {
+	if(options.voidTag) {
+		if(typeof options.voidTag.closingSlash === 'boolean') {
+			voidTagClosingSlash = options.voidTag.closingSlash;
+		}
+		if(typeof options.voidTag.closingSpace === 'string') {
+			voidTagClosingSpace = options.voidTag.closingSpace;
+		}
+	}
 	const elements = options.blockTextElements || {
 		script: true,
 		noscript: true,

@@ -65,7 +65,7 @@
 		"no-caller": "error",
 		"no-debugger": "warn",
 		"no-dupe-class-members": "off",
-		"no-duplicate-imports": "error",
+		"no-duplicate-imports": "off",
 		"no-else-return": "warn",
 		"no-empty": [
 			"warn",

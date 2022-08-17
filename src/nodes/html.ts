@@ -37,6 +37,11 @@ function decode(val: string) {
 	return JSON.parse(JSON.stringify(he.decode(val))) as string;
 }
 
+export interface VoidTag {
+	addClosingSlash?: boolean;
+	voidTags: Set<string>;
+}
+
 export interface KeyAttributes {
 	id?: string;
 	class?: string;

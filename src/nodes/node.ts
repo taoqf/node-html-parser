@@ -1,17 +1,15 @@
 import { decode, encode } from 'he';
 import NodeType from './type';
-import HTMLElement, { VoidTag } from './html';
-
+import HTMLElement from './html';
 /**
  * Node Class as base class for TextNode and HTMLElement.
  */
 export default abstract class Node {
 	abstract nodeType: NodeType;
-	public childNodes = [] as Node[];
+	public childNodes: Node[];
 	public classList: HTMLElement["classList"]
 	public rawAttrs: string;
 	public rawTagName: string;
-	public voidTag: VoidTag;
 	public id : string;
 	public range: readonly [number, number];
 	abstract text: string;

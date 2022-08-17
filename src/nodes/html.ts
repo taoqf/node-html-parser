@@ -2,11 +2,12 @@ import { selectAll, selectOne } from 'css-select';
 import he from 'he';
 import arr_back from '../back';
 import Matcher from '../matcher';
-import VoidTag from '../void-tag';
 import CommentNode from './comment';
 import Node from './node';
 import TextNode from './text';
 import NodeType from './type';
+
+const voidTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
 type IRawTagName =
 	| 'LI'
@@ -35,11 +36,6 @@ type IRawTagName =
 function decode(val: string) {
 	// clone string
 	return JSON.parse(JSON.stringify(he.decode(val))) as string;
-}
-
-export interface VoidTag {
-	addClosingSlash?: boolean;
-	voidTags: Set<string>;
 }
 
 export interface KeyAttributes {
@@ -177,8 +173,7 @@ export default class HTMLElement extends Node {
 		keyAttrs: KeyAttributes,
 		public rawAttrs = '',
 		parentNode: HTMLElement | null,
-		range: [number, number],
-		private voidTag = new VoidTag()
+		range?: [number, number]
 	) {
 		super(parentNode, range);
 		this.rawTagName = tagName;
@@ -242,7 +237,7 @@ export default class HTMLElement extends Node {
 	}
 
 	public get isVoidElement() {
-		return this.voidTag.isVoidElement(this.localName);
+		return voidTags.has(this.localName);
 	}
 
 	/**
@@ -318,7 +313,7 @@ export default class HTMLElement extends Node {
 		const tag = this.rawTagName;
 		if (tag) {
 			const attrs = this.rawAttrs ? ` ${this.rawAttrs}` : '';
-			return this.voidTag.formatNode(tag, attrs, this.innerHTML);
+			return this.isVoidElement ? `<${tag}${attrs}>` : `<${tag}${attrs}>${this.innerHTML}</${tag}>`;
 		}
 		return this.innerHTML;
 	}
@@ -367,7 +362,7 @@ export default class HTMLElement extends Node {
 				return [];
 			})
 			.flat();
-		const idx = parent.childNodes.findIndex((child) => {
+		const idx = parent.childNodes.findIndex((child: Node) => {
 			return child === this;
 		});
 		resetParent([this], null);
@@ -692,7 +687,7 @@ export default class HTMLElement extends Node {
 		}
 		const attrs = {} as RawAttributes;
 		if (this.rawAttrs) {
-			const re = /([a-zA-Z()[\]#][a-zA-Z0-9-_:()[\]#]*)(?:\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+))?/g;
+			const re = /([a-zA-Z()#][a-zA-Z0-9-_:()#]*)(?:\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+))?/g;
 			let match: RegExpExecArray;
 			while ((match = re.exec(this.rawAttrs))) {
 				const key = match[1];
@@ -807,7 +802,7 @@ export default class HTMLElement extends Node {
 		}
 		const p = parse(html);
 		if (where === 'afterend') {
-			const idx = this.parentNode.childNodes.findIndex((child) => {
+			const idx = this.parentNode.childNodes.findIndex((child: Node) => {
 				return child === this;
 			});
 			resetParent(p.childNodes, this.parentNode);
@@ -820,7 +815,7 @@ export default class HTMLElement extends Node {
 				this.appendChild(n);
 			});
 		} else if (where === 'beforebegin') {
-			const idx = this.parentNode.childNodes.findIndex((child) => {
+			const idx = this.parentNode.childNodes.findIndex((child: Node) => {
 				return child === this;
 			});
 			resetParent(p.childNodes, this.parentNode);
@@ -991,16 +986,6 @@ export interface Options {
 	blockTextElements: {
 		[tag: string]: boolean;
 	};
-	voidTag?: {
-		/**
-		 * options, default value is ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']
-		 */
-		tags?: string[];
-		/**
-		 * void tag serialisation, add a final slash <br/>
-		 */
-		closingSlash?: boolean;
-	}
 }
 
 const frameflag = 'documentfragmentcontainer';
@@ -1012,7 +997,6 @@ const frameflag = 'documentfragmentcontainer';
  * @return {HTMLElement}      root element
  */
 export function base_parse(data: string, options = { lowerCaseTagName: false, comment: false } as Partial<Options>) {
-	const voidTag = new VoidTag(options?.voidTag?.closingSlash, options?.voidTag?.tags);
 	const elements = options.blockTextElements || {
 		script: true,
 		noscript: true,
@@ -1032,7 +1016,7 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 	}
 
 	const createRange = (startPos: number, endPos: number): [number, number] => [startPos - frameFlagOffset, endPos - frameFlagOffset];
-	const root = new HTMLElement(null, {}, '', null, [0, data.length], voidTag);
+	const root = new HTMLElement(null, {}, '', null, [0, data.length]);
 
 	let currentParent = root;
 	const stack = [root];
@@ -1115,7 +1099,7 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 
 			currentParent = currentParent.appendChild(
 				// Initialize range (end position updated later for closed tags)
-				new HTMLElement(tagName, attrs, attributes.slice(1), null, createRange(tagStartPos, tagEndPos), voidTag)
+				new HTMLElement(tagName, attrs, attributes.slice(1), null, createRange(tagStartPos, tagEndPos))
 			);
 			stack.push(currentParent);
 

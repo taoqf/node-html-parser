@@ -548,7 +548,7 @@ export default class HTMLElement extends Node {
 			if (child.nodeType === NodeType.ELEMENT_NODE) {
 				if (child.id === id) {
 					return child;
-				};
+				}
 
 				// if children are existing push the current status to the stack and keep searching for elements in the level below
 				if (child.childNodes.length > 0) {
@@ -1130,7 +1130,7 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 
 		// Handle closing tags or self-closed elements (ie </tag> or <br>)
 		if (leadingSlash || closingSlash || kSelfClosingElements[tagName]) {
-			while (true) {
+			while ((leadingSlash || closingSlash || kSelfClosingElements[tagName]) === true) {
 				if (tagName === 'a' || tagName === 'A') noNestedTagIndex = undefined;
 				if (currentParent.rawTagName === tagName) {
 					// Update range end for closed tag

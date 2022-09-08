@@ -982,6 +982,10 @@ const kElementsClosedByClosing = {
 export interface Options {
 	lowerCaseTagName: boolean;
 	comment: boolean;
+	/**
+	 * @see PR #215 for explanation
+	 */
+	fixNestedATags?: boolean;
 	parseNoneClosedTags?: boolean;
 	blockTextElements: {
 		[tag: string]: boolean;
@@ -1032,10 +1036,11 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 	let currentParent = root;
 	const stack = [root];
 	let lastTextPos = -1;
+	let noNestedTagIndex: undefined | number = undefined;
 	let match: RegExpExecArray;
 	// https://github.com/taoqf/node-html-parser/issues/38
 	data = `<${frameflag}>${data}</${frameflag}>`;
-	const { lowerCaseTagName } = options;
+	const { lowerCaseTagName, fixNestedATags } = options;
 
 	const dataEndPos = data.length - (frameflag.length + 2);
 	const frameFlagOffset = frameflag.length + 2;
@@ -1095,6 +1100,15 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 				}
 			}
 
+			// Prevent nested A tags by terminating the last A and starting a new one : see issue #144
+			if (fixNestedATags && (tagName === 'a' || tagName === 'A')) {
+				if (noNestedTagIndex !== undefined) {
+					stack.splice(noNestedTagIndex);
+					currentParent = arr_back(stack);
+				}
+				noNestedTagIndex = stack.length;
+			}
+
 			const tagEndPos = kMarkupPattern.lastIndex;
 			const tagStartPos = tagEndPos - matchLength;
 
@@ -1132,6 +1146,7 @@ export function base_parse(data: string, options = { lowerCaseTagName: false, co
 		// Handle closing tags or self-closed elements (ie </tag> or <br>)
 		if (leadingSlash || closingSlash || kSelfClosingElements[tagName]) {
 			while (true) {
+				if (noNestedTagIndex != null && (tagName === 'a' || tagName === 'A')) noNestedTagIndex = undefined;
 				if (currentParent.rawTagName === tagName) {
 					// Update range end for closed tag
 					(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];

@@ -909,6 +909,27 @@ export default class HTMLElement extends Node {
 		}
 	}
 
+	/** Get all childNodes of type {@link HTMLElement}. */
+	public get children(): HTMLElement[] {
+		const children = [];
+		for (const childNode of this.childNodes) {
+			if (childNode instanceof HTMLElement) {
+				children.push(childNode);
+			}
+		}
+		return children;
+	}
+
+	public get firstElementChild(): HTMLElement | undefined {
+		return this.children[0];
+	}
+	public get lastElementChild(): HTMLElement | undefined {
+		return this.children[this.children.length - 1];
+	}
+	public get childElementCount(): number {
+		return this.children.length;
+	}
+
 	public get classNames() {
 		return this.classList.toString();
 	}

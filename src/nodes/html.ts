@@ -649,22 +649,6 @@ export default class HTMLElement extends Node {
 	}
 
 	/**
-	 * Get first child node
-	 * @return {Node | undefined} first child node; or undefined if none
-	 */
-	public get firstChild(): Node | undefined {
-		return this.childNodes[0];
-	}
-
-	/**
-	 * Get last child node
-	 * @return {Node | undefined} last child node; or undefined if none
-	 */
-	public get lastChild(): Node | undefined {
-		return arr_back(this.childNodes);
-	}
-
-	/**
 	 * Get attributes
 	 * @access private
 	 * @return {Object} parsed and unescaped attributes
@@ -829,9 +813,6 @@ export default class HTMLElement extends Node {
 			);
 		}
 		return this;
-		// if (!where || html === undefined || html === null) {
-		// 	return;
-		// }
 	}
 
 	/** Prepend nodes or strings to this node's children. */
@@ -934,12 +915,36 @@ export default class HTMLElement extends Node {
 		return children;
 	}
 
+	/**
+	 * Get the first child node.
+	 * @return The first child or undefined if none exists.
+	 */
+	public get firstChild(): Node | undefined {
+		return this.childNodes[0];
+	}
+	/**
+	 * Get the first child node of type {@link HTMLElement}.
+	 * @return The first child element or undefined if none exists.
+	 */
 	public get firstElementChild(): HTMLElement | undefined {
 		return this.children[0];
 	}
+
+	/**
+	 * Get the last child node.
+	 * @return The last child or undefined if none exists.
+	 */
+	public get lastChild(): Node | undefined {
+		return arr_back(this.childNodes);
+	}
+	/**
+	 * Get the last child node of type {@link HTMLElement}.
+	 * @return The last child element or undefined if none exists.
+	 */
 	public get lastElementChild(): HTMLElement | undefined {
 		return this.children[this.children.length - 1];
 	}
+
 	public get childElementCount(): number {
 		return this.children.length;
 	}
@@ -948,9 +953,7 @@ export default class HTMLElement extends Node {
 		return this.classList.toString();
 	}
 
-	/**
-	 * Clone this Node
-	 */
+	/** Clone this Node */
 	public clone() {
 		return parse(this.toString(), this._parseOptions).firstChild;
 	}
@@ -1247,10 +1250,9 @@ function resolveInsertable(insertable: NodeInsertable[]): Node[] {
 	return insertable.map(val => {
 		if (typeof val === 'string') {
 			return new TextNode(val);
-		} else {
-			val.remove();
-			return val;
 		}
+		val.remove();
+		return val;
 	});
 }
 

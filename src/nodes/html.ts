@@ -373,9 +373,11 @@ export default class HTMLElement extends Node {
 			return child === this;
 		});
 		resetParent([this], null);
+		resetParent(content, parent);
+
 		parent.childNodes = [
 			...parent.childNodes.slice(0, idx),
-			...resetParent(content, parent),
+			...content,
 			...parent.childNodes.slice(idx + 1),
 		];
 		return this;
@@ -456,9 +458,9 @@ export default class HTMLElement extends Node {
 		this.childNodes.length = o;
 
 		// remove whitespace between attributes
-		const attrs = Object.keys( this.rawAttributes).map((key) => {
+		const attrs = Object.keys(this.rawAttributes).map((key) => {
 			const val = this.rawAttributes[key];
-			return `${key}=${ JSON.stringify(val)}`;
+			return `${key}=${JSON.stringify(val)}`;
 		}).join(' ');
 		this.rawAttrs = attrs;
 		delete this._rawAttrs;
@@ -825,7 +827,7 @@ export default class HTMLElement extends Node {
 	public append(...insertable: NodeInsertable[]) {
 		const nodes = resolveInsertable(insertable);
 		resetParent(nodes, this);
-		this.childNodes.push(...nodes);
+		this.childNodes.push(...nodes as unknown as Node[]);
 	}
 	/** Insert nodes or strings before this node. */
 	public before(...insertable: NodeInsertable[]) {
@@ -1214,9 +1216,7 @@ export function parse(data: string, options = {} as Partial<Options>) {
 				// this is wrong, becouse this will put the H3 outside the current right position which should be inside the current Html Element, see issue 152 for more info
 				if (options.parseNoneClosedTags !== true) {
 					oneBefore.removeChild(last);
-					last.childNodes.forEach((child) => {
-						oneBefore.parentNode.appendChild(child);
-					});
+					oneBefore.parentNode.childNodes.push(...last.childNodes);
 					stack.pop();
 				}
 			} else {
@@ -1225,9 +1225,7 @@ export function parse(data: string, options = {} as Partial<Options>) {
 				// eslint-disable-next-line no-lonely-if
 				if (options.parseNoneClosedTags !== true) {
 					oneBefore.removeChild(last);
-					last.childNodes.forEach((child) => {
-						oneBefore.appendChild(child);
-					});
+					oneBefore.childNodes.push(...last.childNodes);
 				}
 			}
 		} else {
@@ -1239,6 +1237,7 @@ export function parse(data: string, options = {} as Partial<Options>) {
 	// 		node.parentNode = null;
 	// 	}
 	// });
+	resetParent(root.childNodes, root, true);
 	return root;
 }
 
@@ -1256,9 +1255,11 @@ function resolveInsertable(insertable: NodeInsertable[]): Node[] {
 	});
 }
 
-function resetParent(nodes: Node[], parent: HTMLElement) {
-	return nodes.map((node) => {
+function resetParent(nodes: Node[], parent: HTMLElement, recursive = false) {
+	nodes.forEach((node) => {
 		node.parentNode = parent;
-		return node;
+		if (recursive && node instanceof HTMLElement) {
+			resetParent(node.childNodes, node, true);
+		}
 	});
 }

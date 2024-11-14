@@ -51,6 +51,7 @@ export interface RawAttributes {
 }
 
 export type InsertPosition = 'beforebegin' | 'afterbegin' | 'beforeend' | 'afterend';
+export type NodeInsertable = Node | string;
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Block-level_elements
 const Htags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup'];
@@ -643,27 +644,8 @@ export default class HTMLElement extends Node {
 	 * @return {Node}      node appended
 	 */
 	public appendChild<T extends Node = Node>(node: T) {
-		// remove the node from it's parent
-		node.remove();
-		this.childNodes.push(node);
-		node.parentNode = this;
+		this.append(node);
 		return node;
-	}
-
-	/**
-	 * Get first child node
-	 * @return {Node | undefined} first child node; or undefined if none
-	 */
-	public get firstChild(): Node | undefined {
-		return this.childNodes[0];
-	}
-
-	/**
-	 * Get last child node
-	 * @return {Node | undefined} last child node; or undefined if none
-	 */
-	public get lastChild(): Node | undefined {
-		return arr_back(this.childNodes);
 	}
 
 	/**
@@ -818,33 +800,46 @@ export default class HTMLElement extends Node {
 		}
 		const p = parse(html, this._parseOptions);
 		if (where === 'afterend') {
-			const idx = this.parentNode.childNodes.findIndex((child) => {
-				return child === this;
-			});
-			resetParent(p.childNodes, this.parentNode);
-			this.parentNode.childNodes.splice(idx + 1, 0, ...p.childNodes);
+			this.after(...p.childNodes);
 		} else if (where === 'afterbegin') {
-			resetParent(p.childNodes, this);
-			this.childNodes.unshift(...p.childNodes);
+			this.prepend(...p.childNodes);
 		} else if (where === 'beforeend') {
-			p.childNodes.forEach((n) => {
-				this.appendChild(n);
-			});
+			this.append(...p.childNodes);
 		} else if (where === 'beforebegin') {
-			const idx = this.parentNode.childNodes.findIndex((child) => {
-				return child === this;
-			});
-			resetParent(p.childNodes, this.parentNode);
-			this.parentNode.childNodes.splice(idx, 0, ...p.childNodes);
+			this.before(...p.childNodes);
 		} else {
 			throw new Error(
 				`The value provided ('${where as string}') is not one of 'beforebegin', 'afterbegin', 'beforeend', or 'afterend'`
 			);
 		}
 		return this;
-		// if (!where || html === undefined || html === null) {
-		// 	return;
-		// }
+	}
+
+	/** Prepend nodes or strings to this node's children. */
+	public prepend(...insertable: NodeInsertable[]) {
+		const nodes = resolveInsertable(insertable);
+		resetParent(nodes, this);
+		this.childNodes.unshift(...nodes);
+	}
+	/** Append nodes or strings to this node's children. */
+	public append(...insertable: NodeInsertable[]) {
+		const nodes = resolveInsertable(insertable);
+		resetParent(nodes, this);
+		this.childNodes.push(...nodes);
+	}
+	/** Insert nodes or strings before this node. */
+	public before(...insertable: NodeInsertable[]) {
+		const nodes = resolveInsertable(insertable);
+		const siblings = this.parentNode.childNodes;
+		resetParent(nodes, this.parentNode);
+		siblings.splice(siblings.indexOf(this), 0, ...nodes);
+	}
+	/** Insert nodes or strings after this node. */
+	public after(...insertable: NodeInsertable[]) {
+		const nodes = resolveInsertable(insertable);
+		const siblings = this.parentNode.childNodes;
+		resetParent(nodes, this.parentNode);
+		siblings.splice(siblings.indexOf(this) + 1, 0, ...nodes);
 	}
 
 	public get nextSibling(): Node | null {
@@ -909,13 +904,56 @@ export default class HTMLElement extends Node {
 		}
 	}
 
+	/** Get all childNodes of type {@link HTMLElement}. */
+	public get children(): HTMLElement[] {
+		const children = [];
+		for (const childNode of this.childNodes) {
+			if (childNode instanceof HTMLElement) {
+				children.push(childNode);
+			}
+		}
+		return children;
+	}
+
+	/**
+	 * Get the first child node.
+	 * @return The first child or undefined if none exists.
+	 */
+	public get firstChild(): Node | undefined {
+		return this.childNodes[0];
+	}
+	/**
+	 * Get the first child node of type {@link HTMLElement}.
+	 * @return The first child element or undefined if none exists.
+	 */
+	public get firstElementChild(): HTMLElement | undefined {
+		return this.children[0];
+	}
+
+	/**
+	 * Get the last child node.
+	 * @return The last child or undefined if none exists.
+	 */
+	public get lastChild(): Node | undefined {
+		return arr_back(this.childNodes);
+	}
+	/**
+	 * Get the last child node of type {@link HTMLElement}.
+	 * @return The last child element or undefined if none exists.
+	 */
+	public get lastElementChild(): HTMLElement | undefined {
+		return this.children[this.children.length - 1];
+	}
+
+	public get childElementCount(): number {
+		return this.children.length;
+	}
+
 	public get classNames() {
 		return this.classList.toString();
 	}
 
-	/**
-	 * Clone this Node
-	 */
+	/** Clone this Node */
 	public clone() {
 		return parse(this.toString(), this._parseOptions).firstChild;
 	}
@@ -1202,6 +1240,20 @@ export function parse(data: string, options = {} as Partial<Options>) {
 	// 	}
 	// });
 	return root;
+}
+
+/**
+ * Resolves a list of {@link NodeInsertable} to a list of nodes,
+ * and removes nodes from any potential parent.
+ */
+function resolveInsertable(insertable: NodeInsertable[]): Node[] {
+	return insertable.map(val => {
+		if (typeof val === 'string') {
+			return new TextNode(val);
+		}
+		val.remove();
+		return val;
+	});
 }
 
 function resetParent(nodes: Node[], parent: HTMLElement) {

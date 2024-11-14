@@ -186,6 +186,7 @@ Node --|> TextNode
 Node ..> ClassList
 ```
 
+
 ## HTMLElement Methods
 
 ### trimRight()
@@ -216,9 +217,26 @@ Note: Use * for all elements.
 
 Query closest element by css selector. `null` if not found.
 
+### before(...nodesOrStrings)
+
+Insert one or multiple nodes or text before the current element. Does not work on root.
+
+### after(...nodesOrStrings)
+
+Insert one or multiple nodes or text after the current element. Does not work on root.
+
+### prepend(...nodesOrStrings)
+
+Insert one or multiple nodes or text to the first position of an element's child nodes.
+
+### append(...nodesOrStrings)
+
+Insert one or multiple nodes or text to the last position of an element's child nodes.
+This is similar to appendChild, but accepts arbitrarily many nodes and converts strings to text nodes.
+
 ### appendChild(node)
 
-Append a child node to childNodes
+Append a node to an element's child nodes.
 
 ### insertAdjacentHTML(where, html)
 
@@ -298,6 +316,7 @@ Clone a node.
 
 Get element by it's ID.
 
+
 ## HTMLElement Properties
 
 ### text
@@ -312,7 +331,7 @@ Get escaped (as-is) text value of current node and its children. May have
 
 ### tagName
 
-Get or Set tag name of HTMLElement. Notice: the returned value would be an uppercase string.
+Get or Set tag name of HTMLElement. Note that the returned value is an uppercase string.
 
 ### structuredText
 
@@ -322,13 +341,33 @@ Get structured Text.
 
 Get DOM structure.
 
+### childNodes
+
+Get all child nodes. A child node can be a TextNode, a CommentNode and a HTMLElement.
+
+### children
+
+Get all child elements, so all child nodes of type HTMLELement.
+
 ### firstChild
 
-Get first child node. `undefined` if no child.
+Get first child node. `undefined` if the node has no children.
 
 ### lastChild
 
-Get last child node. `undefined` if no child
+Get last child node. `undefined` if the node has no children.
+
+### firstElementChild
+
+Get the first child of type HTMLElement. `undefined` if none exists.
+
+### lastElementChild
+
+Get the first child of type HTMLElement. `undefined` if none exists.
+
+### childElementCount
+
+Get the number of children that are of type HTMLElement.
 
 ### innerHTML
 

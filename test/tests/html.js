@@ -580,8 +580,92 @@ describe('HTML Parser', function () {
 			});
 		});
 
+		describe('Base insertion operations', () => {
+			describe('#before', () => {
+				it('Should insert multiple nodes in order', () => {
+					const root = parseHTML(`<section><div></div></section>`);
+					root.children[0].before(new HTMLElement('span', {}), new HTMLElement('p', {}));
+					root.childNodes.length.should.eql(3);
+					root.childNodes[0].tagName.should.eql('SPAN');
+					root.childNodes[1].tagName.should.eql('P');
+				});
+				it('Should insert strings as TextNode', () => {
+					const root = parseHTML(`<section><div></div></section>`);
+					root.children[0].before(new HTMLElement('span', {}), 'foobar', new HTMLElement('p', {}));
+					root.childNodes.length.should.eql(4);
+					root.childNodes[1].should.be.an.instanceof(TextNode);
+					root.childNodes[1].text.should.eql('foobar');
+				});
+				it('Should set the parent correctly', () => {
+					const root = parseHTML(`<section><div></div></section>`);
+					root.firstElementChild.before('foobar');
+					root.firstElementChild.parentNode.should.eql(root);
+				});
+				it('Should be removed from previous trees', () => {
+					const root1 = parseHTML(`<section><div></div></section>`);
+					const root2 = parseHTML(`<section><div></div></section>`);
+					const section1 = root1.firstElementChild;
+					const section2 = root2.firstElementChild;
+					const div1 = section1.firstElementChild;
+					section2.before(div1);
+					section1.childNodes.length.should.eql(0);
+					root2.childNodes.length.should.eql(2);
+					div1.parentNode.should.eql(root2);
+				});
+			});
+			describe('#after', () => {
+				it('Should insert multiple nodes in order', () => {
+					const root = parseHTML(`<section><div></div></section>`);
+					root.children[0].after(new HTMLElement('span', {}), 'foobar', new HTMLElement('p', {}));
+					root.childNodes.length.should.eql(4);
+					root.childNodes[1].tagName.should.eql('SPAN');
+					root.childNodes[2].should.be.an.instanceof(TextNode);
+					root.childNodes[3].tagName.should.eql('P');
+				});
+				it('Should set the parent correctly', () => {
+					const root = parseHTML(`<section><div></div></section>`);
+					root.firstElementChild.after('foobar');
+					root.lastElementChild.parentNode.should.eql(root);
+				});
+			});
+			describe('#prepend', () => {
+				it('Should insert multiple nodes in order', () => {
+					const root = parseHTML(`<section><div></div><div></div></section>`);
+					const section = root.firstElementChild;
+					section.prepend(new HTMLElement('span', {}), 'foobar', new HTMLElement('p', {}));
+					section.childNodes.length.should.eql(5);
+					section.childNodes[0].tagName.should.eql('SPAN');
+					section.childNodes[1].should.be.an.instanceof(TextNode);
+					section.childNodes[2].tagName.should.eql('P');
+				});
+				it('Should set the parent correctly', () => {
+					const root = parseHTML(`<section></section>`);
+					const section = root.firstElementChild;
+					section.prepend('foobar');
+					section.childNodes[0].parentNode.should.eql(section);
+				});
+			});
+			describe('#append', () => {
+				it('Should insert multiple nodes in order', () => {
+					const root = parseHTML(`<section><div></div><div></div></section>`);
+					const section = root.firstElementChild;
+					section.append(new HTMLElement('span', {}), 'foobar', new HTMLElement('p', {}));
+					section.childNodes.length.should.eql(5);
+					section.childNodes[2].tagName.should.eql('SPAN');
+					section.childNodes[3].should.be.an.instanceof(TextNode);
+					section.childNodes[4].tagName.should.eql('P');
+				});
+				it('Should set the parent correctly', () => {
+					const root = parseHTML(`<section></section>`);
+					const section = root.firstElementChild;
+					section.append('foobar');
+					section.childNodes[0].parentNode.should.eql(section);
+				});
+			});
+		});
+
 		describe('#removeChild', function () {
-			it('shoud remove child node', function () {
+			it('should remove child node', function () {
 				const html = '<a><b></b></a>';
 				const root = parseHTML(html);
 				const a = root.firstChild;
@@ -590,7 +674,7 @@ describe('HTML Parser', function () {
 				a.removeChild(b);
 				a.childNodes.length.should.eql(0);
 			});
-			it('shoud not remove child node which does not exist', function () {
+			it('should not remove child node which does not exist', function () {
 				const html = '<a><b><c></c></b></a>';
 				const root = parseHTML(html);
 				const a = root.firstChild;
@@ -632,12 +716,12 @@ describe('HTML Parser', function () {
 				const root = parseHTML(`
 					<section>
 						<div data-ignore="true"></div>
-	
+
 						<div id="suit" data-ignore="true">
 							<div data-ignore="false"></div>
 							<div data-ignore="false"></div>
 						</div>
-	
+
 						<div data-ignore="true"></div>
 					</section>
 				`);
@@ -684,6 +768,25 @@ describe('HTML Parser', function () {
 				delete root.querySelector('section').childNodes[1];
 
 				root.getElementsByTagName('div').length.should.eql(2);
+			});
+		});
+
+		describe('#children', () => {
+			const root = parseHTML(`
+				<div></div>
+				Text
+				<div></div>
+				foobar
+				baz
+				<div></div>
+			`);
+			it('All children are `HTMLElement`', () => {
+				root.children.forEach(child => {
+					child.should.be.an.instanceof(HTMLElement);
+				});
+			});
+			it('Correct length', () => {
+				root.children.length.should.eql(3);
 			});
 		});
 	});

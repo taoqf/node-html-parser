@@ -6,7 +6,7 @@ DOM tree, with element query support.
 Per the design, it intends to parse massive HTML files in lowest price, thus the
 performance is the top priority.  For this reason, some malformatted HTML may not
 be able to parse correctly, but most usual errors are covered (eg. HTML4 style
-no closing `<li>`, `<td>` etc).
+no closing `<td>` etc).
 
 ## Install
 
@@ -186,7 +186,6 @@ Node --|> TextNode
 Node ..> ClassList
 ```
 
-
 ## HTMLElement Methods
 
 ### trimRight()
@@ -315,7 +314,6 @@ Clone a node.
 #### getElementById(id: string): HTMLElement | null
 
 Get element by it's ID.
-
 
 ## HTMLElement Properties
 

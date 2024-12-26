@@ -16,7 +16,7 @@ jobs:
       - name: Setup Node.js 22.x to publish to npmjs.org
         uses: actions/setup-node@v1
         with:
-          node-version: "22.x"
+          node-version: "18.x"
           registry-url: "https://registry.npmjs.org"
 
       - name: Install Packages

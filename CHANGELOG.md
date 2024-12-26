@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.0.0](https://github.com/taoqf/node-fast-html-parser/compare/v6.1.14...v7.0.0) (2024-12-26)
+
+
+### ⚠ BREAKING CHANGES
+
+* fix #277, for that change estarget to es6
+
+### Features
+
+* fix [#277](https://github.com/taoqf/node-fast-html-parser/issues/277), for that change estarget to es6 ([432a3e7](https://github.com/taoqf/node-fast-html-parser/commit/432a3e71ba219e76188bcc2e89e525e40911d164))
+
+
+### Bug Fixes
+
+* add tests for [#227](https://github.com/taoqf/node-fast-html-parser/issues/227) ([5856ee2](https://github.com/taoqf/node-fast-html-parser/commit/5856ee2ef2a0dfef43d75f6d4d13c37c213f25cf))
+
 ### [6.1.14](https://github.com/taoqf/node-fast-html-parser/compare/v6.1.13...v6.1.14) (2024-05-14)
 
 

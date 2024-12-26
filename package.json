@@ -1,6 +1,6 @@
 {
 	"name": "node-html-parser",
-	"version": "6.1.14",
+	"version": "7.0.0",
 	"description": "A very fast HTML parser, generating a simplified DOM, with basic element query support.",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",

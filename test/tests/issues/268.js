@@ -25,7 +25,7 @@ describe.skip('issue 268', function () {
 		const html = `<a href="#" 2'>x</a><a href="#" 2'>x</a>`;
 		const root = parse(html);
 		const a = root.querySelector("a");
-		console.error('sss',a.attributes);
+		console.error('sss', a.attributes);
 		a.toString().should.eql('<a href="#" 2">x</a>');
 		// for (let tr of root.querySelectorAll("#mytable tr.myrow")) {
 		// 	console.log('xxx',tr.querySelectorAll(":scope > td").map(e => e.innerText));

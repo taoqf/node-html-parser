@@ -159,7 +159,11 @@ export default class HTMLElement extends Node {
 			return 'null';
 		}
 
-		return JSON.stringify(attr.replace(/"/g, '&quot;')).replace(/\\t/g, '\t').replace(/\\n/g, '\n').replace(/\\r/g, '\r').replace(/\\/g, '');
+		return JSON.stringify(attr.replace(/"/g, '&quot;'))
+			.replace(/\\t/g, '\t')
+			.replace(/\\n/g, '\n')
+			.replace(/\\r/g, '\r')
+			.replace(/\\/g, '');
 	}
 
 	/**
@@ -373,11 +377,7 @@ export default class HTMLElement extends Node {
 			return child === this;
 		});
 		resetParent([this], null);
-		parent.childNodes = [
-			...parent.childNodes.slice(0, idx),
-			...resetParent(content, parent),
-			...parent.childNodes.slice(idx + 1),
-		];
+		parent.childNodes = [...parent.childNodes.slice(0, idx), ...resetParent(content, parent), ...parent.childNodes.slice(idx + 1)];
 		return this;
 	}
 
@@ -456,10 +456,12 @@ export default class HTMLElement extends Node {
 		this.childNodes.length = o;
 
 		// remove whitespace between attributes
-		const attrs = Object.keys(this.rawAttributes).map((key) => {
-			const val = this.rawAttributes[key];
-			return `${key}=${JSON.stringify(val)}`;
-		}).join(' ');
+		const attrs = Object.keys(this.rawAttributes)
+			.map((key) => {
+				const val = this.rawAttributes[key];
+				return `${key}=${JSON.stringify(val)}`;
+			})
+			.join(' ');
 		this.rawAttrs = attrs;
 		delete this._rawAttrs;
 		return this;
@@ -565,7 +567,7 @@ export default class HTMLElement extends Node {
 			if (child.nodeType === NodeType.ELEMENT_NODE) {
 				if (child.id === id) {
 					return child;
-				};
+				}
 
 				// if children are existing push the current status to the stack and keep searching for elements in the level below
 				if (child.childNodes.length > 0) {
@@ -686,7 +688,7 @@ export default class HTMLElement extends Node {
 		}
 		const attrs = {} as RawAttributes;
 		if (this.rawAttrs) {
-			const re = /([a-zA-Z()[\]#@$.?:][a-zA-Z0-9-_:()[\]#]*)(?:\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+))?/g;
+			const re = /([a-zA-Z()[\]#@$.?:][a-zA-Z0-9-._:()[\]#]*)(?:\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+))?/g;
 			let match: RegExpExecArray;
 			while ((match = re.exec(this.rawAttrs))) {
 				const key = match[1];
@@ -1025,7 +1027,7 @@ export interface Options {
 		 * void tag serialisation, add a final slash <br/>
 		 */
 		closingSlash?: boolean;
-	}
+	};
 }
 
 const frameflag = 'documentfragmentcontainer';
@@ -1249,7 +1251,7 @@ export function parse(data: string, options = {} as Partial<Options>) {
  * and removes nodes from any potential parent.
  */
 function resolveInsertable(insertable: NodeInsertable[]): Node[] {
-	return insertable.map(val => {
+	return insertable.map((val) => {
 		if (typeof val === 'string') {
 			return new TextNode(val);
 		}

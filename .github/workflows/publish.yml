@@ -13,11 +13,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Node.js 14.x to publish to npmjs.org
+      - name: Setup Node.js 22.x to publish to npmjs.org
         uses: actions/setup-node@v1
         with:
-          node-version: '14.x'
-          registry-url: 'https://registry.npmjs.org'
+          node-version: "22.x"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Install Packages
         run: yarn install --frozen-lockfile

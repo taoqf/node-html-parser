@@ -43,6 +43,7 @@ import { parse } from 'node-html-parser';
 
 const root = parse('<ul id="list"><li>Hello World</li></ul>');
 
+// parse() adds a wrapper node, so the input data's first node is the root's first child node
 console.log(root.firstChild.structure);
 // ul#list
 //   li
@@ -74,7 +75,7 @@ var root = HTMLParser.parse('<ul id="list"><li>Hello World</li></ul>');
 
 ### parse(data[, options])
 
-Parse the data provided, and return the root of the generated DOM.
+Parse the data provided, wrap the result in a new node, and return the root of the generated DOM.
 
 - **data**, data to parse
 - **options**, parse options
@@ -349,11 +350,11 @@ Get all child elements, so all child nodes of type HTMLELement.
 
 ### firstChild
 
-Get first child node. `undefined` if the node has no children.
+Get first child node of the wrapper node added by `parse()`. `undefined` if the node has no children.
 
 ### lastChild
 
-Get last child node. `undefined` if the node has no children.
+Get last child node of the wrapper node added by `parse()`. `undefined` if the node has no children.
 
 ### firstElementChild
 

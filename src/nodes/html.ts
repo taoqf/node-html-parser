@@ -139,8 +139,8 @@ export default class HTMLElement extends Node {
 	private _attrs: Attributes;
 	private _rawAttrs: RawAttributes;
 	private _parseOptions: Partial<Options>;
+	private _id: string;
 	public rawTagName: string; // there is not friend funciton in es
-	public id: string;
 	public classList: DOMTokenList;
 
 	/**
@@ -185,7 +185,7 @@ export default class HTMLElement extends Node {
 		super(parentNode, range);
 		this.rawTagName = tagName;
 		this.rawAttrs = rawAttrs || '';
-		this.id = keyAttrs.id || '';
+		this._id = keyAttrs.id || '';
 		this.childNodes = [];
 		this._parseOptions = _parseOptions;
 		this.classList = new DOMTokenList(
@@ -246,6 +246,13 @@ export default class HTMLElement extends Node {
 
 	public get isVoidElement() {
 		return this.voidTag.isVoidElement(this.localName);
+	}
+
+	public get id() {
+		return this._id;
+	}
+	public set id(newid: string) {
+		this.setAttribute('id', newid);
 	}
 
 	/**
@@ -417,7 +424,7 @@ export default class HTMLElement extends Node {
 			res.push('  '.repeat(indention) + str);
 		}
 		function dfs(node: HTMLElement) {
-			const idStr = node.id ? `#${node.id}` : '';
+			const idStr = node._id ? `#${node._id}` : '';
 			const classStr = node.classList.length ? `.${node.classList.value.join('.')}` : ''; // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/restrict-template-expressions, @typescript-eslint/no-unsafe-call
 			write(`${node.rawTagName}${idStr}${classStr}`);
 			indention++;
@@ -565,7 +572,7 @@ export default class HTMLElement extends Node {
 			}
 
 			if (child.nodeType === NodeType.ELEMENT_NODE) {
-				if (child.id === id) {
+				if (child._id === id) {
 					return child;
 				}
 
@@ -716,9 +723,9 @@ export default class HTMLElement extends Node {
 				return `${name}=${val}`;
 			})
 			.join(' ');
-		// Update this.id
+		// Update this._id
 		if (key === 'id') {
-			this.id = '';
+			this._id = '';
 		}
 		return this;
 	}
@@ -765,9 +772,9 @@ export default class HTMLElement extends Node {
 				return `${name}=${val}`;
 			})
 			.join(' ');
-		// Update this.id
+		// Update this._id
 		if (key === 'id') {
-			this.id = value;
+			this._id = value;
 		}
 		return this;
 	}
@@ -793,6 +800,10 @@ export default class HTMLElement extends Node {
 				return `${name}=${this.quoteAttribute(String(val))}`;
 			})
 			.join(' ');
+		// Update this._id
+		if ('id' in attributes) {
+			this._id = attributes['id'];
+		}
 		return this;
 	}
 

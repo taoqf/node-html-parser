@@ -1,7 +1,7 @@
 {
 	"include": [
 		"./src/"
-	],
+		, "pkg" ],
 	"compilerOptions": {
 		"module": "commonjs",
 		"target": "es6",

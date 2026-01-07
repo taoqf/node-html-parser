@@ -1017,6 +1017,9 @@ const kElementsClosedByClosing = {
 	th: { tr: true, table: true, TR: true, TABLE: true },
 	TH: { tr: true, table: true, TR: true, TABLE: true },
 } as Record<string, Record<string, boolean>>;
+const kElementsClosedByClosingExcept = {
+	p: { a: true, audio: true, del: true, ins: true, map: true, noscript: true, video: true },
+} as Record<string, Record<string, boolean>>;
 
 export interface Options {
 	lowerCaseTagName?: boolean;
@@ -1200,6 +1203,28 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 							stack.pop();
 							currentParent = arr_back(stack);
 							continue;
+						}
+					}
+					const openTag =
+						currentParent.rawTagName ?
+							currentParent.rawTagName.toLowerCase() :
+							'';
+					if (kElementsClosedByClosingExcept[openTag]) {
+						const closingTag = tagName.toLowerCase();
+						if (stack.length > 1) {
+							const possibleContainer = stack[stack.length - 2];
+							if (
+								possibleContainer &&
+								possibleContainer.rawTagName &&
+							  possibleContainer.rawTagName.toLowerCase() === closingTag &&
+								!kElementsClosedByClosingExcept[openTag][closingTag]
+							) {
+								// Update range end for closed tag
+								(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
+								stack.pop();
+								currentParent = arr_back(stack);
+								continue;
+							}
 						}
 					}
 					// Use aggressive strategy to handle unmatching markups.

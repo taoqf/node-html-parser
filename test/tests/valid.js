@@ -20,9 +20,25 @@ describe('parseWithValidation', function () {
 		result.should.eql(false);
 	})
 
-	it('hillcrestpartyrentals.html  should return Object with valid: false.  not closing <p> tag on line 476', function () {
+	// #294: Closing tag is missing but valid HTML is still not parseable
+	//
+	// Tag omission in text/html:
+	// A p element's end tag can be omitted if the p element is immediately
+	// followed by an address, article, aside, blockquote, details, dialog,
+	// div, dl, fieldset, figcaption, figure, footer, form, h1, h2, h3, h4,
+	// h5, h6, header, hgroup, hr, main, menu, nav, ol, p, pre, search,
+	// section, table, or ul element, or if there is no more content in the
+	// parent element and the parent element is an HTML element that is not
+	// an a, audio, del, ins, map, noscript, or video element, or an
+	// autonomous custom element.
+	//
+	// Based on this, hillcrestpartyrentals.html is in fact valid HTML. All
+	// the p elements missing close tags are contained within td elements
+	// and, therefore, should be closed when there is no more content in the
+	// parent td element (i.e. at the `</td>`).
+	it('hillcrestpartyrentals.html  should return Object with valid: true.  not closing <p> tag on line 476', function () {
 		const result = valid(fs.readFileSync(__dirname + '/../assets/html/hillcrestpartyrentals.html').toString());
-		result.should.eql(false);
+		result.should.eql(true);
 	})
 
 	it('google.html  should return Object with valid: true', function () {

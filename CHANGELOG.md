@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [7.0.2](https://github.com/taoqf/node-fast-html-parser/compare/v7.0.1...v7.0.2) (2026-01-07)
+
+
+### Bug Fixes
+
+* [#227](https://github.com/taoqf/node-fast-html-parser/issues/227) ([51528c4](https://github.com/taoqf/node-fast-html-parser/commit/51528c41ef2648d6c4dc1aecd14ee9d2b0083c4f))
+* [#294](https://github.com/taoqf/node-fast-html-parser/issues/294) Closing tag is missing but valid HTML is still not parseable ([950865f](https://github.com/taoqf/node-fast-html-parser/commit/950865fab5f4df7853b36712869b71c90f4d3a1b))
+* add missing dev dependency: yarn ([6d73ea3](https://github.com/taoqf/node-fast-html-parser/commit/6d73ea37c48f4170c35907869ba410c5122a9a1f))
+* test valid.js ([a81fc46](https://github.com/taoqf/node-fast-html-parser/commit/a81fc46fab2507615b0362150d62568a6f52ee4e))
+
 ### [7.0.1](https://github.com/taoqf/node-fast-html-parser/compare/v7.0.0...v7.0.1) (2024-12-26)
 
 

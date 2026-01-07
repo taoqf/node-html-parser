@@ -1200,12 +1200,20 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 							'';
 					if (kElementsClosedByClosingExcept[openTag]) {
 						const closingTag = tagName.toLowerCase();
-						if (!kElementsClosedByClosingExcept[openTag][closingTag]) {
-							// Update range end for closed tag
-							(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
-							stack.pop();
-							currentParent = arr_back(stack);
-							continue;
+						if (stack.length > 1) {
+							const possibleContainer = stack[stack.length - 2];
+							if (
+								possibleContainer &&
+								possibleContainer.rawTagName &&
+							  possibleContainer.rawTagName.toLowerCase() === closingTag &&
+								!kElementsClosedByClosingExcept[openTag][closingTag]
+							) {
+								// Update range end for closed tag
+								(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
+								stack.pop();
+								currentParent = arr_back(stack);
+								continue;
+							}
 						}
 					}
 					// Use aggressive strategy to handle unmatching markups.

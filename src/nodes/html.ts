@@ -1028,6 +1028,7 @@ export interface Options {
 		 */
 		closingSlash?: boolean;
 	};
+	closeAllByClosing?: boolean;
 }
 
 const frameflag = 'documentfragmentcontainer';
@@ -1188,6 +1189,22 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 						if (kElementsClosedByClosing[parentTagName][tagName]) {
 							stack.pop();
 							currentParent = arr_back(stack);
+							continue;
+						}
+					}
+					if (options.closeAllByClosing === true) {
+						// If tag was opened, close all nested tags
+						let i;
+						for (i = stack.length - 2; i >= 0; i--) {
+							if (stack[i].rawTagName === tagName) break;
+						}
+						if (i >= 0) {
+							while (stack.length > i) {
+								// Update range end for closed tag
+								(<[number, number]>currentParent.range)[1] = createRange(-1, Math.max(lastTextPos, tagEndPos))[1];
+								stack.pop();
+								currentParent = arr_back(stack);
+							}
 							continue;
 						}
 					}

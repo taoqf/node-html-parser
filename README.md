@@ -94,7 +94,8 @@ Parse the data provided, and return the root of the generated DOM.
       noscript: true,		// keep text content when parsing
       style: true,		// keep text content when parsing
       pre: true			// keep text content when parsing
-    }
+    },
+    closeAllOnClosing: false  // Close all non-closed tags when containing element closes
   }
   ```
 

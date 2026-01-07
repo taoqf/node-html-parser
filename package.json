@@ -51,8 +51,7 @@
 	},
 	"dependencies": {
 		"css-select": "^5.1.0",
-		"he": "1.2.0",
-		"yarn": "^1.22.22"
+		"he": "1.2.0"
 	},
 	"devDependencies": {
 		"@types/entities": "latest",

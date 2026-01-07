@@ -87,8 +87,7 @@
 		"standard-version": "^9.5.0",
 		"travis-cov": "latest",
 		"ts-node": "^10.9.1",
-		"typescript": "latest",
-		"yarn": "^1.22.22"
+		"typescript": "latest"
 	},
 	"config": {
 		"blanket": {

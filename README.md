@@ -86,6 +86,7 @@ Parse the data provided, wrap the result in a new node, and return the root of t
     comment: false,           		// retrieve comments (hurts performance slightly)
     fixNestedATags: false,    		// fix invalid nested <a> HTML tags 
     parseNoneClosedTags: false, 	// close none closed HTML tags instead of removing them 
+    preserveTagNesting: false,		// preserve invalid HTML nesting instead of auto-closing tags (e.g. <p><p>bar</p></p>)
     voidTag: {
       tags: ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr'],	// optional and case insensitive, default value is ['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']
       closingSlash: true	// optional, default false. void tag serialisation, add a final slash <br/>

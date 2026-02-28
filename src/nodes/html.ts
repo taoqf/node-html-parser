@@ -1029,6 +1029,10 @@ export interface Options {
 	 */
 	fixNestedATags?: boolean;
 	parseNoneClosedTags?: boolean;
+	/**
+	 * When true, preserves invalid HTML nesting (e.g., <p><p>bar</p></p>) instead of auto-closing tags
+	 */
+	preserveTagNesting?: boolean;
 	blockTextElements: {
 		[tag: string]: boolean;
 	};
@@ -1135,7 +1139,7 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 
 			const parentTagName = currentParent.rawTagName as IRawTagName;
 
-			if (!closingSlash && kElementsClosedByOpening[parentTagName]) {
+			if (!closingSlash && !options.preserveTagNesting && kElementsClosedByOpening[parentTagName]) {
 				if (kElementsClosedByOpening[parentTagName][tagName]) {
 					stack.pop();
 					currentParent = arr_back(stack);
@@ -1216,7 +1220,7 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 							if (
 								possibleContainer &&
 								possibleContainer.rawTagName &&
-							  possibleContainer.rawTagName.toLowerCase() === closingTag &&
+								possibleContainer.rawTagName.toLowerCase() === closingTag &&
 								!kElementsClosedByClosingExcept[openTag][closingTag]
 							) {
 								// Update range end for closed tag

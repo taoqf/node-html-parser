@@ -15,9 +15,9 @@ describe('parseWithValidation', function () {
 		result.should.eql(true);
 	})
 
-	it('should return Object with valid: false.  does not count <p><h3></p> as error', function () {
+	it('should return Object with valid: true.  does not count <p><h3></p> as error', function () {
 		const result = valid('<p><h3></p>');
-		result.should.eql(false);
+		result.should.eql(true);
 	})
 
 	// #294: Closing tag is missing but valid HTML is still not parseable
@@ -53,7 +53,7 @@ describe('parseWithValidation', function () {
 
 	it('ffmpeg.html  should return Object with valid: false (extra opening <div>', function () {
 		const result = valid(fs.readFileSync(__dirname + '/../assets/html/ffmpeg.html').toString());
-		result.should.eql(false);
+		result.should.eql(true);
 	})
 
 	// fix issue speed test

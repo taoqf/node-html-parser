@@ -96,7 +96,6 @@ Parse the data provided, wrap the result in a new node, and return the root of t
       style: true,		// keep text content when parsing
       pre: true			// keep text content when parsing
     },
-    closeAllOnClosing: false  // Close all non-closed tags when containing element closes
   }
   ```
 

@@ -114,6 +114,7 @@ class HTMLElement{
 	this removeWhitespace()
 	Node[] querySelectorAll(string selector)
 	Node querySelector(string selector)
+	this matches(string selector)
 	HTMLElement[] getElementsByTagName(string tagName)
 	Node closest(string selector)
 	Node appendChild(Node node)
@@ -207,6 +208,10 @@ Note: Full range of CSS3 selectors supported since v3.0.0.
 ### querySelector(selector)
 
 Query CSS Selector to find matching node. `null` if not found.
+
+### matches(selector)
+
+Tests whether the node matches a given CSS selector.
 
 ### getElementsByTagName(tagName)
 

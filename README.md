@@ -114,7 +114,7 @@ class HTMLElement{
 	this removeWhitespace()
 	Node[] querySelectorAll(string selector)
 	Node querySelector(string selector)
-	this matches(string selector)
+	boolean matches(string selector)
 	HTMLElement[] getElementsByTagName(string tagName)
 	Node closest(string selector)
 	Node appendChild(Node node)

@@ -1,4 +1,4 @@
-import { selectAll, selectOne } from 'css-select';
+import { is, selectAll, selectOne } from 'css-select';
 import he from 'he';
 import arr_back from '../back';
 import Matcher from '../matcher';
@@ -493,6 +493,18 @@ export default class HTMLElement extends Node {
 	 */
 	public querySelector(selector: string): HTMLElement | null {
 		return selectOne(selector, this as HTMLElement, {
+			xmlMode: true,
+			adapter: Matcher,
+		});
+	}
+
+	/**
+	 * Tests whether the node matches a given CSS selector.
+	 * @param  {string}   selector Simplified CSS selector
+	 * @return {boolean}
+	 */
+	public matches(selector: string): boolean {
+		return is(this as HTMLElement, selector, {
 			xmlMode: true,
 			adapter: Matcher,
 		});

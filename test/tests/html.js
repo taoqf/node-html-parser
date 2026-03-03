@@ -789,6 +789,23 @@ describe('HTML Parser', function () {
 				root.children.length.should.eql(3);
 			});
 		});
+
+		describe('#matches', () => {
+			it('`HTMLElement` should match CSS selector', () => {
+				const html = parseHTML(`<div class="example-class" data-test="example-data" id="example-id"></div>`);
+				html.firstChild.matches('.example-class').should.be.true();
+				html.firstChild.matches('#example-id').should.be.true();
+				html.firstChild.matches('div').should.be.true();
+				html.firstChild.matches('[data-test="example-data"]').should.be.true();
+			});
+			it('`HTMLElement` should not match CSS selector ', () => {
+				const html = parseHTML(`<div></div>`);
+				html.firstChild.matches('.no-match').should.be.false();
+				html.firstChild.matches('#no-match').should.be.false();
+				html.firstChild.matches('span').should.be.false();
+				html.firstChild.matches('[data-test="no-match"]').should.be.false();
+			});
+		});
 	});
 
 	describe('stringify', function () {

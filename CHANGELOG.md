@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [7.1.0](https://github.com/taoqf/node-fast-html-parser/compare/v7.0.2...v7.1.0) (2026-03-03)
+
+
+### Features
+
+* add option closeAllOnClosing ([44c900a](https://github.com/taoqf/node-fast-html-parser/commit/44c900acc01b8923eb9e45c7b13d6bd148a8e9cd)), closes [#294](https://github.com/taoqf/node-fast-html-parser/issues/294)
+* add preserveTagNesting option to maintain invalid HTML nesting [#295](https://github.com/taoqf/node-fast-html-parser/issues/295) ([d604652](https://github.com/taoqf/node-fast-html-parser/commit/d604652cc7c963118ba16ec6bda1f4e01fb81c9e))
+
+
+### Bug Fixes
+
+* add missing dev dependency: yarn ([8679d32](https://github.com/taoqf/node-fast-html-parser/commit/8679d3231e6dc1c93f99921d16b728aa9a578ce5))
+
 ### [7.0.2](https://github.com/taoqf/node-fast-html-parser/compare/v7.0.1...v7.0.2) (2026-01-07)
 
 

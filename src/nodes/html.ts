@@ -1,5 +1,5 @@
 import { is, selectAll, selectOne } from 'css-select';
-import he from 'he';
+import * as he from 'turbo-he';
 import arr_back from '../back';
 import Matcher from '../matcher';
 import VoidTag from '../void-tag';

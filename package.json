@@ -51,11 +51,9 @@
 	},
 	"dependencies": {
 		"css-select": "^5.1.0",
-		"he": "1.2.0"
+		"entities": "^8.0.0"
 	},
 	"devDependencies": {
-		"@types/entities": "latest",
-		"@types/he": "latest",
 		"@types/node": "latest",
 		"@typescript-eslint/eslint-plugin": "latest",
 		"@typescript-eslint/eslint-plugin-tslint": "latest",

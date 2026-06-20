@@ -1,12 +1,12 @@
 import CommentNode from './nodes/comment';
-import HTMLElement, { Options } from './nodes/html';
+import HTMLElement, { type Options } from './nodes/html';
 import Node from './nodes/node';
 import TextNode from './nodes/text';
 import NodeType from './nodes/type';
 import baseParse from './parse';
 import valid from './valid';
 
-export { Options } from './nodes/html';
+export type { Options } from './nodes/html';
 export {
 	parse,
 	HTMLElement,

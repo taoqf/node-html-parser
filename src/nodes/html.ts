@@ -1,5 +1,5 @@
 import { is, selectAll, selectOne } from 'css-select';
-import he from 'he';
+import entities from 'entities';
 import arr_back from '../back';
 import Matcher from '../matcher';
 import VoidTag from '../void-tag';
@@ -33,8 +33,7 @@ type IRawTagName =
 	| 'h6';
 
 function decode(val: string) {
-	// clone string
-	return JSON.parse(JSON.stringify(he.decode(val))) as string;
+	return entities.decodeHTML(val);
 }
 
 export interface KeyAttributes {

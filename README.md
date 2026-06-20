@@ -18,20 +18,20 @@ npm install --save node-html-parser
 
 ## Performance
 
--- 2022-08-10
+-- 2026-06-20
 
 ```shell
-html-parser     :24.1595 ms/file ± 18.7667
-htmljs-parser   :4.72064 ms/file ± 5.67689
-html-dom-parser :2.18055 ms/file ± 2.96136
-html5parser     :1.69639 ms/file ± 2.17111
-cheerio         :12.2122 ms/file ± 8.10916
-parse5          :6.50626 ms/file ± 4.02352
-htmlparser2     :2.38179 ms/file ± 3.42389
-htmlparser      :17.4820 ms/file ± 128.041
-high5           :3.95188 ms/file ± 2.52313
-node-html-parser:2.04288 ms/file ± 1.25203
-node-html-parser (last release):2.00527 ms/file ± 1.21317
+html-parser     :12.5662 ms/file ± 10.0834
+htmljs-parser   :0.233045 ms/file ± 0.525111
+html-dom-parser :1.07375 ms/file ± 0.811077
+html5parser     :0.824501 ms/file ± 0.540651
+cheerio         :3.27444 ms/file ± 2.06027
+parse5          :2.43857 ms/file ± 1.56153
+htmlparser2     :0.712490 ms/file ± 0.364630
+htmlparser      :10.5275 ms/file ± 82.6013
+high5           :1.64003 ms/file ± 0.993116
+node-html-parser:0.972389 ms/file ± 0.570578
+node-html-parser (last release):0.961381 ms/file ± 0.553054
 ```
 
 Tested with [htmlparser-benchmark](https://github.com/AndreasMadsen/htmlparser-benchmark).
@@ -153,36 +153,36 @@ class HTMLElement{
 	[number, number] range
 }
 class Node{
-	<<abstract>>
-	string toString()
-	Node clone()
-	this remove()
-	number nodeType
-	string innerText
-	string textContent
+ <<abstract>>
+ string toString()
+ Node clone()
+ this remove()
+ number nodeType
+ string innerText
+ string textContent
 }
 class ClassList{
-	add(string c)
-	replace(string c1, string c2)
-	remove(string c)
-	toggle(string c)
-	boolean contains(string c)
-	number length
-	string[] value
-	string toString()
+ add(string c)
+ replace(string c1, string c2)
+ remove(string c)
+ toggle(string c)
+ boolean contains(string c)
+ number length
+ string[] value
+ string toString()
 }
 class CommentNode{
-	CommentNode clone()
-	string toString()
+ CommentNode clone()
+ string toString()
 }
 class TextNode{
-	TextNode clone()
-	string toString()
-	string rawText
-	string trimmedRawText
-	string trimmedText
-	string text
-	boolean isWhitespace
+ TextNode clone()
+ string toString()
+ string rawText
+ string trimmedRawText
+ string trimmedText
+ string text
+ boolean isWhitespace
 }
 Node --|> HTMLElement
 Node --|> CommentNode

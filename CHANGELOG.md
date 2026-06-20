@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [8.0.0](https://github.com/taoqf/node-fast-html-parser/compare/v7.1.1...v8.0.0) (2026-06-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* replace dependences he to entities
+
+### Features
+
+* replace dependences he to entities ([97fe577](https://github.com/taoqf/node-fast-html-parser/commit/97fe5775b1202e35c6bb3b092740bb129c9a414a))
+
 ### [7.1.1](https://github.com/taoqf/node-fast-html-parser/compare/v8.0.0...v7.1.1) (2026-06-20)
 
 ## [7.1.0](https://github.com/taoqf/node-fast-html-parser/compare/v7.0.2...v7.1.0) (2026-03-03)

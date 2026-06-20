@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.0.1](https://github.com/taoqf/node-fast-html-parser/compare/v8.0.0...v8.0.1) (2026-06-20)
+
+
+### Bug Fixes
+
+* refactor: update import statements to use type keyword for Options and decodeHTML function [#308](https://github.com/taoqf/node-fast-html-parser/issues/308) ([000ec5d](https://github.com/taoqf/node-fast-html-parser/commit/000ec5daa4667f306c6efa8aa4d42c3191c8a193))
+
 ## [8.0.0](https://github.com/taoqf/node-fast-html-parser/compare/v7.1.1...v8.0.0) (2026-06-20)
 
 

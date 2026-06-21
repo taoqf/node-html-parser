@@ -986,6 +986,7 @@ export default class HTMLElement extends Node {
 // #xB7 | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x203F-#x2040] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 // https://html.spec.whatwg.org/multipage/custom-elements.html#valid-custom-element-name
 const kMarkupPattern = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][-.:0-9_a-zA-Z@\xB7\xC0-\xD6\xD8-\xF6\u00F8-\u03A1\u03A3-\u03D9\u03DB-\u03EF\u03F7-\u03FF\u0400-\u04FF\u0500-\u052F\u1D00-\u1D2B\u1D6B-\u1D77\u1D79-\u1D9A\u1E00-\u1E9B\u1F00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2126\u212A-\u212B\u2132\u214E\u2160-\u2188\u2C60-\u2C7F\uA722-\uA787\uA78B-\uA78E\uA790-\uA7AD\uA7B0-\uA7B7\uA7F7-\uA7FF\uAB30-\uAB5A\uAB5C-\uAB5F\uAB64-\uAB65\uFB00-\uFB06\uFB13-\uFB17\uFF21-\uFF3A\uFF41-\uFF5A\x37F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]*)((?:\s+[^>]*?(?:(?:'[^']*')|(?:"[^"]*"))?)*)\s*(\/?)>/gu;
+const kMarkupPatternWithCDATA = /<!--[\s\S]*?-->|<!\[CDATA\[[\s\S]*?\]\]>|<(\/?)([a-zA-Z][-.:0-9_a-zA-Z@\xB7\xC0-\xD6\xD8-\xF6\u00F8-\u03A1\u03A3-\u03D9\u03DB-\u03EF\u03F7-\u03FF\u0400-\u04FF\u0500-\u052F\u1D00-\u1D2B\u1D6B-\u1D77\u1D79-\u1D9A\u1E00-\u1E9B\u1F00-\u1F15\u1F18-\u1F1D\u1F20-\u1F45\u1F48-\u1F4D\u1F50-\u1F57\u1F59\u1F5B\u1F5D\u1F5F-\u1F7D\u1F80-\u1FB4\u1FB6-\u1FBC\u1FBE\u1FC2-\u1FC4\u1FC6-\u1FCC\u1FD0-\u1FD3\u1FD6-\u1FDB\u1FE0-\u1FEC\u1FF2-\u1FF4\u1FF6-\u1FFC\u2126\u212A-\u212B\u2132\u214E\u2160-\u2188\u2C60-\u2C7F\uA722-\uA787\uA78B-\uA78E\uA790-\uA7AD\uA7B0-\uA7B7\uA7F7-\uA7FF\uAB30-\uAB5A\uAB5C-\uAB5F\uAB64-\uAB65\uFB00-\uFB06\uFB13-\uFB17\uFF21-\uFF3A\uFF41-\uFF5A\x37F-\u1FFF\u200C-\u200D\u203F-\u2040\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]*)((?:\s+[^>]*?(?:(?:'[^']*')|(?:"[^"]*"))?)*)\s*(\/?)>/gu;
 // const kMarkupPattern = /<!--[\s\S]*?-->|<(\/?)([a-zA-Z][-.:0-9_a-zA-Z]*)((?:\s+[^>]*?(?:(?:'[^']*')|(?:"[^"]*"))?)*)\s*(\/?)>/g;
 const kAttributePattern = /(?:^|\s)(id|class)\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+)/gi;
 const kElementsClosedByOpening = {
@@ -1070,6 +1071,8 @@ const frameflag = 'documentfragmentcontainer';
  */
 export function base_parse(data: string, options = {} as Partial<Options>) {
 	const voidTag = new VoidTag(options?.voidTag?.closingSlash, options?.voidTag?.tags);
+	const hasCDATA = data.includes('<![CDATA[');
+	const markupPattern = hasCDATA ? kMarkupPatternWithCDATA : kMarkupPattern;
 	const elements = options.blockTextElements || {
 		script: true,
 		noscript: true,
@@ -1103,13 +1106,14 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 	const dataEndPos = data.length - (frameflag.length + 2);
 	const frameFlagOffset = frameflag.length + 2;
 
-	while ((match = kMarkupPattern.exec(data))) {
+	markupPattern.lastIndex = 0;
+	while ((match = markupPattern.exec(data))) {
 		// Note: Object destructuring here consistently tests as higher performance than array destructuring
 		// eslint-disable-next-line prefer-const
 		let { 0: matchText, 1: leadingSlash, 2: tagName, 3: attributes, 4: closingSlash } = match;
 		const matchLength = matchText.length;
-		const tagStartPos = kMarkupPattern.lastIndex - matchLength;
-		const tagEndPos = kMarkupPattern.lastIndex;
+		const tagStartPos = markupPattern.lastIndex - matchLength;
+		const tagEndPos = markupPattern.lastIndex;
 
 		// Add TextNode if content
 		if (lastTextPos > -1) {
@@ -1119,7 +1123,12 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 			}
 		}
 
-		lastTextPos = kMarkupPattern.lastIndex;
+		lastTextPos = markupPattern.lastIndex;
+
+		if (hasCDATA && matchText.startsWith('<![CDATA[')) {
+			currentParent.appendChild(new TextNode(matchText, currentParent, createRange(tagStartPos, tagEndPos)));
+			continue;
+		}
 
 		// https://github.com/taoqf/node-html-parser/issues/38
 		// Skip frameflag node
@@ -1167,7 +1176,7 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 				noNestedTagIndex = stack.length;
 			}
 
-			const tagEndPos = kMarkupPattern.lastIndex;
+			const tagEndPos = markupPattern.lastIndex;
 			const tagStartPos = tagEndPos - matchLength;
 
 			currentParent = currentParent.appendChild(
@@ -1180,8 +1189,8 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 				// Find closing tag
 				const closeMarkup = `</${tagName}>`;
 				const closeIndex = lowerCaseTagName
-					? data.toLocaleLowerCase().indexOf(closeMarkup, kMarkupPattern.lastIndex)
-					: data.indexOf(closeMarkup, kMarkupPattern.lastIndex);
+					? data.toLocaleLowerCase().indexOf(closeMarkup, markupPattern.lastIndex)
+					: data.indexOf(closeMarkup, markupPattern.lastIndex);
 				const textEndPos = closeIndex === -1 ? dataEndPos : closeIndex;
 
 				if (element_should_be_ignore(tagName)) {
@@ -1192,9 +1201,9 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 				}
 
 				if (closeIndex === -1) {
-					lastTextPos = kMarkupPattern.lastIndex = data.length + 1;
+					lastTextPos = markupPattern.lastIndex = data.length + 1;
 				} else {
-					lastTextPos = kMarkupPattern.lastIndex = closeIndex + closeMarkup.length;
+					lastTextPos = markupPattern.lastIndex = closeIndex + closeMarkup.length;
 					// Cause to be treated as self-closing, because no close found
 					leadingSlash = '/';
 				}

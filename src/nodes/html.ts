@@ -159,10 +159,10 @@ export default class HTMLElement extends Node {
 		}
 
 		return JSON.stringify(attr.replace(/"/g, '&quot;'))
-			.replace(/\\t/g, '\t')
-			.replace(/\\n/g, '\n')
-			.replace(/\\r/g, '\r')
-			.replace(/\\/g, '');
+			.replace(/([^\\])\\t/g, '$1\t')
+			.replace(/([^\\])\\n/g, '$1\n')
+			.replace(/([^\\])\\r/g, '$1\r')
+			.replace(/([^\\])\\/g, '$1');
 	}
 
 	/**

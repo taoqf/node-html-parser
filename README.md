@@ -50,10 +50,10 @@ console.log(root.firstChild.structure);
 //     #text
 
 console.log(root.querySelector('#list'));
-// { tagName: 'ul',
+// { tagName: 'UL',
 //   rawAttrs: 'id="list"',
 //   childNodes:
-//    [ { tagName: 'li',
+//    [ { tagName: 'LI',
 //        rawAttrs: '',
 //        childNodes: [Object],
 //        classNames: [] } ],

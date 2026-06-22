@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.0.3](https://github.com/taoqf/node-fast-html-parser/compare/v8.0.2...v8.0.3) (2026-06-22)
+
+
+### Bug Fixes
+
+* preserve consecutive backslashes in attribute values ([712ee25](https://github.com/taoqf/node-fast-html-parser/commit/712ee25a3e0974909b674873786a87b3030eb069)), closes [#306](https://github.com/taoqf/node-fast-html-parser/issues/306) [#62](https://github.com/taoqf/node-fast-html-parser/issues/62)
+
 ### [8.0.2](https://github.com/taoqf/node-fast-html-parser/compare/v8.0.1...v8.0.2) (2026-06-21)
 
 

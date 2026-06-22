@@ -158,11 +158,11 @@ export default class HTMLElement extends Node {
 			return 'null';
 		}
 
-		return JSON.stringify(attr.replace(/"/g, '&quot;'))
-			.replace(/([^\\])\\t/g, '$1\t')
-			.replace(/([^\\])\\n/g, '$1\n')
-			.replace(/([^\\])\\r/g, '$1\r')
-			.replace(/([^\\])\\/g, '$1');
+		// Attribute values are literal text: only the double quote needs
+		// escaping (as &quot;). The previous JSON.stringify-based approach
+		// doubled backslashes and then failed to undo runs of consecutive
+		// backslashes, corrupting values such as "C:\\Users\\me".
+		return `"${attr.replace(/"/g, '&quot;')}"`;
 	}
 
 	/**

@@ -28,4 +28,12 @@ describe('quote attributes', function () {
       foo: '[{"bar":"baz"}]',
     });
   });
+
+  it('preserves consecutive backslashes through a setAttribute round-trip', function () {
+    const root = parse('<div></div>');
+    const div = root.firstChild;
+    const value = 'C:\\\\Users\\\\me'; // C:\\Users\\me (doubled backslashes)
+    div.setAttribute('path', value);
+    parse(div.toString()).firstChild.getAttribute('path').should.equal(value);
+  });
 });

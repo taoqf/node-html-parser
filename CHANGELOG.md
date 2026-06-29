@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [8.0.4](https://github.com/taoqf/node-fast-html-parser/compare/v8.0.3...v8.0.4) (2026-06-29)
+
+
+### Bug Fixes
+
+* serialize attributes through quoteAttribute in removeWhitespace ([a260798](https://github.com/taoqf/node-fast-html-parser/commit/a26079849fef4dd683133a24e13df14590d4f250))
+
 ### [8.0.3](https://github.com/taoqf/node-fast-html-parser/compare/v8.0.2...v8.0.3) (2026-06-22)
 
 

@@ -464,8 +464,9 @@ export default class HTMLElement extends Node {
 		// remove whitespace between attributes
 		const attrs = Object.keys(this.rawAttributes)
 			.map((key) => {
-				const val = this.rawAttributes[key];
-				return `${key}=${JSON.stringify(val)}`;
+				const val = this.quoteAttribute(this.rawAttributes[key]);
+				if (val === 'null' || val === '""') return key;
+				return `${key}=${val}`;
 			})
 			.join(' ');
 		this.rawAttrs = attrs;

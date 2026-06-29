@@ -300,6 +300,15 @@ describe('HTML Parser', function () {
 				parseHTML('<p>\t\nHello\n\t<em>World</em>!</p>').removeWhitespace().firstChild.text.should.eql('HelloWorld!');
 				parseHTML('<p>\t\n  Hello \n\t<em>World</em>!</p>').removeWhitespace().firstChild.text.should.eql(' Hello World!');
 			});
+
+			it('should preserve consecutive backslashes in attribute values', function () {
+				const html = '<a data-x="C:\\\\Users\\\\me">x</a>';
+				parseHTML(html).removeWhitespace().firstChild.toString().should.eql(html);
+			});
+
+			it('should preserve valueless attributes', function () {
+				parseHTML('<input disabled required>').removeWhitespace().firstChild.toString().should.eql('<input disabled required>');
+			});
 		});
 
 		describe('#rawAttributes', function () {

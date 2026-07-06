@@ -2,6 +2,7 @@
   "compilerOptions": {
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
-    "noLib": true
+    "types": ["node"],
+    "lib": ["esnext"]
   }
 }

@@ -1,9 +1,25 @@
-import { Adapter /*, Predicate*/ } from 'css-select/lib/types';
-import HTMLElement from './nodes/html';
-import Node from './nodes/node';
+import type HTMLElement from './nodes/html';
+import type Node from './nodes/node';
 import NodeType from './nodes/type';
 
-export declare type Predicate = (node: Node) => node is HTMLElement;
+/**
+ * Minimal Adapter interface matching css-select's Adapter<Node, ElementNode>.
+ * Defined locally because css-select v5 does not export its types publicly.
+ */
+interface Adapter {
+	isTag: (node: Node) => node is HTMLElement;
+	existsOne: (test: (elem: HTMLElement) => boolean, elems: Node[]) => boolean;
+	getAttributeValue: (elem: HTMLElement, name: string) => string | undefined;
+	getChildren: (node: Node) => Node[];
+	getName: (elem: HTMLElement) => string;
+	getParent: (node: HTMLElement) => Node | null;
+	getSiblings: (node: Node) => Node[];
+	getText: (node: Node) => string;
+	hasAttrib: (elem: HTMLElement, name: string) => boolean;
+	removeSubsets: (nodes: Node[]) => Node[];
+	findAll: (test: (elem: HTMLElement) => boolean, nodes: Node[]) => HTMLElement[];
+	findOne: (test: (elem: HTMLElement) => boolean, elems: Node[]) => HTMLElement | null;
+}
 
 function isTag(node: Node): node is HTMLElement {
 	return node && node.nodeType === NodeType.ELEMENT_NODE;
@@ -21,7 +37,7 @@ function getChildren(node: Node) {
 	return node && node.childNodes;
 }
 
-function getParent(node: Node) {
+function getParent(node: Node): Node | null {
 	return node ? node.parentNode : null;
 }
 
@@ -62,7 +78,7 @@ function removeSubsets(nodes: Node[]) {
 	return nodes;
 }
 
-function existsOne(test: Predicate, elems: Node[]): boolean {
+function existsOne(test: (elem: HTMLElement) => boolean, elems: Node[]): boolean {
 	return elems.some((elem) => {
 		return isTag(elem) ? test(elem) || existsOne(test, getChildren(elem)) : false;
 	});
@@ -77,13 +93,15 @@ function hasAttrib(elem: HTMLElement, name: string) {
 	return getAttributeValue(elem, name) !== undefined;
 }
 
-function findOne(test: Predicate, elems: Node[]) {
+function findOne(test: (elem: HTMLElement) => boolean, elems: Node[]) {
 	let elem = null as HTMLElement | null;
 
 	for (let i = 0, l = elems?.length; i < l && !elem; i++) {
 		const el = elems[i];
-		if (test(el)) {
-			elem = el;
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+		if ((test as (node: Node) => boolean)(el)) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			elem = el as HTMLElement;
 		} else {
 			const childs = getChildren(el);
 			if (childs && childs.length > 0) {
@@ -95,20 +113,21 @@ function findOne(test: Predicate, elems: Node[]) {
 	return elem;
 }
 
-function findAll(test: Predicate, nodes: Node[]): Node[] {
-	let result = [] as Node[];
+function findAll(test: (elem: HTMLElement) => boolean, nodes: Node[]): HTMLElement[] {
+	let result: HTMLElement[] = [];
 
 	for (let i = 0, j = nodes.length; i < j; i++) {
-		if (!isTag(nodes[i])) continue;
-		if (test(nodes[i])) result.push(nodes[i]);
-		const childs = getChildren(nodes[i]);
+		const node = nodes[i];
+		if (!isTag(node)) continue;
+		if (test(node)) result.push(node);
+		const childs = getChildren(node);
 		if (childs) result = result.concat(findAll(test, childs));
 	}
 
 	return result;
 }
 
-export default {
+const matcher: Adapter = {
 	isTag,
 	getAttributeValue,
 	getName,
@@ -121,4 +140,6 @@ export default {
 	hasAttrib,
 	findOne,
 	findAll
-} as unknown as Adapter<Node, HTMLElement>;
+};
+
+export default matcher;

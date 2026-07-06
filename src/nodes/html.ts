@@ -100,7 +100,7 @@ class DOMTokenList {
 		this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call
 	}
 	public remove(c: string) {
-		this._set.delete(c) && this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call
+		this._set.delete(c) && this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unused-expressions
 	}
 	public toggle(c: string) {
 		this._validate(c);
@@ -606,18 +606,16 @@ export default class HTMLElement extends Node {
 	 * @returns {HTMLElement | null} the element with the given id or null if not found
 	 */
 	public closest(selector: string): HTMLElement | null {
-		type Predicate = (node: Node) => node is HTMLElement;
-
 		const mapChild = new Map<Node, Node>();
 		let el = this as Node;
 		let old = null as Node;
-		function findOne(test: Predicate, elems: Node[]) {
+		function findOne(test: (v: HTMLElement) => boolean, elems: Node[]) {
 			let elem = null as HTMLElement | null;
 
 			for (let i = 0, l = elems.length; i < l && !elem; i++) {
 				const el = elems[i];
-				if (test(el)) {
-					elem = el;
+				if (test(el as HTMLElement)) {
+					elem = el as HTMLElement;
 				} else {
 					const child = mapChild.get(el);
 					if (child) {
@@ -646,13 +644,13 @@ export default class HTMLElement extends Node {
 						return [node];
 					},
 					findOne,
-					findAll(): Node[] {
+					findAll(): HTMLElement[] {
 						return [];
 					},
 				},
 			});
 			if (e) {
-				return e as HTMLElement;
+				return e;
 			}
 			el = el.parentNode;
 		}

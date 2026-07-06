@@ -1,9 +1,8 @@
 {
-  "files": [ "index.ts" ],
-  "extends": "../tsconfig.base.json",
-  "compilerOptions": {
-    "noEmit": true,
-    "module": "ESNext",
-    "moduleResolution": "node"
-  }
+	"files": [ "index.ts" ],
+	"extends": "../tsconfig.base.json",
+	"compilerOptions": {
+		"noEmit": true,
+		"module": "ESNext"
+	}
 }

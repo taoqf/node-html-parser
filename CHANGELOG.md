@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [9.0.0](https://github.com/taoqf/node-fast-html-parser/compare/v8.0.4...v9.0.0) (2026-07-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* #311 pack usingtsdown
+
+### Features
+
+* [#311](https://github.com/taoqf/node-fast-html-parser/issues/311) pack usingtsdown ([48dfd69](https://github.com/taoqf/node-fast-html-parser/commit/48dfd6980ac58cd7d578df84798f0863acfbb080))
+
 ### [8.0.4](https://github.com/taoqf/node-fast-html-parser/compare/v8.0.3...v8.0.4) (2026-06-29)
 
 

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.0.1](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.0...v9.0.1) (2026-07-29)
+
+
+### Bug Fixes
+
+* use tsc generate dts rather than rolldown ([081186d](https://github.com/taoqf/node-fast-html-parser/commit/081186dab912385da18b1c6be540028f68322d17))
+
 ## [9.0.0](https://github.com/taoqf/node-fast-html-parser/compare/v8.0.4...v9.0.0) (2026-07-06)
 
 

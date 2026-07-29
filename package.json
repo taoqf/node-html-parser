@@ -13,8 +13,8 @@
 		}
 	},
 	"scripts": {
-		"compile": "tsdown",
-		"build": "npm run lint && tsdown",
+		"compile": "tsdown && tsc --emitDeclarationOnly --outDir dist",
+		"build": "npm run lint && npm run compile",
 		"watch": "tsdown --watch",
 		"lint": "eslint ./src/*.ts ./src/**/*.ts",
 		"---------------": "",

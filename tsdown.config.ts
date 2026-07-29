@@ -10,7 +10,7 @@ export default defineConfig({
 		mixedExports: false,
 	},
 	clean: true,
-	dts: true,
+	dts: false,
 	sourcemap: false,
 	outExtensions: ({ format }) => {
 		if (format === 'cjs') return { js: '.cjs', dts: '.d.ts' }

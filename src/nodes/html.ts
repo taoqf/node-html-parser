@@ -1118,14 +1118,16 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 		if (lastTextPos > -1) {
 			if (lastTextPos + matchLength < tagEndPos) {
 				const text = data.substring(lastTextPos, tagStartPos);
-				currentParent.appendChild(new TextNode(text, currentParent, createRange(lastTextPos, tagStartPos)));
+				// Pass a null parentNode: appendChild() sets it. Pre-setting it makes the
+				// node look attached, so remove() rescans the parent's childNodes (O(n^2)).
+				currentParent.appendChild(new TextNode(text, null, createRange(lastTextPos, tagStartPos)));
 			}
 		}
 
 		lastTextPos = markupPattern.lastIndex;
 
 		if (hasCDATA && matchText.startsWith('<![CDATA[')) {
-			currentParent.appendChild(new TextNode(matchText, currentParent, createRange(tagStartPos, tagEndPos)));
+			currentParent.appendChild(new TextNode(matchText, null, createRange(tagStartPos, tagEndPos)));
 			continue;
 		}
 
@@ -1138,7 +1140,7 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 			if (options.comment) {
 				// Only keep what is in between <!-- and -->
 				const text = data.substring(tagStartPos + 4, tagEndPos - 3);
-				currentParent.appendChild(new CommentNode(text, currentParent, createRange(tagStartPos, tagEndPos)));
+				currentParent.appendChild(new CommentNode(text, null, createRange(tagStartPos, tagEndPos)));
 			}
 			continue;
 		}
@@ -1195,7 +1197,7 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 				if (element_should_be_ignore(tagName)) {
 					const text = data.substring(tagEndPos, textEndPos);
 					if (text.length > 0 && /\S/.test(text)) {
-						currentParent.appendChild(new TextNode(text, currentParent, createRange(tagEndPos, textEndPos)));
+						currentParent.appendChild(new TextNode(text, null, createRange(tagEndPos, textEndPos)));
 					}
 				}
 

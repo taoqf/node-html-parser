@@ -59,10 +59,9 @@
 		"css-select": "^5.1.0",
 		"entities": "^8.0.0"
 	},
-	"devDependencies": {
+"devDependencies": {
 		"@types/node": "latest",
 		"@typescript-eslint/eslint-plugin": "latest",
-		"@typescript-eslint/eslint-plugin-tslint": "latest",
 		"@typescript-eslint/parser": "latest",
 		"blanket": "latest",
 		"boolbase": "^1.0.0",
@@ -92,7 +91,8 @@
 		"travis-cov": "latest",
 		"ts-node": "^10.9.1",
 		"tsdown": "^0.22.3",
-		"typescript": "latest",
+		"@typescript/native": "npm:typescript@^7.0.2",
+		"typescript": "npm:@typescript/typescript6@^6.0.2",
 		"yarn": "^1.22.22"
 	},
 	"config": {

@@ -91,22 +91,22 @@ class DOMTokenList {
 	public add(c: string) {
 		this._validate(c);
 		this._set.add(c);
-		this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call
+		this._afterUpdate(this);
 	}
 	public replace(c1: string, c2: string) {
 		this._validate(c2);
 		this._set.delete(c1);
 		this._set.add(c2);
-		this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call
+		this._afterUpdate(this);
 	}
 	public remove(c: string) {
-		this._set.delete(c) && this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unused-expressions
+		this._set.delete(c) && this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unused-expressions
 	}
 	public toggle(c: string) {
 		this._validate(c);
 		if (this._set.has(c)) this._set.delete(c);
 		else this._set.add(c);
-		this._afterUpdate(this); // eslint-disable-line @typescript-eslint/no-unsafe-call
+		this._afterUpdate(this);
 	}
 	public contains(c: string): boolean {
 		return this._set.has(c);
@@ -630,7 +630,7 @@ export default class HTMLElement extends Node {
 			old = el;
 			el = el.parentNode;
 		}
-		el = this;
+		el = this; // eslint-disable-line @typescript-eslint/no-this-alias
 		while (el) {
 			const e = selectOne(selector, el, {
 				xmlMode: true,

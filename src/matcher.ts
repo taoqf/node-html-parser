@@ -98,9 +98,7 @@ function findOne(test: (elem: HTMLElement) => boolean, elems: Node[]) {
 
 	for (let i = 0, l = elems?.length; i < l && !elem; i++) {
 		const el = elems[i];
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 		if ((test as (node: Node) => boolean)(el)) {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			elem = el as HTMLElement;
 		} else {
 			const childs = getChildren(el);

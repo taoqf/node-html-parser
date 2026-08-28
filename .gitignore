@@ -17,9 +17,11 @@ bower_components
 
 *.sublime-*
 dist/
-/test/yarn.lock
+# bun lockfile (test/ subproject) is committed
+yarn.lock
+pnpm-lock.yaml
 package-lock.json
-.yarnrc
+.env.local
 
 .idea
 .DS_Store

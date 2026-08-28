@@ -19,17 +19,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: Determine Yarn Cache Path
-        id: yarn-cache-dir-path
-        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v5
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          bun-version: latest
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v6
@@ -37,14 +30,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install Packages
-        run: yarn install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: yarn build
+        run: bun run build
         env:
           CI: true
 
       - name: Test
-        run: yarn run test:ci
+        run: bun run test:ci
         env:
           CI: true

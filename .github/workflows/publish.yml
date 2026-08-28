@@ -13,6 +13,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
 
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
       - name: Setup Node.js to publish to npmjs.org
         uses: actions/setup-node@v6
         with:
@@ -20,15 +25,15 @@ jobs:
           registry-url: "https://registry.npmjs.org"
 
       - name: Install Packages
-        run: yarn install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Build
-        run: yarn build
+        run: bun run build
         env:
           CI: true
 
       - name: Test
-        run: yarn run test:ci
+        run: bun run test:ci
         env:
           CI: true
 
@@ -36,7 +41,7 @@ jobs:
         run: npx extract-changelog-release > RELEASE_BODY.md
 
       - name: Publish to NPM
-        run: yarn publish --non-interactive
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 

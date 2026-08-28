@@ -14,24 +14,24 @@
 	},
 	"scripts": {
 		"compile": "tsdown && tsc --emitDeclarationOnly --outDir dist",
-		"build": "npm run lint && npm run compile",
+		"build": "bun run compile",
 		"watch": "tsdown --watch",
 		"lint": "eslint ./src/*.ts ./src/**/*.ts",
 		"---------------": "",
-		"pretest": "cd ./test/ && yarn install && cd ..",
-		"test": "yarn run test:target",
-		"test:src": "cross-env TEST_TARGET=src yarn run test",
-		"test:dist": "cross-env TEST_TARGET=dist yarn run test",
+		"pretest": "cd ./test && bun install && cd ..",
+		"test": "bun run test:target",
+		"test:src": "cross-env TEST_TARGET=src mocha --recursive \"./test/tests\" --require ts-node/register",
+		"test:dist": "cross-env TEST_TARGET=dist mocha --recursive \"./test/tests\"",
 		"benchmark": "node ./test/benchmark/compare.mjs",
 		"---------------  ": "",
 		"clean": "npx rimraf ./dist/",
-		"clean:global": "yarn run clean && npx rimraf yarn.lock test/yarn.lock test/node_modules node_modules",
-		"reset": "yarn run clean:global && yarn install && yarn build",
+		"clean:global": "bun run clean && rm -rf test/node_modules node_modules",
+		"reset": "bun run clean:global && bun install && bun run build",
 		"--------------- ": "",
-		"test:target": "mocha --recursive \"./test/tests\"",
-		"test:ci": "cd test && yarn install && cd .. && cross-env TEST_TARGET=dist yarn run test:target",
-		"posttest": "yarn run benchmark",
-		"prepare": "npm run build",
+		"test:target": "mocha --recursive \"./test/tests\" --require blanket --require should --require spec",
+		"test:ci": "cd test && bun install && cd .. && cross-env TEST_TARGET=dist bun run test:target",
+		"posttest": "bun run benchmark",
+		"prepare": "bun run compile",
 		"release": "standard-version && git push --follow-tags origin main"
 	},
 	"keywords": [
@@ -92,8 +92,7 @@
 		"ts-node": "^10.9.1",
 		"tsdown": "^0.22.3",
 		"@typescript/native": "npm:typescript@^7.0.2",
-		"typescript": "npm:@typescript/typescript6@^6.0.2",
-		"yarn": "^1.22.22"
+		"typescript": "npm:@typescript/typescript6@^6.0.2"
 	},
 	"config": {
 		"blanket": {
@@ -117,5 +116,6 @@
 		"url": "https://github.com/taoqf/node-fast-html-parser/issues"
 	},
 	"homepage": "https://github.com/taoqf/node-fast-html-parser",
-	"sideEffects": false
+	"sideEffects": false,
+	"packageManager": "bun@1.3.14"
 }

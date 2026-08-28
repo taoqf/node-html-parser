@@ -6,8 +6,8 @@
 	"dependencies": {
 		"@test/test-6113": "npm:node-html-parser@6.1.13",
 		"@test/test-531": "npm:node-html-parser@5.3.1",
-		"@test/test-target": "link:./assets/packages/wrapper",
-		"@test/root": "link:../",
+			"@test/test-target": "file:./assets/packages/wrapper",
+		"@test/root": "file:../",
 		"@test/last-release": "npm:node-html-parser@latest"
 	}
 }

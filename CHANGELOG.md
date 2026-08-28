@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.0.2](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.1...v9.0.2) (2026-08-28)
+
+
+### Bug Fixes
+
+* avoid O(n^2) text node append during parse ([6aba40e](https://github.com/taoqf/node-fast-html-parser/commit/6aba40e10c911743651e4cb32b809d0a5425f74a)), closes [#317](https://github.com/taoqf/node-fast-html-parser/issues/317)
+* update test scripts for improved execution flow ([c36ab5a](https://github.com/taoqf/node-fast-html-parser/commit/c36ab5a242ac0f9d5b2b280ffc81163ebf264d58))
+
 ### [9.0.1](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.0...v9.0.1) (2026-07-29)
 
 

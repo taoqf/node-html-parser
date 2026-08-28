@@ -1,6 +1,6 @@
 {
 	"name": "node-html-parser",
-	"version": "9.0.1",
+	"version": "9.0.2",
 	"description": "A very fast HTML parser, generating a simplified DOM, with basic element query support.",
 	"main": "dist/index.cjs",
 	"types": "dist/index.d.ts",
@@ -59,7 +59,7 @@
 		"css-select": "^5.1.0",
 		"entities": "^8.0.0"
 	},
-"devDependencies": {
+	"devDependencies": {
 		"@types/node": "latest",
 		"@typescript-eslint/eslint-plugin": "latest",
 		"@typescript-eslint/parser": "latest",

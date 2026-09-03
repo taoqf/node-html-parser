@@ -1104,7 +1104,7 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 	data = `<${frameflag}>${data}</${frameflag}>`;
 	const { lowerCaseTagName, fixNestedATags } = options;
 
-	const dataEndPos = data.length - (frameflag.length + 2);
+	const dataEndPos = data.length - (frameflag.length + 3);
 	const frameFlagOffset = frameflag.length + 2;
 
 	markupPattern.lastIndex = 0;

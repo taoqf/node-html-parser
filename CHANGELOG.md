@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.0.3](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.2...v9.0.3) (2026-09-03)
+
+
+### Bug Fixes
+
+* encode special characters in HTMLElement textContent setter ([48eb649](https://github.com/taoqf/node-fast-html-parser/commit/48eb649d10816ad85f45723ea452f888a87a3649))
+* keep attributes whose name starts with an underscore ([3aff8be](https://github.com/taoqf/node-fast-html-parser/commit/3aff8bec8c54ec202e632ac8def875338b051983)), closes [#129](https://github.com/taoqf/node-fast-html-parser/issues/129) [#129](https://github.com/taoqf/node-fast-html-parser/issues/129) [#206](https://github.com/taoqf/node-fast-html-parser/issues/206)
+* stop appending a stray '<' to unterminated block-text elements ([48300fe](https://github.com/taoqf/node-fast-html-parser/commit/48300fe237a210096641af6de96aae02bc18d8be))
+
 ### [9.0.2](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.1...v9.0.2) (2026-08-28)
 
 

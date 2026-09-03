@@ -1011,6 +1011,10 @@ const kElementsClosedByOpening = {
 	H5: { h5: true, H5: true },
 	h6: { h6: true, H6: true },
 	H6: { h6: true, H6: true },
+	dt: { dt: true, dd: true, DT: true, DD: true },
+	DT: { dt: true, dd: true, DT: true, DD: true },
+	dd: { dt: true, dd: true, DT: true, DD: true },
+	DD: { dt: true, dd: true, DT: true, DD: true },
 } as Record<string, Record<string, boolean>>;
 const kElementsClosedByClosing = {
 	li: { ul: true, ol: true, UL: true, OL: true },
@@ -1027,6 +1031,10 @@ const kElementsClosedByClosing = {
 	TD: { tr: true, table: true, TR: true, TABLE: true },
 	th: { tr: true, table: true, TR: true, TABLE: true },
 	TH: { tr: true, table: true, TR: true, TABLE: true },
+	dt: { dl: true, body: true, html: true, DL: true, BODY: true, HTML: true },
+	DT: { dl: true, body: true, html: true, DL: true, BODY: true, HTML: true },
+	dd: { dl: true, body: true, html: true, DL: true, BODY: true, HTML: true },
+	DD: { dl: true, body: true, html: true, DL: true, BODY: true, HTML: true },
 } as Record<string, Record<string, boolean>>;
 const kElementsClosedByClosingExcept = {
 	p: { a: true, audio: true, del: true, ins: true, map: true, noscript: true, video: true },

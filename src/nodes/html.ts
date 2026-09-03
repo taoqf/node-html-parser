@@ -705,10 +705,12 @@ export default class HTMLElement extends Node {
 		}
 		const attrs = {} as RawAttributes;
 		if (this.rawAttrs) {
-			const re = /([a-zA-Z()[\]#@$.?:][a-zA-Z0-9-._:()[\]#]*)(?:\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+))?/g;
+			const re = /([_a-zA-Z()[\]#@$.?:][a-zA-Z0-9-._:()[\]#]*)(?:\s*=\s*((?:'[^']*')|(?:"[^"]*")|\S+))?/g;
 			let match: RegExpExecArray;
 			while ((match = re.exec(this.rawAttrs))) {
 				const key = match[1];
+				// Reject `__proto__` to prevent prototype pollution (issue #129)
+				if (key === '__proto__') continue;
 				let val = match[2] || null;
 				if (val && (val[0] === `'` || val[0] === `"`)) val = val.slice(1, val.length - 1);
 				attrs[key] = attrs[key] || val;

@@ -1,5 +1,5 @@
 import { is, selectAll, selectOne } from 'css-select';
-import { decodeHTML } from 'entities';
+import { decodeHTML, encode } from 'entities';
 import arr_back from '../back';
 import Matcher from '../matcher';
 import VoidTag from '../void-tag';
@@ -271,7 +271,7 @@ export default class HTMLElement extends Node {
 		return decode(this.rawText);
 	}
 	public set textContent(val: string) {
-		const content = [new TextNode(val, this)];
+		const content = [new TextNode(encode(val), this)];
 		this.childNodes = content;
 	}
 	/**

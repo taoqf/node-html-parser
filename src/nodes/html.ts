@@ -997,10 +997,17 @@ const kElementsClosedByOpening = {
 	P: { p: true, div: true, P: true, DIV: true },
 	b: { div: true, DIV: true },
 	B: { div: true, DIV: true },
-	td: { td: true, th: true, TD: true, TH: true },
-	TD: { td: true, th: true, TD: true, TH: true },
-	th: { td: true, th: true, TD: true, TH: true },
-	TH: { td: true, th: true, TD: true, TH: true },
+	// A new row or section also ends any open cell in the preceding row.
+	td: { td: true, th: true, tr: true, tbody: true, tfoot: true, TD: true, TH: true, TR: true, TBODY: true, TFOOT: true },
+	TD: { td: true, th: true, tr: true, tbody: true, tfoot: true, TD: true, TH: true, TR: true, TBODY: true, TFOOT: true },
+	th: { td: true, th: true, tr: true, tbody: true, tfoot: true, TD: true, TH: true, TR: true, TBODY: true, TFOOT: true },
+	TH: { td: true, th: true, tr: true, tbody: true, tfoot: true, TD: true, TH: true, TR: true, TBODY: true, TFOOT: true },
+	tr: { tr: true, tbody: true, tfoot: true, TR: true, TBODY: true, TFOOT: true },
+	TR: { tr: true, tbody: true, tfoot: true, TR: true, TBODY: true, TFOOT: true },
+	thead: { tbody: true, tfoot: true, TBODY: true, TFOOT: true },
+	THEAD: { tbody: true, tfoot: true, TBODY: true, TFOOT: true },
+	tbody: { tbody: true, tfoot: true, TBODY: true, TFOOT: true },
+	TBODY: { tbody: true, tfoot: true, TBODY: true, TFOOT: true },
 	h1: { h1: true, H1: true },
 	H1: { h1: true, H1: true },
 	h2: { h2: true, H2: true },
@@ -1029,10 +1036,17 @@ const kElementsClosedByClosing = {
 	I: { div: true, DIV: true },
 	p: { div: true, DIV: true },
 	P: { div: true, DIV: true },
-	td: { tr: true, table: true, TR: true, TABLE: true },
-	TD: { tr: true, table: true, TR: true, TABLE: true },
-	th: { tr: true, table: true, TR: true, TABLE: true },
-	TH: { tr: true, table: true, TR: true, TABLE: true },
+	// Cells and rows may omit their end tags at the end of a table section.
+	td: { tr: true, table: true, thead: true, tbody: true, tfoot: true, TR: true, TABLE: true, THEAD: true, TBODY: true, TFOOT: true },
+	TD: { tr: true, table: true, thead: true, tbody: true, tfoot: true, TR: true, TABLE: true, THEAD: true, TBODY: true, TFOOT: true },
+	th: { tr: true, table: true, thead: true, tbody: true, tfoot: true, TR: true, TABLE: true, THEAD: true, TBODY: true, TFOOT: true },
+	TH: { tr: true, table: true, thead: true, tbody: true, tfoot: true, TR: true, TABLE: true, THEAD: true, TBODY: true, TFOOT: true },
+	tr: { table: true, thead: true, tbody: true, tfoot: true, TABLE: true, THEAD: true, TBODY: true, TFOOT: true },
+	TR: { table: true, thead: true, tbody: true, tfoot: true, TABLE: true, THEAD: true, TBODY: true, TFOOT: true },
+	tbody: { table: true, TABLE: true },
+	TBODY: { table: true, TABLE: true },
+	tfoot: { table: true, TABLE: true },
+	TFOOT: { table: true, TABLE: true },
 	dt: { dl: true, body: true, html: true, DL: true, BODY: true, HTML: true },
 	DT: { dl: true, body: true, html: true, DL: true, BODY: true, HTML: true },
 	dd: { dl: true, body: true, html: true, DL: true, BODY: true, HTML: true },
@@ -1169,10 +1183,9 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 				attrs[key.toLowerCase()] = isQuoted ? val.slice(1, val.length - 1) : val;
 			}
 
-			const parentTagName = currentParent.rawTagName as IRawTagName;
-
-			if (!closingSlash && !options.preserveTagNesting && kElementsClosedByOpening[parentTagName]) {
-				if (kElementsClosedByOpening[parentTagName][tagName]) {
+			if (!closingSlash && !options.preserveTagNesting) {
+				// One opening tag can end a cell, its row, and its table section.
+				while (kElementsClosedByOpening[currentParent.rawTagName as IRawTagName]?.[tagName]) {
 					stack.pop();
 					currentParent = arr_back(stack);
 				}

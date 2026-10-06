@@ -997,10 +997,17 @@ const kElementsClosedByOpening = {
 	P: { p: true, div: true, P: true, DIV: true },
 	b: { div: true, DIV: true },
 	B: { div: true, DIV: true },
-	td: { td: true, th: true, TD: true, TH: true },
-	TD: { td: true, th: true, TD: true, TH: true },
-	th: { td: true, th: true, TD: true, TH: true },
-	TH: { td: true, th: true, TD: true, TH: true },
+	// A new row or section also ends any open cell in the preceding row.
+	td: { td: true, th: true, tr: true, tbody: true, tfoot: true, TD: true, TH: true, TR: true, TBODY: true, TFOOT: true },
+	TD: { td: true, th: true, tr: true, tbody: true, tfoot: true, TD: true, TH: true, TR: true, TBODY: true, TFOOT: true },
+	th: { td: true, th: true, tr: true, tbody: true, tfoot: true, TD: true, TH: true, TR: true, TBODY: true, TFOOT: true },
+	TH: { td: true, th: true, tr: true, tbody: true, tfoot: true, TD: true, TH: true, TR: true, TBODY: true, TFOOT: true },
+	tr: { tr: true, tbody: true, tfoot: true, TR: true, TBODY: true, TFOOT: true },
+	TR: { tr: true, tbody: true, tfoot: true, TR: true, TBODY: true, TFOOT: true },
+	thead: { tbody: true, tfoot: true, TBODY: true, TFOOT: true },
+	THEAD: { tbody: true, tfoot: true, TBODY: true, TFOOT: true },
+	tbody: { tbody: true, tfoot: true, TBODY: true, TFOOT: true },
+	TBODY: { tbody: true, tfoot: true, TBODY: true, TFOOT: true },
 	h1: { h1: true, H1: true },
 	H1: { h1: true, H1: true },
 	h2: { h2: true, H2: true },
@@ -1176,10 +1183,9 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 				attrs[key.toLowerCase()] = isQuoted ? val.slice(1, val.length - 1) : val;
 			}
 
-			const parentTagName = currentParent.rawTagName as IRawTagName;
-
-			if (!closingSlash && !options.preserveTagNesting && kElementsClosedByOpening[parentTagName]) {
-				if (kElementsClosedByOpening[parentTagName][tagName]) {
+			if (!closingSlash && !options.preserveTagNesting) {
+				// One opening tag can end a cell, its row, and its table section.
+				while (kElementsClosedByOpening[currentParent.rawTagName as IRawTagName]?.[tagName]) {
 					stack.pop();
 					currentParent = arr_back(stack);
 				}

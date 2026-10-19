@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.0.5](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.4...v9.0.5) (2026-10-19)
+
+
+### Bug Fixes
+
+* avoid repeated scans during unclosed-tag repair ([01bd548](https://github.com/taoqf/node-fast-html-parser/commit/01bd548962093c4ba2e9783b908ce74e2c4eeb4e))
+* close optional table tags at section boundaries ([23fe6ab](https://github.com/taoqf/node-fast-html-parser/commit/23fe6ab337e8e4f2e894d79188804212cff48d69))
+* keep omitted table rows and sections as siblings ([461a468](https://github.com/taoqf/node-fast-html-parser/commit/461a468557be5ae1ae7553142127a9de8b8d6db8))
+
 ### [9.0.4](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.3...v9.0.4) (2026-09-07)
 
 ### [9.0.3](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.2...v9.0.3) (2026-09-03)

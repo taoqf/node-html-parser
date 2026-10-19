@@ -1205,7 +1205,7 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 
 			currentParent = currentParent.appendChild(
 				// Initialize range (end position updated later for closed tags)
-				new HTMLElement(tagName, attrs, attributes.slice(1), null, createRange(tagStartPos, tagEndPos), voidTag, options)
+				new HTMLElement(tagName, attrs, attributes.replace(/^\s+/, ''), null, createRange(tagStartPos, tagEndPos), voidTag, options)
 			);
 			stack.push(currentParent);
 

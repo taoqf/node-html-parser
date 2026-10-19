@@ -1319,9 +1319,7 @@ export function parse(data: string, options = {} as Partial<Options>) {
 				// this is wrong, becouse this will put the H3 outside the current right position which should be inside the current Html Element, see issue 152 for more info
 				if (options.parseNoneClosedTags !== true) {
 					oneBefore.removeChild(last);
-					last.childNodes.forEach((child) => {
-						oneBefore.parentNode.appendChild(child);
-					});
+					reparentChildren(last, oneBefore.parentNode);
 					stack.pop();
 				}
 			} else {
@@ -1330,9 +1328,7 @@ export function parse(data: string, options = {} as Partial<Options>) {
 				// eslint-disable-next-line no-lonely-if
 				if (options.parseNoneClosedTags !== true) {
 					oneBefore.removeChild(last);
-					last.childNodes.forEach((child) => {
-						oneBefore.appendChild(child);
-					});
+					reparentChildren(last, oneBefore);
 				}
 			}
 		} else {
@@ -1345,6 +1341,17 @@ export function parse(data: string, options = {} as Partial<Options>) {
 	// 	}
 	// });
 	return root;
+}
+
+function reparentChildren(source: HTMLElement, parent: HTMLElement) {
+	const children = source.childNodes;
+	source.childNodes = [];
+	for (const child of children) {
+		// Detach in bulk: appendChild() would otherwise filter the shrinking source
+		// array once per child, making repair quadratic in the number of siblings.
+		child.parentNode = null;
+		parent.appendChild(child);
+	}
 }
 
 /**

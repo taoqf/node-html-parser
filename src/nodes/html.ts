@@ -327,21 +327,41 @@ export default class HTMLElement extends Node {
 			.replace(/\s+$/, ''); // trimRight;
 	}
 
-	public toString() {
-		const tag = this.rawTagName;
-		if (tag) {
-			const attrs = this.rawAttrs ? ` ${this.rawAttrs}` : '';
-			return this.voidTag.formatNode(tag, attrs, this.innerHTML);
-		}
-		return this.innerHTML;
+	public toString(): string {
+		return this.serialize([this]);
 	}
 
-	public get innerHTML() {
-		return this.childNodes
-			.map((child) => {
-				return child.toString();
-			})
-			.join('');
+	public get innerHTML(): string {
+		return this.serialize(this.childNodes);
+	}
+
+	// Iterative, so that deeply nested trees do not overflow the call stack
+	private serialize(nodes: Node[]): string {
+		const out: string[] = [];
+		const stack: (Node | string)[] = [...nodes].reverse();
+		while (stack.length > 0) {
+			const item = stack.pop();
+			if (typeof item === 'string') {
+				out.push(item);
+			} else if (item instanceof HTMLElement) {
+				const tag = item.rawTagName;
+				if (tag) {
+					const attrs = item.rawAttrs ? ` ${item.rawAttrs}` : '';
+					if (item.voidTag.isVoidElement(tag.toLowerCase())) {
+						out.push(item.voidTag.formatNode(tag, attrs, ''));
+						continue;
+					}
+					out.push(`<${tag}${attrs}>`);
+					stack.push(`</${tag}>`);
+				}
+				for (let i = item.childNodes.length - 1; i >= 0; i--) {
+					stack.push(item.childNodes[i]);
+				}
+			} else {
+				out.push(item.toString());
+			}
+		}
+		return out.join('');
 	}
 
 	public set innerHTML(content: string) {

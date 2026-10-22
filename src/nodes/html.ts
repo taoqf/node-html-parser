@@ -1,5 +1,5 @@
 import { is, selectAll, selectOne } from 'css-select';
-import { decodeHTML, encode } from 'entities';
+import { decodeHTML, decodeHTMLAttribute, encode } from 'entities';
 import arr_back from '../back';
 import Matcher from '../matcher';
 import VoidTag from '../void-tag';
@@ -34,6 +34,13 @@ type IRawTagName =
 
 function decode(val: string) {
 	return decodeHTML(val);
+}
+
+// Attribute values follow the HTML attribute rules: a legacy entity without its `;`
+// (`&copy`, `&not`) is kept as-is when an alphanumeric character or `=` follows it,
+// e.g. in `href="?a=1&copy=2"`.
+function decodeAttribute(val: string) {
+	return decodeHTMLAttribute(val);
 }
 
 export interface KeyAttributes {
@@ -680,7 +687,7 @@ export default class HTMLElement extends Node {
 		const attrs = this.rawAttributes;
 		for (const key in attrs) {
 			const val = attrs[key] || '';
-			this._attrs[key.toLowerCase()] = decode(val);
+			this._attrs[key.toLowerCase()] = decodeAttribute(val);
 		}
 		return this._attrs;
 	}
@@ -690,7 +697,7 @@ export default class HTMLElement extends Node {
 		const attrs = this.rawAttributes;
 		for (const key in attrs) {
 			const val = attrs[key] || '';
-			ret_attrs[key] = decode(val);
+			ret_attrs[key] = decodeAttribute(val);
 		}
 		return ret_attrs;
 	}
@@ -774,7 +781,7 @@ export default class HTMLElement extends Node {
 		attrs[key] = String(value);
 		// update this.attrs
 		if (this._attrs) {
-			this._attrs[k2] = decode(attrs[key]);
+			this._attrs[k2] = decodeAttribute(attrs[key]);
 		}
 		// Update rawString
 		this.rawAttrs = Object.keys(attrs)

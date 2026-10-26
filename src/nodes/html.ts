@@ -306,8 +306,11 @@ export default class HTMLElement extends Node {
 				}
 			} else if (node.nodeType === NodeType.TEXT_NODE) {
 				if ((node as TextNode).isWhitespace) {
-					// Whitespace node, postponed output
-					currentBlock.prependWhitespace = true;
+					// Whitespace node, postponed output (only meaningful between
+					// two pieces of text on the same line, never at the start of a block)
+					if (currentBlock.length > 0) {
+						currentBlock.prependWhitespace = true;
+					}
 				} else {
 					let text = (<TextNode>node).trimmedText;
 					if (currentBlock.prependWhitespace) {
@@ -321,7 +324,7 @@ export default class HTMLElement extends Node {
 		dfs(this);
 		return blocks
 			.map((block) => {
-				return block.join('').replace(/\s{2,}/g, ' '); // Normalize each line's whitespace
+				return block.join('').replace(/\s{2,}/g, ' ').trim(); // Normalize each line's whitespace and trim it
 			})
 			.join('\n')
 			.replace(/\s+$/, ''); // trimRight;

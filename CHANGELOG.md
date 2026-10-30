@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.0.6](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.5...v9.0.6) (2026-10-30)
+
+
+### Bug Fixes
+
+* decode attribute values with the HTML attribute rules for character references ([41b773c](https://github.com/taoqf/node-fast-html-parser/commit/41b773c01b9299e27b61d9727c877c5b1ba9f614))
+* don't indent structuredText blocks that follow whitespace-only text ([5ce4d8d](https://github.com/taoqf/node-fast-html-parser/commit/5ce4d8d1e5b6e84e31c525963c66a8ee3f53270f))
+* keep a trailing slash in an unquoted attribute value ([b512399](https://github.com/taoqf/node-fast-html-parser/commit/b5123999722908830e32e52b2bc600084dd0e44f))
+* serialize elements iteratively so deep nesting does not overflow the stack ([75286bc](https://github.com/taoqf/node-fast-html-parser/commit/75286bc23ffd39b472651df97f79174e31d14c95)), closes [#324](https://github.com/taoqf/node-fast-html-parser/issues/324)
+
 ### [9.0.5](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.4...v9.0.5) (2026-10-19)
 
 

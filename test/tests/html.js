@@ -474,6 +474,26 @@ describe('HTML Parser', function () {
 				const root = parseHTML('<p>content</p><span><u><h1>inside</h1><i>htm<u>l</u></i></u></span>');
 				root.structuredText.should.eql('content\ninside\nhtml');
 			});
+
+			it('should not indent blocks that are separated by whitespace-only text (pretty-printed HTML)', function () {
+				const root = parseHTML(
+					'<div>\n  <h1>Title</h1>\n  <p>First para</p>\n  <p>Second <b>bold</b> para</p>\n  <ul>\n    <li>one</li>\n    <li>two</li>\n  </ul>\n</div>'
+				);
+				root.structuredText.should.eql('Title\nFirst para\nSecond bold para\none\ntwo');
+			});
+
+			it('should not add a leading space to a block that follows a whitespace-only text node', function () {
+				parseHTML('<p>a</p> <p>b</p>').structuredText.should.eql('a\nb');
+			});
+
+			it('should not leave a trailing space on the line before a <br>', function () {
+				parseHTML('<p>a <br> b</p>').structuredText.should.eql('a\nb');
+			});
+
+			it('should still keep a single space between inline elements', function () {
+				parseHTML('<div>hello <b>w</b> <i>x</i></div>').structuredText.should.eql('hello w x');
+				parseHTML('<p>x</p>\n<span>y</span> <span>z</span>').structuredText.should.eql('x\ny z');
+			});
 		});
 		describe('#set_content', function () {
 			it('set content string', function () {

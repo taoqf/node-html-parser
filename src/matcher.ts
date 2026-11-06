@@ -112,14 +112,16 @@ function findOne(test: (elem: HTMLElement) => boolean, elems: Node[]) {
 }
 
 function findAll(test: (elem: HTMLElement) => boolean, nodes: Node[]): HTMLElement[] {
-	let result: HTMLElement[] = [];
+	const result: HTMLElement[] = [];
+	const stack: Node[] = [];
+	for (let i = nodes.length - 1; i >= 0; i--) stack.push(nodes[i]);
 
-	for (let i = 0, j = nodes.length; i < j; i++) {
-		const node = nodes[i];
+	while (stack.length > 0) {
+		const node = stack.pop();
 		if (!isTag(node)) continue;
 		if (test(node)) result.push(node);
 		const childs = getChildren(node);
-		if (childs) result = result.concat(findAll(test, childs));
+		if (childs) for (let i = childs.length - 1; i >= 0; i--) stack.push(childs[i]);
 	}
 
 	return result;

@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [9.0.7](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.6...v9.0.7) (2026-11-06)
+
+
+### Bug Fixes
+
+* make querySelectorAll linear in sibling count and safe on deep nesting ([e0e109a](https://github.com/taoqf/node-fast-html-parser/commit/e0e109a4f11c55f53ace2e87e408599d0ee24397)), closes [#332](https://github.com/taoqf/node-fast-html-parser/issues/332)
+
 ### [9.0.6](https://github.com/taoqf/node-fast-html-parser/compare/v9.0.5...v9.0.6) (2026-10-30)
 
 

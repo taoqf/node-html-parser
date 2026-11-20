@@ -65,6 +65,13 @@ const Dtags = ['details', 'dialog', 'dd', 'div', 'dt'];
 const Ftags = ['fieldset', 'figcaption', 'figure', 'footer', 'form'];
 const tableTags = ['table', 'td', 'tr'];
 const htmlTags = ['address', 'article', 'aside', 'blockquote', 'br', 'hr', 'li', 'main', 'nav', 'ol', 'p', 'pre', 'section', 'ul'];
+/**
+ * script and style are raw text elements: browsers never decode entities in them.
+ */
+export function isRawTextElement(tagName: string | undefined) {
+	return /^(script|style)$/i.test(tagName ?? '');
+}
+
 const kBlockElements = new Set<string>();
 
 function addToKBlockElement(...args: string[][]) {
@@ -275,18 +282,19 @@ export default class HTMLElement extends Node {
 		}, '');
 	}
 	public get textContent() {
-		return decode(this.rawText);
+		return this.text;
 	}
 	public set textContent(val: string) {
-		const content = [new TextNode(encode(val), this)];
+		const content = [new TextNode(isRawTextElement(this.rawTagName) ? val : encode(val), this)];
 		this.childNodes = content;
 	}
 	/**
 	 * Get unescaped text value of current node and its children.
+	 * The text of script and style is returned as is, since entities are not decoded there.
 	 * @return {string} text content
 	 */
 	public get text() {
-		return decode(this.rawText);
+		return isRawTextElement(this.rawTagName) ? this.rawText : decode(this.rawText);
 	}
 	/**
 	 * Get structured Text (with '\n' etc.)

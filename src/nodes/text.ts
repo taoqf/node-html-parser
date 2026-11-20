@@ -1,5 +1,5 @@
 import { decodeHTML } from 'entities';
-import HTMLElement from './html';
+import HTMLElement, { isRawTextElement } from './html';
 import Node from './node';
 import NodeType from './type';
 
@@ -63,6 +63,9 @@ export default class TextNode extends Node {
 	 * @return {string} text content
 	 */
 	public get text() {
+		if (isRawTextElement(this.parentNode?.rawTagName)) {
+			return this.rawText;
+		}
 		return decodeHTML(this.rawText);
 	}
 

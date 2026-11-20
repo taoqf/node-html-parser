@@ -213,8 +213,24 @@ describe('HTML Parser', function () {
 			script.text.should.eql('1');
 			style.childNodes.should.not.be.empty;
 			style.childNodes.should.eql([new TextNode('2&amp;', style)]);
-			style.text.should.eql('2&');
+			style.text.should.eql('2&amp;');
 			style.rawText.should.eql('2&amp;');
+		});
+
+		it('should not decode entities in the text of script and style', function () {
+			const json = '{"name":"Tom &amp; Jerry","d":"14&quot; laptop"}';
+			const root = parseHTML(`<script type="application/ld+json">${json}</script><style>a::after{content:"&gt;"}</style><p>Tom &amp; Jerry</p>`);
+			const [script, style, p] = root.childNodes;
+			script.text.should.eql(json);
+			script.textContent.should.eql(json);
+			script.firstChild.text.should.eql(json);
+			JSON.parse(script.text).name.should.eql('Tom &amp; Jerry');
+			style.textContent.should.eql('a::after{content:"&gt;"}');
+			p.text.should.eql('Tom & Jerry');
+
+			script.textContent = '{"a":"x &amp; y < z"}';
+			script.textContent.should.eql('{"a":"x &amp; y < z"}');
+			script.toString().should.eql('<script type="application/ld+json">{"a":"x &amp; y < z"}</script>');
 		});
 
 		it('should be able to parse "html/incomplete-script" file', function () {

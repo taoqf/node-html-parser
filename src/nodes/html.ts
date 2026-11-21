@@ -130,6 +130,17 @@ class DOMTokenList {
 	public toString() {
 		return Array.from(this._set.values()).join(' ');
 	}
+	/**
+	 * Replace the tokens without notifying the element
+	 * @internal
+	 */
+	public _reset(values: string[]) {
+		this._set = new Set(values);
+	}
+}
+
+function splitClassNames(value: string) {
+	return value.split(/\s+/).filter(Boolean);
 }
 
 /**
@@ -195,7 +206,7 @@ export default class HTMLElement extends Node {
 		this.childNodes = [];
 		this._parseOptions = _parseOptions;
 		this.classList = new DOMTokenList(
-			keyAttrs.class ? keyAttrs.class.split(/\s+/) : [],
+			keyAttrs.class ? splitClassNames(keyAttrs.class) : [],
 			(classList) => this.setAttribute('class', classList.toString()) // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
 		);
 		if (keyAttrs.id) {
@@ -769,7 +780,20 @@ export default class HTMLElement extends Node {
 		if (key === 'id') {
 			this._id = '';
 		}
+		if (key.toLowerCase() === 'class') {
+			this.syncClassList();
+		}
 		return this;
+	}
+
+	/**
+	 * Rebuild classList from the current class attribute
+	 */
+	private syncClassList() {
+		const attrs = this.rawAttributes;
+		const key = Object.keys(attrs).find((k) => k.toLowerCase() === 'class');
+		const value = key ? decodeAttribute(attrs[key] || '') : '';
+		this.classList._reset(splitClassNames(value));
 	}
 
 	public hasAttribute(key: string) {
@@ -818,6 +842,9 @@ export default class HTMLElement extends Node {
 		if (key === 'id') {
 			this._id = value;
 		}
+		if (k2 === 'class') {
+			this.syncClassList();
+		}
 		return this;
 	}
 
@@ -846,6 +873,7 @@ export default class HTMLElement extends Node {
 		if ('id' in attributes) {
 			this._id = attributes['id'];
 		}
+		this.syncClassList();
 		return this;
 	}
 

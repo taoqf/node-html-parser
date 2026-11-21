@@ -76,7 +76,7 @@ describe('should parse tag correct', function () {
 		console.log(root.toString());
 		const result = `\
 <html>
-  <div class="some-custom-element">yay</div>
+  <div class="main some-custom-element">yay</div>
 </html>
 `;
 		root.toString().should.eql(result);

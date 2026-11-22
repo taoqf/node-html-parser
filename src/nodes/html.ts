@@ -751,11 +751,16 @@ export default class HTMLElement extends Node {
 	}
 
 	public removeAttribute(key: string) {
+		const k2 = key.toLowerCase();
 		const attrs = this.rawAttributes;
-		delete attrs[key];
+		for (const k of Object.keys(attrs)) {
+			if (k.toLowerCase() === k2) {
+				delete attrs[k];
+			}
+		}
 		// Update this.attribute
 		if (this._attrs) {
-			delete this._attrs[key];
+			delete this._attrs[k2];
 		}
 		// Update rawString
 		this.rawAttrs = Object.keys(attrs)
@@ -766,7 +771,7 @@ export default class HTMLElement extends Node {
 			})
 			.join(' ');
 		// Update this._id
-		if (key === 'id') {
+		if (k2 === 'id') {
 			this._id = '';
 		}
 		return this;
@@ -815,7 +820,7 @@ export default class HTMLElement extends Node {
 			})
 			.join(' ');
 		// Update this._id
-		if (key === 'id') {
+		if (k2 === 'id') {
 			this._id = value;
 		}
 		return this;

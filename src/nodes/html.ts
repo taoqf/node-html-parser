@@ -1157,6 +1157,7 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 	// https://github.com/taoqf/node-html-parser/issues/38
 	data = `<${frameflag}>${data}</${frameflag}>`;
 	const { lowerCaseTagName, fixNestedATags } = options;
+	let lowerCasedData: string | undefined;
 
 	const dataEndPos = data.length - (frameflag.length + 3);
 	const frameFlagOffset = frameflag.length + 2;
@@ -1253,9 +1254,14 @@ export function base_parse(data: string, options = {} as Partial<Options>) {
 			if (is_block_text_element(tagName)) {
 				// Find closing tag
 				const closeMarkup = `</${tagName}>`;
-				const closeIndex = lowerCaseTagName
-					? data.toLocaleLowerCase().indexOf(closeMarkup, markupPattern.lastIndex)
-					: data.indexOf(closeMarkup, markupPattern.lastIndex);
+				let closeIndex: number;
+				if (lowerCaseTagName) {
+					// Lower-case the whole document once, not once per block text element
+					if (lowerCasedData === undefined) lowerCasedData = data.toLocaleLowerCase();
+					closeIndex = lowerCasedData.indexOf(closeMarkup, markupPattern.lastIndex);
+				} else {
+					closeIndex = data.indexOf(closeMarkup, markupPattern.lastIndex);
+				}
 				const textEndPos = closeIndex === -1 ? dataEndPos : closeIndex;
 
 				if (element_should_be_ignore(tagName)) {
